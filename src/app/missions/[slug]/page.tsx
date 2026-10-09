@@ -5,6 +5,16 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const missions = await prisma.mission.findMany({
+    select: { slug: true },
+  });
+
+  return missions.map(({ slug }) => ({ slug }));
+}
+
 export default async function MissionDetailPage({ params }: PageProps) {
   const { slug } = await params;
 
