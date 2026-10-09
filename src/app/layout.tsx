@@ -5,6 +5,8 @@ import Navbar from "@/components/navbar";
 export const metadata: Metadata = {
   title: "Mission Atlas",
   description: "A full-stack mission tracking platform for planetary science and astrophysics space missions.",
+  // Keeps the site out of search results until v1 launch; remove then.
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({
