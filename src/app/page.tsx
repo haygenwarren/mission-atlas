@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
+export const revalidate = 3600;
+
 export default async function Home() {
   const missionCount = await prisma.mission.count();
 
