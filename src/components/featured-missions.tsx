@@ -31,7 +31,7 @@ export default function FeaturedMissions({
             <div
               key={i}
               aria-hidden
-              className="h-44 rounded-xl border bg-gray-50"
+              className="h-44 rounded-xl border border-border bg-surface"
             />
           ))}
     </div>

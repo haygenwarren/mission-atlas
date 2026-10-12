@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs><clipPath id="cmaS"><circle cx="256.0" cy="256.0" r="209.0"/></clipPath></defs>
+<circle cx="256.0" cy="256.0" r="209.0" fill="#191C3C"/>
+<g clip-path="url(#cmaS)">
+<circle cx="256" cy="800" r="456" fill="#2A2C5F"/>
+<path d="M354.5 459.2 L330.5 454.8 L329.0 464.8 L327.0 447.2 L299.5 453.8 L297.5 460.2 L288.2 464.0 L289.0 467.8 L271.0 458.2 L247.5 461.8 L233.8 450.0 L238.0 430.2 L195.8 429.5 L211.5 404.2 L188.5 407.8 L178.0 419.8 L156.5 424.2 L143.0 421.8 L134.2 413.5 L133.8 410.5 L139.2 393.0 L161.0 382.2 L180.5 379.2 L199.5 379.8 L198.0 376.2 L208.0 374.2 L235.5 374.2 L255.0 389.8 L258.5 389.2 L260.5 389.8 L252.8 371.0 L259.0 367.2 L288.0 361.8 L284.5 354.2 L288.0 358.2 L317.5 351.2 L345.0 355.8 L357.5 356.8 L357.0 355.8 L342.5 354.2 L323.0 348.8 L286.0 344.8 L213.5 345.8 L142.0 358.2 L69.6 383.8 L121.0 437.2 L205.5 440.8 L241.0 466.2 L260.0 470.8 L266.5 461.8 L279.0 464.2 L285.1 480.1Z" fill="#55529F"/>
+<path d="M79.87 363.13 A240 236 -30 1 1 550.48 431.63" fill="none" stroke="#EFE8D6" stroke-width="22.0" stroke-linecap="round"/>
+<path d="M-30.59 425.16 A236 196 26 0 1 402.27 352.05" fill="none" stroke="#968DD3" stroke-width="22.0" stroke-linecap="round"/>
+<circle cx="256" cy="800" r="456" fill="none" stroke="#EFE8D6" stroke-width="20"/>
+<circle cx="104.5" cy="201.4" r="34.7" fill="#191C3C"/>
+<circle cx="104.5" cy="201.4" r="24.7" fill="#EFE8D6"/>
+<circle cx="353.0" cy="145.1" r="38.5" fill="#191C3C"/>
+<circle cx="353.0" cy="145.1" r="28.5" fill="#C4BCF1"/>
+<circle cx="246.0" cy="344.1" r="25.0" fill="#2A2C5F"/>
+<circle cx="246.0" cy="344.1" r="19.0" fill="#2A2C5F" stroke="#EFE8D6" stroke-width="9.5"/>
+</g>
+<circle cx="256.0" cy="256.0" r="224.0" fill="none" stroke="#EFE8D6" stroke-width="32"/>
+<circle cx="256.0" cy="256.0" r="246.0" fill="none" stroke="#191C3C" stroke-width="12"/>
+</svg>

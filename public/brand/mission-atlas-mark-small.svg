@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs><clipPath id="cmaM"><circle cx="256.0" cy="256.0" r="217.0"/></clipPath></defs>
+<circle cx="256.0" cy="256.0" r="217.0" fill="#191C3C"/>
+<g clip-path="url(#cmaM)">
+<circle cx="256" cy="800" r="456" fill="#2A2C5F"/>
+<path d="M354.5 459.3 L340.3 449.8 L342.3 453.8 L329.5 455.7 L333.5 461.0 L329.7 464.8 L326.2 451.3 L332.2 449.0 L327.3 447.2 L299.7 453.8 L297.7 460.2 L288.2 464.0 L288.7 467.8 L269.3 458.2 L247.3 461.5 L233.8 450.3 L239.3 431.2 L226.3 427.2 L195.5 429.3 L211.3 404.2 L188.3 407.8 L178.7 419.5 L155.0 424.5 L145.7 423.5 L137.2 417.0 L134.5 413.7 L133.8 410.7 L142.2 397.0 L140.5 395.7 L140.8 393.3 L139.5 393.0 L148.7 387.5 L160.0 384.2 L161.3 382.2 L181.0 379.2 L198.3 379.8 L191.8 377.0 L208.0 374.2 L236.7 374.5 L255.3 389.8 L259.7 389.5 L262.8 384.0 L253.8 374.3 L252.5 372.0 L252.8 371.0 L289.7 361.2 L284.2 360.3 L288.8 360.0 L283.7 354.2 L288.3 358.2 L290.7 354.5 L317.7 351.2 L345.2 353.7 L340.7 351.8 L312.3 348.5 L311.0 347.2 L273.3 344.2 L201.0 347.2 L132.7 360.8 L69.6 383.8 L93.3 412.8 L120.9 437.2 L138.7 438.2 L154.7 432.5 L158.3 433.2 L176.0 440.5 L205.0 440.5 L218.8 451.0 L219.3 457.2 L225.3 456.2 L241.0 466.2 L249.3 465.5 L259.0 470.8 L268.0 461.2 L278.7 464.2 L276.5 467.3 L285.0 480.1Z M307.2 410.3 L268.7 399.8 L258.3 396.8 L240.0 397.5 L229.5 401.7 L250.0 398.5 L285.2 408.0 L281.0 410.2Z" fill="#55529F"/>
+<line x1="246.0" y1="344.1" x2="104.5" y2="201.4" stroke="#C4BCF1" stroke-opacity="0.8" stroke-width="6" stroke-linecap="round" stroke-dasharray="9 9"/>
+<line x1="246.0" y1="344.1" x2="353.0" y2="145.1" stroke="#C4BCF1" stroke-opacity="0.8" stroke-width="6" stroke-linecap="round" stroke-dasharray="9 9"/>
+<line x1="246.0" y1="344.1" x2="386.3" y2="321.6" stroke="#C4BCF1" stroke-opacity="0.8" stroke-width="6" stroke-linecap="round" stroke-dasharray="9 9"/>
+<path d="M79.62 366.23 A240 236 -30 1 1 549.48 435.65" fill="none" stroke="#EFE8D6" stroke-width="14.0" stroke-linecap="round"/>
+<path d="M-29.49 428.70 A236 196 26 0 1 404.08 356.39" fill="none" stroke="#968DD3" stroke-width="14.0" stroke-linecap="round" stroke-dasharray="30.8 26.6"/>
+<circle cx="256" cy="800" r="456" fill="none" stroke="#EFE8D6" stroke-width="13"/>
+<circle cx="104.5" cy="201.4" r="27.2" fill="#191C3C"/>
+<circle cx="104.5" cy="201.4" r="18.2" fill="#EFE8D6"/>
+<circle cx="353.0" cy="145.1" r="30.0" fill="#191C3C"/>
+<circle cx="353.0" cy="145.1" r="21.0" fill="#C4BCF1"/>
+<circle cx="386.3" cy="321.6" r="24.4" fill="#191C3C"/>
+<circle cx="386.3" cy="321.6" r="15.4" fill="#EFE8D6"/>
+<circle cx="246.0" cy="344.1" r="19.4" fill="#2A2C5F"/>
+<circle cx="246.0" cy="344.1" r="14.0" fill="#2A2C5F" stroke="#EFE8D6" stroke-width="7.0"/>
+</g>
+<circle cx="256.0" cy="256.0" r="228.0" fill="none" stroke="#EFE8D6" stroke-width="24"/>
+<circle cx="256.0" cy="256.0" r="245.0" fill="none" stroke="#191C3C" stroke-width="10"/>
+</svg>
