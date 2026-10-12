@@ -2,6 +2,32 @@
   "source": "GCAT (J. McDowell, planet4589.org/space/gcat)",
   "fetched": "2026-10-12",
   "objects": {
+    "A01885": {
+      "name": "Lunokhod-1",
+      "designator": null,
+      "launchDate": "1970-11-10T14:44:01Z",
+      "launchMassKg": 756,
+      "dryMassKg": 756,
+      "lengthM": 1.9,
+      "diameterM": 2.1,
+      "spanM": 4.4,
+      "builders": [
+        "NPOL"
+      ]
+    },
+    "A04746": {
+      "name": "Galileo Probe",
+      "designator": null,
+      "launchDate": "1989-10-18T16:53:40Z",
+      "launchMassKg": 125,
+      "dryMassKg": 125,
+      "lengthM": 0.5,
+      "diameterM": 0.8,
+      "spanM": 0.8,
+      "builders": [
+        "HSES"
+      ]
+    },
     "A06860": {
       "name": "Philae",
       "designator": null,
@@ -28,6 +54,32 @@
         "ALC"
       ]
     },
+    "A07423": {
+      "name": "MIP",
+      "designator": null,
+      "launchDate": "2008-10-22T00:52:11Z",
+      "launchMassKg": 29,
+      "dryMassKg": 29,
+      "lengthM": 0.5,
+      "diameterM": 0.4,
+      "spanM": 0.5,
+      "builders": [
+        "ISRO"
+      ]
+    },
+    "A08071": {
+      "name": "Yutu",
+      "designator": null,
+      "launchDate": "2013-12-01T17:30:00Z",
+      "launchMassKg": 140,
+      "dryMassKg": 140,
+      "lengthM": null,
+      "diameterM": null,
+      "spanM": 1.5,
+      "builders": [
+        "CAST"
+      ]
+    },
     "A08308": {
       "name": "MASCOT",
       "designator": null,
@@ -39,6 +91,19 @@
       "spanM": 0.3,
       "builders": [
         "DLR"
+      ]
+    },
+    "A09204": {
+      "name": "Mio",
+      "designator": null,
+      "launchDate": "2018-10-20T01:45:28Z",
+      "launchMassKg": 285,
+      "dryMassKg": 285,
+      "lengthM": 0.9,
+      "diameterM": 1.8,
+      "spanM": 30,
+      "builders": [
+        "NECTF"
       ]
     },
     "A09236": {
@@ -67,6 +132,19 @@
         "LMSSD"
       ]
     },
+    "A09653": {
+      "name": "Chang'e-5 Zhuolu Qi",
+      "designator": null,
+      "launchDate": "2020-11-23T20:30:22Z",
+      "launchMassKg": 3700,
+      "dryMassKg": 1000,
+      "lengthM": 2.2,
+      "diameterM": 1.7,
+      "spanM": null,
+      "builders": [
+        "CAST"
+      ]
+    },
     "A10997": {
       "name": "Pragyan",
       "designator": null,
@@ -80,6 +158,71 @@
         "ISAC"
       ]
     },
+    "S00021": {
+      "name": "AMS Luna-3",
+      "designator": "1959 THE 1",
+      "launchDate": "1959-10-04T00:43:39Z",
+      "launchMassKg": 278,
+      "dryMassKg": 278,
+      "lengthM": 1.3,
+      "diameterM": 1.2,
+      "spanM": 1.5,
+      "builders": [
+        "OKB1"
+      ]
+    },
+    "S00114": {
+      "name": "AMS Luna-2",
+      "designator": "1959 XI 1",
+      "launchDate": "1959-09-12T06:39:42Z",
+      "launchMassKg": 205,
+      "dryMassKg": 205,
+      "lengthM": 0.8,
+      "diameterM": 0.8,
+      "spanM": 2,
+      "builders": [
+        "OKB1"
+      ]
+    },
+    "S00374": {
+      "name": "Mariner 2",
+      "designator": "1962 A RHO 1",
+      "launchDate": "1962-08-27T06:53:14Z",
+      "launchMassKg": 203,
+      "dryMassKg": null,
+      "lengthM": 3.4,
+      "diameterM": 1,
+      "spanM": 5,
+      "builders": [
+        "JPL"
+      ]
+    },
+    "S01954": {
+      "name": "Luna-9",
+      "designator": "1966-006A",
+      "launchDate": "1966-01-31T11:41:37Z",
+      "launchMassKg": 1166,
+      "dryMassKg": null,
+      "lengthM": 2.7,
+      "diameterM": 0.6,
+      "spanM": 2.7,
+      "builders": [
+        "NPOL"
+      ]
+    },
+    "S02185": {
+      "name": "Surveyor 1",
+      "designator": "1966-045A",
+      "launchDate": "1966-05-30T14:41:01Z",
+      "launchMassKg": 352,
+      "dryMassKg": 270,
+      "lengthM": 2.9,
+      "diameterM": 2.2,
+      "spanM": 4.3,
+      "builders": [
+        "JPL"
+      ]
+    },
     "S04489": {
       "name": "Venera-7",
       "designator": "1970-060A",
@@ -88,6 +231,97 @@
       "dryMassKg": null,
       "lengthM": 2.5,
       "diameterM": 1.2,
+      "spanM": null,
+      "builders": [
+        "NPOL"
+      ]
+    },
+    "S04527": {
+      "name": "Luna-16 KT",
+      "designator": "1970-072A",
+      "launchDate": "1970-09-12T13:25:53Z",
+      "launchMassKg": 3180,
+      "dryMassKg": null,
+      "lengthM": 1.5,
+      "diameterM": 3.5,
+      "spanM": null,
+      "builders": [
+        "BABTS"
+      ]
+    },
+    "S04691": {
+      "name": "Luna-17",
+      "designator": "1970-095A",
+      "launchDate": "1970-11-10T14:44:01Z",
+      "launchMassKg": 2944,
+      "dryMassKg": null,
+      "lengthM": 1.5,
+      "diameterM": 3.5,
+      "spanM": null,
+      "builders": [
+        "NPOL"
+      ]
+    },
+    "S05860": {
+      "name": "Pioneer 10",
+      "designator": "1972-012A",
+      "launchDate": "1972-03-03T01:49:04Z",
+      "launchMassKg": 270,
+      "dryMassKg": 243,
+      "lengthM": 2.9,
+      "diameterM": 2.7,
+      "spanM": null,
+      "builders": [
+        "TRW"
+      ]
+    },
+    "S06421": {
+      "name": "Pioneer 11",
+      "designator": "1973-019A",
+      "launchDate": "1973-04-06T02:11:00Z",
+      "launchMassKg": 270,
+      "dryMassKg": 243,
+      "lengthM": 2.9,
+      "diameterM": 2.7,
+      "spanM": null,
+      "builders": [
+        "TRW"
+      ]
+    },
+    "S06919": {
+      "name": "Mariner 10",
+      "designator": "1973-085A",
+      "launchDate": "1973-11-03T05:45:00Z",
+      "launchMassKg": 502,
+      "dryMassKg": 473,
+      "lengthM": 3.7,
+      "diameterM": 1.4,
+      "spanM": 7.6,
+      "builders": [
+        "BOKT"
+      ]
+    },
+    "S07915": {
+      "name": "Venera-9",
+      "designator": "1975-050A",
+      "launchDate": "1975-06-08T02:38:00Z",
+      "launchMassKg": null,
+      "dryMassKg": null,
+      "lengthM": null,
+      "diameterM": null,
+      "spanM": null,
+      "builders": [
+        "NPOL"
+      ]
+    },
+    "S08411": {
+      "name": "SA Veneri-9",
+      "designator": "1975-050D",
+      "launchDate": "1975-06-08T02:38:00Z",
+      "launchMassKg": null,
+      "dryMassKg": null,
+      "lengthM": null,
+      "diameterM": null,
       "spanM": null,
       "builders": [
         "NPOL"
@@ -115,6 +349,71 @@
       "lengthM": null,
       "diameterM": 3.7,
       "spanM": null,
+      "builders": [
+        "JPL"
+      ]
+    },
+    "S15432": {
+      "name": "Vega-1",
+      "designator": "1984-125A",
+      "launchDate": "1984-12-15T09:16:24Z",
+      "launchMassKg": 3203,
+      "dryMassKg": null,
+      "lengthM": null,
+      "diameterM": null,
+      "spanM": null,
+      "builders": [
+        "NPOL"
+      ]
+    },
+    "S15858": {
+      "name": "SA Vega-1",
+      "designator": "1984-125E",
+      "launchDate": "1984-12-15T09:16:24Z",
+      "launchMassKg": 750,
+      "dryMassKg": 750,
+      "lengthM": 2,
+      "diameterM": 1,
+      "spanM": 2,
+      "builders": [
+        "NPOL"
+      ]
+    },
+    "S15859": {
+      "name": "AZ Vega-1",
+      "designator": "1984-125F",
+      "launchDate": "1984-12-15T09:16:24Z",
+      "launchMassKg": 21,
+      "dryMassKg": 21,
+      "lengthM": 1,
+      "diameterM": 0.1,
+      "spanM": 15.4,
+      "builders": [
+        "NPOL"
+      ]
+    },
+    "S19969": {
+      "name": "Magellan",
+      "designator": "1989-033B",
+      "launchDate": "1989-05-04T18:46:59Z",
+      "launchMassKg": 1207,
+      "dryMassKg": 1035,
+      "lengthM": 4.6,
+      "diameterM": 3.7,
+      "spanM": 9.2,
+      "builders": [
+        "MMD"
+      ]
+    },
+    "S20298": {
+      "name": "Galileo",
+      "designator": "1989-084B",
+      "launchDate": "1989-10-18T16:53:40Z",
+      "launchMassKg": 2304,
+      "dryMassKg": 1297,
+      "lengthM": 5.3,
+      "diameterM": 5,
+      "spanM": 12,
       "builders": [
         "JPL"
       ]
@@ -159,6 +458,20 @@
         "DENV"
       ]
     },
+    "S27949": {
+      "name": "SMART-1",
+      "designator": "2003-043C",
+      "launchDate": "2003-09-27T23:14:46Z",
+      "launchMassKg": 370,
+      "dryMassKg": 255,
+      "lengthM": 1.2,
+      "diameterM": 1.2,
+      "spanM": 14,
+      "builders": [
+        "SSC",
+        "SAABSA"
+      ]
+    },
     "S28169": {
       "name": "Rosetta",
       "designator": "2004-006A",
@@ -172,6 +485,97 @@
         "EADSB"
       ]
     },
+    "S28391": {
+      "name": "Messenger",
+      "designator": "2004-030A",
+      "launchDate": "2004-08-03T06:15:57Z",
+      "launchMassKg": 1108,
+      "dryMassKg": 513,
+      "lengthM": 1.4,
+      "diameterM": 1.9,
+      "spanM": 6,
+      "builders": [
+        "APL"
+      ]
+    },
+    "S28901": {
+      "name": "Venus Express",
+      "designator": "2005-045A",
+      "launchDate": "2005-11-09T03:33:34Z",
+      "launchMassKg": 1240,
+      "dryMassKg": 670,
+      "lengthM": 1.5,
+      "diameterM": 1.8,
+      "spanM": 8,
+      "builders": [
+        "EADSB"
+      ]
+    },
+    "S28928": {
+      "name": "New Horizons",
+      "designator": "2006-001A",
+      "launchDate": "2006-01-19T19:00:00Z",
+      "launchMassKg": 478,
+      "dryMassKg": 401,
+      "lengthM": 0.7,
+      "diameterM": 2.7,
+      "spanM": null,
+      "builders": [
+        "APL"
+      ]
+    },
+    "S32054": {
+      "name": "Kaguya",
+      "designator": "2007-039A",
+      "launchDate": "2007-09-14T01:31:01Z",
+      "launchMassKg": 2885,
+      "dryMassKg": 1720,
+      "lengthM": 4.7,
+      "diameterM": 2.1,
+      "spanM": 30,
+      "builders": [
+        "NECTF"
+      ]
+    },
+    "S32055": {
+      "name": "Okina",
+      "designator": "2007-039B",
+      "launchDate": "2007-09-14T01:31:01Z",
+      "launchMassKg": 45,
+      "dryMassKg": 45,
+      "lengthM": 0.7,
+      "diameterM": 1,
+      "spanM": 1.5,
+      "builders": [
+        "NECTKA"
+      ]
+    },
+    "S32056": {
+      "name": "Ouna",
+      "designator": "2007-039C",
+      "launchDate": "2007-09-14T01:31:01Z",
+      "launchMassKg": 53,
+      "dryMassKg": 53,
+      "lengthM": 0.7,
+      "diameterM": 1,
+      "spanM": 1.5,
+      "builders": [
+        "NECTKA"
+      ]
+    },
+    "S33405": {
+      "name": "Chandrayaan-1",
+      "designator": "2008-052A",
+      "launchDate": "2008-10-22T00:52:11Z",
+      "launchMassKg": 1351,
+      "dryMassKg": 496,
+      "lengthM": 1.5,
+      "diameterM": 1.5,
+      "spanM": null,
+      "builders": [
+        "ISRO"
+      ]
+    },
     "S34380": {
       "name": "Kepler",
       "designator": "2009-011A",
@@ -183,6 +587,58 @@
       "spanM": 4.7,
       "builders": [
         "BALL"
+      ]
+    },
+    "S35315": {
+      "name": "Lunar Reconnaissance Orbiter",
+      "designator": "2009-031A",
+      "launchDate": "2009-06-18T21:32:00Z",
+      "launchMassKg": 1916,
+      "dryMassKg": 1018,
+      "lengthM": 3.9,
+      "diameterM": 2.6,
+      "spanM": 6,
+      "builders": [
+        "GSFC"
+      ]
+    },
+    "S36576": {
+      "name": "Akatsuki",
+      "designator": "2010-020D",
+      "launchDate": "2010-05-20T21:58:22Z",
+      "launchMassKg": 647,
+      "dryMassKg": 327,
+      "lengthM": 1.5,
+      "diameterM": 1,
+      "spanM": null,
+      "builders": [
+        "ISASJ"
+      ]
+    },
+    "S37773": {
+      "name": "Juno",
+      "designator": "2011-040A",
+      "launchDate": "2011-08-05T16:25:00Z",
+      "launchMassKg": 3625,
+      "dryMassKg": 1593,
+      "lengthM": 3.5,
+      "diameterM": 3.5,
+      "spanM": 20,
+      "builders": [
+        "LMSSD"
+      ]
+    },
+    "S39458": {
+      "name": "Chang'e-3",
+      "designator": "2013-070A",
+      "launchDate": "2013-12-01T17:30:00Z",
+      "launchMassKg": 3780,
+      "dryMassKg": 1200,
+      "lengthM": 2.2,
+      "diameterM": 1.7,
+      "spanM": null,
+      "builders": [
+        "CAST"
       ]
     },
     "S39479": {
@@ -211,6 +667,19 @@
         "ISASJ"
       ]
     },
+    "S43653": {
+      "name": "BepiColombo MPO",
+      "designator": "2018-080A",
+      "launchDate": "2018-10-20T01:45:28Z",
+      "launchMassKg": 1838,
+      "dryMassKg": 1169,
+      "lengthM": 1.7,
+      "diameterM": 3.9,
+      "spanM": 6,
+      "builders": [
+        "ADSUK"
+      ]
+    },
     "S43845": {
       "name": "Chang'e-4",
       "designator": "2018-103A",
@@ -224,6 +693,20 @@
         "CAST"
       ]
     },
+    "S44049": {
+      "name": "B'reshit",
+      "designator": "2019-009B",
+      "launchDate": "2019-02-22T01:45:00Z",
+      "launchMassKg": 585,
+      "dryMassKg": 150,
+      "lengthM": 1.5,
+      "diameterM": 2,
+      "spanM": 2.3,
+      "builders": [
+        "IAI",
+        "SPAIL"
+      ]
+    },
     "S45983": {
       "name": "Perseverance",
       "designator": "2020-052A",
@@ -235,6 +718,19 @@
       "spanM": null,
       "builders": [
         "LMSSD"
+      ]
+    },
+    "S47097": {
+      "name": "Chang'e-5 Guidao Qi",
+      "designator": "2020-087A",
+      "launchDate": "2020-11-23T20:30:22Z",
+      "launchMassKg": 3406,
+      "dryMassKg": 950,
+      "lengthM": 2,
+      "diameterM": 4,
+      "spanM": null,
+      "builders": [
+        "SAST"
       ]
     },
     "S50463": {
@@ -251,6 +747,19 @@
         "GSFC"
       ]
     },
+    "S56176": {
+      "name": "JUICE",
+      "designator": "2023-053A",
+      "launchDate": "2023-04-14T12:14:29Z",
+      "launchMassKg": 5963,
+      "dryMassKg": 2325,
+      "lengthM": 4.4,
+      "diameterM": 2.9,
+      "spanM": 27.1,
+      "builders": [
+        "ADST"
+      ]
+    },
     "S57320": {
       "name": "Chandrayaan-3",
       "designator": "2023-098A",
@@ -262,6 +771,32 @@
       "spanM": null,
       "builders": [
         "ISAC"
+      ]
+    },
+    "S57803": {
+      "name": "SLIM",
+      "designator": "2023-137D",
+      "launchDate": "2023-09-06T23:42:11Z",
+      "launchMassKg": 700,
+      "dryMassKg": 200,
+      "lengthM": 2.4,
+      "diameterM": 1.7,
+      "spanM": 2.7,
+      "builders": [
+        "JAXA"
+      ]
+    },
+    "S61507": {
+      "name": "Europa Clipper",
+      "designator": "2024-182A",
+      "launchDate": "2024-10-14T16:06:00Z",
+      "launchMassKg": 5991,
+      "dryMassKg": 3241,
+      "lengthM": 5,
+      "diameterM": 1.5,
+      "spanM": 30.5,
+      "builders": [
+        "JPL"
       ]
     }
   }

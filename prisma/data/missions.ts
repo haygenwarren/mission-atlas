@@ -268,9 +268,6 @@ export const missions: MissionSeed[] = [
         lastContact: "2016-09-30T11:19:36Z",
         endDeclared: "2016-09-30",
         powerSource: "SOLAR",
-        // GCAT lists EADS Bremen; the prime contractor was Astrium in
-        // Friedrichshafen.
-        builders: ["ASTDF"],
       },
       {
         slug: "philae",
@@ -490,6 +487,876 @@ export const missions: MissionSeed[] = [
         kind: "TELESCOPE",
         description:
           "Two telescopes feeding a billion-pixel camera, spinning slowly to scan the whole sky from the Sun–Earth L2 point.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "luna-2",
+    name: "Luna 2",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1959-09-13",
+    description:
+      "The first spacecraft to reach the surface of another world, striking the Moon after a flight of about a day and a half.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1959-014A",
+    agencies: ["USSR"],
+    destinations: ["moon"],
+    spacecraft: [
+      {
+        slug: "luna-2",
+        name: "Luna 2",
+        catalogueId: "S00114",
+        // GCAT uses the original Greek-letter designation, 1959 XI 1.
+        designator: "1959-014A",
+        kind: "IMPACTOR",
+        description:
+          "Spherical probe carrying radiation detectors and a magnetometer, which found that the Moon has no significant magnetic field.",
+        powerSource: "BATTERY",
+      },
+    ],
+  },
+  {
+    slug: "luna-3",
+    name: "Luna 3",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1959-10-22",
+    description:
+      "The first spacecraft to photograph the far side of the Moon, returning images that covered about 70% of it.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1959-008A",
+    agencies: ["USSR"],
+    destinations: ["moon"],
+    spacecraft: [
+      {
+        slug: "luna-3",
+        name: "Luna 3",
+        catalogueId: "S00021",
+        // GCAT uses the original Greek-letter designation, 1959 THE 1.
+        designator: "1959-008A",
+        kind: "FLYBY",
+        description:
+          "Probe that photographed the Moon on film, developed it on board and scanned the pictures for radio transmission to Earth.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "luna-9",
+    name: "Luna 9",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1966-02-06",
+    description:
+      "The first spacecraft to make a soft landing on the Moon and the first to send back pictures from its surface.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1966-006A",
+    agencies: ["USSR"],
+    destinations: ["moon"],
+    spacecraft: [
+      {
+        slug: "luna-9",
+        name: "Luna 9",
+        catalogueId: "S01954",
+        kind: "LANDER",
+        description:
+          "Cruise stage that delivered a 99 kg landing capsule, cushioned by airbags, to Oceanus Procellarum.",
+        // GCAT's total at launch, including the landing capsule.
+        launchMassKg: 1583,
+      },
+    ],
+  },
+  {
+    slug: "surveyor-1",
+    name: "Surveyor 1",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1967-01-07",
+    description:
+      "The first American spacecraft to soft-land on the Moon, returning more than 11,000 images from Oceanus Procellarum.",
+    sourceUrl: "https://science.nasa.gov/mission/surveyor-1/",
+    agencies: ["NASA"],
+    destinations: ["moon"],
+    spacecraft: [
+      {
+        slug: "surveyor-1",
+        name: "Surveyor 1",
+        catalogueId: "S02185",
+        kind: "LANDER",
+        description:
+          "Three-legged lander with a television camera, slowed for landing by a solid retro-rocket and three vernier engines.",
+        // GCAT's total at launch, including the retro-rocket it dropped
+        // before landing.
+        launchMassKg: 986,
+        powerSource: "SOLAR",
+        // GCAT lists JPL, which managed the programme; Hughes built it.
+        builders: ["HAC"],
+      },
+    ],
+  },
+  {
+    slug: "luna-16",
+    name: "Luna 16",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1970-09-24",
+    description:
+      "The first robotic mission to bring samples back from another world, returning 101 grams of lunar soil from Mare Fecunditatis.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1970-072A",
+    agencies: ["USSR"],
+    destinations: ["moon"],
+    spacecraft: [
+      {
+        slug: "luna-16",
+        name: "Luna 16",
+        catalogueId: "S04527",
+        kind: "LANDER",
+        description:
+          "Descent stage with a drill arm, topped by an ascent stage that launched a sealed sample capsule back to Earth.",
+        // GCAT's total at launch, including the ascent stage and capsule.
+        launchMassKg: 5700,
+      },
+    ],
+  },
+  {
+    slug: "luna-17",
+    name: "Luna 17",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1971-09-14",
+    endDeclared: "1971-10-04",
+    description:
+      "A Soviet mission that landed Lunokhod 1, the first remote-controlled rover on another world, in Mare Imbrium.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1970-095A",
+    agencies: ["USSR"],
+    destinations: ["moon"],
+    spacecraft: [
+      {
+        slug: "luna-17-lander",
+        name: "Luna 17 lander",
+        catalogueId: "S04691",
+        kind: "LANDER",
+        description:
+          "Descent stage with twin ramps that let the rover drive off in either direction.",
+        status: "COMPLETED",
+        // GCAT's 2,944 kg is far from the 5,600 kg other sources give for
+        // the whole craft, so no mass is shown.
+        launchMassKg: null,
+      },
+      {
+        slug: "lunokhod-1",
+        name: "Lunokhod 1",
+        catalogueId: "A01885",
+        kind: "ROVER",
+        description:
+          "Eight-wheeled rover driven by radio from Earth, which travelled about 10.5 km over ten months.",
+        status: "COMPLETED",
+        lastContact: "1971-09-14",
+        endDeclared: "1971-10-04",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "smart-1",
+    name: "SMART-1",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2006-09-03T05:42:22Z",
+    endDeclared: "2006-09-03",
+    description:
+      "ESA's first mission to the Moon, built to test solar-electric propulsion. It spiralled out from Earth orbit over 13 months and then mapped the lunar surface.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2003-043C",
+    agencies: ["ESA"],
+    destinations: ["moon"],
+    spacecraft: [
+      {
+        slug: "smart-1",
+        name: "SMART-1",
+        catalogueId: "S27949",
+        kind: "ORBITER",
+        description:
+          "Small orbiter driven by a Hall-effect ion thruster fed with xenon.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "kaguya",
+    name: "Kaguya (SELENE)",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2009-06-10T18:25:00Z",
+    endDeclared: "2009-06-10",
+    description:
+      "A JAXA lunar orbiter that mapped the Moon's surface, gravity and magnetic field in detail, working with two small sub-satellites.",
+    sourceUrl: "https://www.kaguya.jaxa.jp/index_e.htm",
+    agencies: ["JAXA"],
+    destinations: ["moon"],
+    spacecraft: [
+      {
+        slug: "kaguya",
+        name: "Kaguya",
+        catalogueId: "S32054",
+        kind: "ORBITER",
+        description:
+          "Main orbiter carrying the science instruments and a high-definition television camera.",
+        status: "COMPLETED",
+        lastContact: "2009-06-10T18:25:00Z",
+        endDeclared: "2009-06-10",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "okina",
+        name: "Okina",
+        catalogueId: "S32055",
+        kind: "ORBITER",
+        description:
+          "Relay sub-satellite that passed on signals from the main orbiter while it was behind the Moon, allowing the far side's gravity to be mapped.",
+        status: "COMPLETED",
+        lastContact: "2009-02-12T10:46:00Z",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "ouna",
+        name: "Ouna",
+        catalogueId: "S32056",
+        kind: "ORBITER",
+        description:
+          "Sub-satellite carrying a radio source for precise measurements of the Moon's gravity field.",
+        status: "COMPLETED",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "chandrayaan-1",
+    name: "Chandrayaan-1",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2009-08-28",
+    description:
+      "India's first mission to the Moon. Its instruments, including NASA's Moon Mineralogy Mapper, found water molecules across the lunar surface.",
+    sourceUrl: "https://www.isro.gov.in/Chandrayaan_1.html",
+    agencies: ["ISRO"],
+    destinations: ["moon"],
+    spacecraft: [
+      {
+        slug: "chandrayaan-1",
+        name: "Chandrayaan-1",
+        catalogueId: "S33405",
+        kind: "ORBITER",
+        description:
+          "Cube-shaped orbiter carrying eleven science instruments, five from India and six from abroad.",
+        status: "COMPLETED",
+        lastContact: "2009-08-28",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "moon-impact-probe",
+        name: "Moon Impact Probe",
+        catalogueId: "A07423",
+        kind: "IMPACTOR",
+        description:
+          "Small probe released from the orbiter to strike the Moon near its south pole, sampling the thin atmosphere on the way down.",
+        status: "COMPLETED",
+        lastContact: "2008-11-14T15:01:00Z",
+        powerSource: "BATTERY",
+      },
+    ],
+  },
+  {
+    slug: "lunar-reconnaissance-orbiter",
+    name: "Lunar Reconnaissance Orbiter",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "A NASA orbiter that has mapped the Moon in detail since 2009, imaging the Apollo landing sites and measuring temperatures in permanently shadowed craters.",
+    sourceUrl: "https://science.nasa.gov/mission/lro/",
+    agencies: ["NASA"],
+    destinations: ["moon"],
+    spacecraft: [
+      {
+        slug: "lunar-reconnaissance-orbiter",
+        name: "Lunar Reconnaissance Orbiter",
+        catalogueId: "S35315",
+        kind: "ORBITER",
+        description:
+          "Orbiter with seven instruments, including a camera that can resolve features half a metre across.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "change-3",
+    name: "Chang'e 3",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "A CNSA mission that made the first soft landing on the Moon since 1976, setting down in Mare Imbrium with the Yutu rover.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2013-070A",
+    agencies: ["CNSA"],
+    destinations: ["moon"],
+    spacecraft: [
+      {
+        slug: "change-3-lander",
+        name: "Chang'e 3 lander",
+        catalogueId: "S39458",
+        kind: "LANDER",
+        description:
+          "Stationary lander carrying a near-ultraviolet telescope that observed from the lunar surface for years.",
+        status: "ACTIVE",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "yutu",
+        name: "Yutu",
+        catalogueId: "A08071",
+        kind: "ROVER",
+        description:
+          "Six-wheeled rover with ground-penetrating radar. It stopped driving after its second lunar day but kept returning data for more than two years.",
+        status: "COMPLETED",
+        lastContact: "2016-07-31",
+        endDeclared: "2016-08-03",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "change-5",
+    name: "Chang'e 5",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "A CNSA mission that returned 1,731 grams of lunar samples from Oceanus Procellarum in December 2020, the first brought back since 1976.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2020-087A",
+    agencies: ["CNSA"],
+    destinations: ["moon"],
+    spacecraft: [
+      {
+        slug: "change-5-orbiter",
+        name: "Chang'e 5 orbiter",
+        catalogueId: "S47097",
+        kind: "ORBITER",
+        description:
+          "Orbiter that carried the return capsule back to Earth, then went on to an extended mission at the Sun–Earth L1 point and in a distant lunar orbit.",
+        status: "ACTIVE",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "change-5-lander",
+        name: "Chang'e 5 lander",
+        catalogueId: "A09653",
+        kind: "LANDER",
+        description:
+          "Lander that drilled and scooped the samples and served as the launch pad for the ascent vehicle that carried them to lunar orbit.",
+        status: "COMPLETED",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "slim",
+    name: "SLIM",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2024-04-29",
+    endDeclared: "2024-08-23",
+    description:
+      "Japan's first Moon lander, which demonstrated a pinpoint landing within about 55 metres of its target near Shioli crater. It touched down tilted onto its nose but survived three lunar nights.",
+    sourceUrl: "https://global.jaxa.jp/projects/sas/slim/",
+    agencies: ["JAXA"],
+    destinations: ["moon"],
+    spacecraft: [
+      {
+        slug: "slim",
+        name: "SLIM",
+        catalogueId: "S57803",
+        kind: "LANDER",
+        description:
+          "Lightweight lander that navigated by matching camera images of craters against onboard maps. It released two tiny rovers just before touchdown.",
+        powerSource: "SOLAR",
+        // GCAT lists JAXA, the operator; Mitsubishi Electric built it.
+        builders: ["MELCO"],
+      },
+    ],
+  },
+  {
+    slug: "beresheet",
+    name: "Beresheet",
+    discipline: "PLANETARY_SCIENCE",
+    status: "FAILED",
+    lastContact: "2019-04-11T19:23:00Z",
+    endDeclared: "2019-04-11",
+    description:
+      "The first privately funded mission to attempt a Moon landing, built by the Israeli non-profit SpaceIL with Israel Aerospace Industries. A main-engine failure during descent caused it to crash.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2019-009B",
+    agencies: ["SpaceIL"],
+    destinations: ["moon"],
+    spacecraft: [
+      {
+        slug: "beresheet",
+        name: "Beresheet",
+        catalogueId: "S44049",
+        kind: "LANDER",
+        description:
+          "Compact four-legged lander that carried a magnetometer and a NASA laser retroreflector.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "mariner-10",
+    name: "Mariner 10",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1975-03-24T12:21:00Z",
+    endDeclared: "1975-03-24",
+    description:
+      "The first spacecraft to visit Mercury and the first to use one planet's gravity to reach another, swinging past Venus on the way. It flew past Mercury three times and imaged almost half its surface.",
+    sourceUrl: "https://science.nasa.gov/mission/mariner-10/",
+    agencies: ["NASA"],
+    destinations: ["venus", "mercury"],
+    spacecraft: [
+      {
+        slug: "mariner-10",
+        name: "Mariner 10",
+        catalogueId: "S06919",
+        kind: "FLYBY",
+        description:
+          "Three-axis stabilised probe with twin television cameras and a sunshade to cope with the heat near Mercury.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "messenger",
+    name: "MESSENGER",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2015-04-30",
+    endDeclared: "2015-04-30",
+    description:
+      "The first spacecraft to orbit Mercury. Over four years it mapped the whole planet and found water ice in permanently shadowed craters near the poles.",
+    sourceUrl: "https://science.nasa.gov/mission/messenger/",
+    agencies: ["NASA"],
+    destinations: ["mercury"],
+    spacecraft: [
+      {
+        slug: "messenger",
+        name: "MESSENGER",
+        catalogueId: "S28391",
+        kind: "ORBITER",
+        description:
+          "Orbiter that worked behind a ceramic-cloth sunshade, carrying seven instruments and a radio science experiment.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "bepicolombo",
+    name: "BepiColombo",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "A joint ESA and JAXA mission carrying two orbiters to Mercury, on a cruise of eight years with flybys of Earth, Venus and Mercury itself.",
+    sourceUrl:
+      "https://www.esa.int/Science_Exploration/Space_Science/BepiColombo",
+    agencies: ["ESA", "JAXA"],
+    destinations: ["mercury"],
+    spacecraft: [
+      {
+        slug: "bepicolombo-mpo",
+        name: "Mercury Planetary Orbiter",
+        catalogueId: "S43653",
+        kind: "ORBITER",
+        description:
+          "ESA's orbiter, built to study Mercury's surface and interior from a low orbit.",
+        status: "ACTIVE",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "mio",
+        name: "Mio",
+        catalogueId: "A09204",
+        kind: "ORBITER",
+        description:
+          "JAXA's spin-stabilised orbiter, built to study Mercury's magnetic field and its interaction with the solar wind.",
+        status: "ACTIVE",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "mariner-2",
+    name: "Mariner 2",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1963-01-03",
+    description:
+      "The first spacecraft to fly past another planet and return data. Its measurements showed that Venus has a very hot surface beneath its clouds.",
+    sourceUrl: "https://science.nasa.gov/mission/mariner-2/",
+    agencies: ["NASA"],
+    destinations: ["venus"],
+    spacecraft: [
+      {
+        slug: "mariner-2",
+        name: "Mariner 2",
+        catalogueId: "S00374",
+        // GCAT uses the original Greek-letter designation, 1962 A RHO 1.
+        designator: "1962-041A",
+        kind: "FLYBY",
+        description:
+          "Probe based on the Ranger lunar design, with microwave and infrared radiometers to scan Venus during the flyby.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "venera-9",
+    name: "Venera 9",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1976-03-22",
+    description:
+      "A Soviet mission whose lander returned the first images from the surface of another planet, while its carrier became the first spacecraft to orbit Venus.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1975-050A",
+    agencies: ["USSR"],
+    destinations: ["venus"],
+    spacecraft: [
+      {
+        slug: "venera-9-orbiter",
+        name: "Venera 9 orbiter",
+        catalogueId: "S07915",
+        kind: "ORBITER",
+        description:
+          "Orbiter that relayed the lander's signals and then studied Venus's clouds and upper atmosphere.",
+        status: "COMPLETED",
+        lastContact: "1976-03-22",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "venera-9-lander",
+        name: "Venera 9 lander",
+        catalogueId: "S08411",
+        kind: "LANDER",
+        description:
+          "Lander that survived 53 minutes on the surface, sending back a black-and-white panorama of the rocks around it.",
+        status: "COMPLETED",
+        lastContact: "1975-10-22",
+        // GCAT's total at launch, including the entry shell.
+        launchMassKg: 1560,
+        powerSource: "BATTERY",
+      },
+    ],
+  },
+  {
+    slug: "vega-1",
+    name: "Vega 1",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1987-01-30",
+    description:
+      "A Soviet-led international mission that dropped a lander and a balloon at Venus, then flew on to pass within 9,000 km of Halley's Comet.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1984-125A",
+    agencies: ["USSR"],
+    destinations: ["venus", "halley"],
+    spacecraft: [
+      {
+        slug: "vega-1",
+        name: "Vega 1",
+        catalogueId: "S15432",
+        kind: "FLYBY",
+        description:
+          "Three-axis stabilised spacecraft that carried the Venus package and then imaged the nucleus of Halley's Comet.",
+        status: "COMPLETED",
+        lastContact: "1987-01-30",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "vega-1-lander",
+        name: "Vega 1 lander",
+        catalogueId: "S15858",
+        kind: "LANDER",
+        description:
+          "Lander that measured the atmosphere during descent. Its surface experiments switched on early and returned little.",
+        status: "COMPLETED",
+        lastContact: "1985-06-11",
+        powerSource: "BATTERY",
+      },
+      {
+        slug: "vega-1-balloon",
+        name: "Vega 1 balloon",
+        catalogueId: "S15859",
+        kind: "ATMOSPHERIC_PROBE",
+        description:
+          "Helium balloon that floated about 54 km up in Venus's clouds for nearly two days, tracked by radio telescopes on Earth.",
+        status: "COMPLETED",
+        lastContact: "1985-06-13",
+        powerSource: "BATTERY",
+      },
+    ],
+  },
+  {
+    slug: "magellan",
+    name: "Magellan",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1994-10-13T10:05:00Z",
+    endDeclared: "1994-10-13",
+    description:
+      "A NASA orbiter that used radar to see through Venus's clouds, mapping 98% of the surface in detail.",
+    sourceUrl: "https://science.nasa.gov/mission/magellan/",
+    agencies: ["NASA"],
+    destinations: ["venus"],
+    spacecraft: [
+      {
+        slug: "magellan",
+        name: "Magellan",
+        catalogueId: "S19969",
+        kind: "ORBITER",
+        description:
+          "Orbiter built largely from spare Voyager and Galileo parts, using its 3.7 m dish for both radar mapping and communications.",
+        // GCAT's total at launch, including the solid motor that put it
+        // into orbit around Venus.
+        launchMassKg: 3348,
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "venus-express",
+    name: "Venus Express",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2015-01-18",
+    endDeclared: "2014-12-16",
+    description:
+      "ESA's first mission to Venus, which studied the planet's atmosphere and clouds from orbit for eight years, far beyond its planned 500 days.",
+    sourceUrl:
+      "https://www.esa.int/Science_Exploration/Space_Science/Venus_Express",
+    agencies: ["ESA"],
+    destinations: ["venus"],
+    spacecraft: [
+      {
+        slug: "venus-express",
+        name: "Venus Express",
+        catalogueId: "S28901",
+        kind: "ORBITER",
+        description:
+          "Orbiter built on the Mars Express design, reusing spare instruments from Mars Express and Rosetta.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "akatsuki",
+    name: "Akatsuki",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    endDeclared: "2025-09-18",
+    description:
+      "A JAXA orbiter that studied Venus's weather and fast-moving atmosphere. It missed its first attempt to enter orbit in 2010 and succeeded five years later.",
+    sourceUrl: "https://global.jaxa.jp/projects/sas/planet_c/",
+    agencies: ["JAXA"],
+    destinations: ["venus"],
+    spacecraft: [
+      {
+        slug: "akatsuki",
+        name: "Akatsuki",
+        catalogueId: "S36576",
+        kind: "ORBITER",
+        description:
+          "Orbiter with five cameras observing at wavelengths from ultraviolet to infrared, each sensitive to a different layer of cloud.",
+        powerSource: "SOLAR",
+        // GCAT lists ISAS/JAXA, the operator; NEC built the spacecraft.
+        builders: ["NECT"],
+      },
+    ],
+  },
+  {
+    slug: "pioneer-10",
+    name: "Pioneer 10",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2003-01-23",
+    endDeclared: "1997-03-31",
+    description:
+      "The first spacecraft to cross the asteroid belt and fly past Jupiter, and the first sent on a path out of the Solar System.",
+    sourceUrl: "https://science.nasa.gov/mission/pioneer-10/",
+    agencies: ["NASA"],
+    destinations: ["jupiter"],
+    spacecraft: [
+      {
+        slug: "pioneer-10",
+        name: "Pioneer 10",
+        catalogueId: "S05860",
+        kind: "FLYBY",
+        description:
+          "Spin-stabilised probe with a 2.7 m dish antenna and four radioisotope generators, carrying a plaque for any finders.",
+        powerSource: "RADIOISOTOPE",
+      },
+    ],
+  },
+  {
+    slug: "pioneer-11",
+    name: "Pioneer 11",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1995-11-24",
+    endDeclared: "1995-09-30",
+    description:
+      "The second spacecraft to fly past Jupiter and the first to reach Saturn, passing within 21,000 km of its cloud tops in 1979.",
+    sourceUrl: "https://science.nasa.gov/mission/pioneer-11/",
+    agencies: ["NASA"],
+    destinations: ["jupiter", "saturn"],
+    spacecraft: [
+      {
+        slug: "pioneer-11",
+        name: "Pioneer 11",
+        catalogueId: "S06421",
+        kind: "FLYBY",
+        description:
+          "Twin of Pioneer 10, with an added magnetometer for measuring strong magnetic fields.",
+        powerSource: "RADIOISOTOPE",
+      },
+    ],
+  },
+  {
+    slug: "galileo",
+    name: "Galileo",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2003-09-21",
+    endDeclared: "2003-09-21",
+    description:
+      "The first spacecraft to orbit Jupiter, studying the planet and its moons for eight years and finding evidence of an ocean beneath Europa's ice. On the way it made the first flyby of an asteroid.",
+    sourceUrl: "https://science.nasa.gov/mission/galileo/",
+    agencies: ["NASA"],
+    destinations: ["jupiter", "gaspra", "ida"],
+    spacecraft: [
+      {
+        slug: "galileo-orbiter",
+        name: "Galileo orbiter",
+        catalogueId: "S20298",
+        kind: "ORBITER",
+        description:
+          "Spin-stabilised orbiter with a de-spun section for its cameras. Its main antenna failed to open, so all data came back through a small low-gain antenna.",
+        status: "COMPLETED",
+        lastContact: "2003-09-21",
+        endDeclared: "2003-09-21",
+        powerSource: "RADIOISOTOPE",
+      },
+      {
+        slug: "galileo-probe",
+        name: "Galileo probe",
+        catalogueId: "A04746",
+        kind: "ATMOSPHERIC_PROBE",
+        description:
+          "Entry probe that plunged into Jupiter's atmosphere at 47 km/s and returned data for 58 minutes on the way down.",
+        status: "COMPLETED",
+        lastContact: "1995-12-07",
+        // GCAT's total at launch, including the heat shield.
+        launchMassKg: 339,
+        dryMassKg: null,
+        powerSource: "BATTERY",
+      },
+    ],
+  },
+  {
+    slug: "new-horizons",
+    name: "New Horizons",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "The first spacecraft to explore Pluto, flying past it and its moon Charon in July 2015, and later the small Kuiper belt object Arrokoth, the most distant world ever visited.",
+    sourceUrl: "https://science.nasa.gov/mission/new-horizons/",
+    agencies: ["NASA"],
+    destinations: ["jupiter", "pluto", "arrokoth"],
+    spacecraft: [
+      {
+        slug: "new-horizons",
+        name: "New Horizons",
+        catalogueId: "S28928",
+        kind: "FLYBY",
+        description:
+          "Piano-sized probe with seven instruments and a radioisotope generator, launched on the fastest trajectory of any spacecraft leaving Earth.",
+        powerSource: "RADIOISOTOPE",
+      },
+    ],
+  },
+  {
+    slug: "juno",
+    name: "Juno",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "A NASA orbiter studying Jupiter's interior, magnetic field and polar regions from a looping polar orbit. It is the first solar-powered spacecraft to operate at Jupiter.",
+    sourceUrl: "https://science.nasa.gov/mission/juno/",
+    agencies: ["NASA"],
+    destinations: ["jupiter"],
+    spacecraft: [
+      {
+        slug: "juno",
+        name: "Juno",
+        catalogueId: "S37773",
+        kind: "ORBITER",
+        description:
+          "Spinning orbiter with three 9 m solar wings and its electronics shielded inside a titanium vault against Jupiter's radiation.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "juice",
+    name: "JUICE",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "An ESA mission on its way to Jupiter to study three of its icy moons, Ganymede, Callisto and Europa. It is planned to become the first spacecraft to orbit a moon other than our own.",
+    sourceUrl: "https://www.esa.int/Science_Exploration/Space_Science/Juice",
+    agencies: ["ESA"],
+    destinations: ["jupiter", "ganymede"],
+    spacecraft: [
+      {
+        slug: "juice",
+        name: "JUICE",
+        catalogueId: "S56176",
+        kind: "ORBITER",
+        description:
+          "Orbiter with ten instruments and 85 square metres of solar panels to gather enough power in Jupiter's dim sunlight.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "europa-clipper",
+    name: "Europa Clipper",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "A NASA mission on its way to Jupiter, where it will make dozens of close flybys of the moon Europa to judge whether its buried ocean could support life.",
+    sourceUrl: "https://science.nasa.gov/mission/europa-clipper/",
+    agencies: ["NASA"],
+    destinations: ["europa"],
+    spacecraft: [
+      {
+        slug: "europa-clipper",
+        name: "Europa Clipper",
+        catalogueId: "S61507",
+        kind: "ORBITER",
+        description:
+          "The largest spacecraft NASA has built for a planetary mission, more than 30 m across with its solar arrays open.",
         powerSource: "SOLAR",
       },
     ],

@@ -2,7 +2,7 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { agencies } from "./data/agencies";
-import { builders } from "./data/builders";
+import { builderAliases, builders } from "./data/builders";
 import { catalogue } from "./data/catalogue";
 import { destinations } from "./data/destinations";
 import { missions, type SpacecraftSeed } from "./data/missions";
@@ -45,7 +45,10 @@ function hasTime(value?: string | null) {
 }
 
 function craftBuilders(craft: SpacecraftSeed) {
-  const codes = craft.builders ?? catalogueRecord(craft)?.builders ?? [];
+  const listed = craft.builders ?? catalogueRecord(craft)?.builders ?? [];
+  const codes = [
+    ...new Set(listed.map((code) => builderAliases[code] ?? code)),
+  ];
   const unknown = codes.filter((code) => !builderCodes.has(code));
 
   if (unknown.length > 0) {

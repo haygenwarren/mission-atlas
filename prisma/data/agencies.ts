@@ -49,6 +49,11 @@ export const agencies = [
     name: "Soviet space programme",
     country: "Soviet Union",
   },
+  {
+    abbreviation: "SpaceIL",
+    name: "SpaceIL",
+    country: "Israel",
+  },
 ] as const;
 
 export type AgencyAbbreviation = (typeof agencies)[number]["abbreviation"];

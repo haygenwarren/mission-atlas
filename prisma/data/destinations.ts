@@ -34,6 +34,14 @@ export const destinations = [
   { slug: "steins", name: "Šteins", kind: "ASTEROID" },
   { slug: "lutetia", name: "Lutetia", kind: "ASTEROID" },
   { slug: "ryugu", name: "Ryugu", kind: "ASTEROID" },
+  { slug: "mercury", name: "Mercury", kind: "PLANET" },
+  { slug: "halley", name: "Halley's Comet", kind: "COMET" },
+  { slug: "gaspra", name: "Gaspra", kind: "ASTEROID" },
+  { slug: "ida", name: "Ida", kind: "ASTEROID" },
+  { slug: "pluto", name: "Pluto", kind: "DWARF_PLANET" },
+  { slug: "arrokoth", name: "Arrokoth", kind: "ASTEROID" },
+  { slug: "ganymede", name: "Ganymede", kind: "MOON" },
+  { slug: "europa", name: "Europa", kind: "MOON" },
 ] as const satisfies readonly DestinationSeed[];
 
 export type DestinationSlug = (typeof destinations)[number]["slug"];
