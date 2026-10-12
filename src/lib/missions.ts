@@ -1,5 +1,6 @@
 import type { Prisma } from "@/generated/prisma/client";
 import type {
+  DestinationKind,
   Discipline,
   PowerSource,
   SpacecraftKind,
@@ -34,6 +35,17 @@ export const powerSourceLabels: Record<PowerSource, string> = {
   BATTERY: "Battery",
 };
 
+// Group headings for the destination filter, in display order.
+export const destinationKindLabels: Record<DestinationKind, string> = {
+  PLANET: "Planets",
+  MOON: "Moons",
+  DWARF_PLANET: "Dwarf planets",
+  ASTEROID: "Asteroids and small bodies",
+  COMET: "Comets",
+  ORBIT: "Orbits",
+  INTERSTELLAR_SPACE: "Beyond the Solar System",
+};
+
 // Ordered by id so a mission's agencies and destinations always list in the
 // same order.
 export const missionLinks = {
@@ -41,7 +53,7 @@ export const missionLinks = {
   destinations: { orderBy: { id: "asc" } },
 } satisfies Prisma.MissionInclude;
 
-type MissionWithLinks = Prisma.MissionGetPayload<{
+export type MissionWithLinks = Prisma.MissionGetPayload<{
   include: typeof missionLinks;
 }>;
 
