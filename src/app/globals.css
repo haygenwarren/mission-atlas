@@ -15,9 +15,13 @@
   --accent: #c4bcf1; /* Signal Lavender */
   --button: #c4bcf1; /* Signal Lavender */
   --button-text: #0f1126; /* Deep Space */
-  --active: #c4bcf1; /* Signal Lavender, the kit's active-mission colour */
-  --active-text: #0f1126; /* Deep Space */
-  --danger: #e58f86; /* not in the kit, which has no warning colour */
+
+  /* Status tags step outside the kit on purpose: green, grey and red are
+     read at a glance in a way three violets are not. */
+  --status-active: #4cc38a;
+  --status-completed: #a6a8ba;
+  --status-failed: #f0706a;
+  --status-text: #0f1126; /* Deep Space */
 }
 
 [data-theme="light"] {
@@ -32,9 +36,11 @@
   --accent: #55529f; /* Land Violet */
   --button: #191c3c; /* Indigo Sky */
   --button-text: #f3efe4; /* Light ground */
-  --active: #55529f; /* Land Violet */
-  --active-text: #f3efe4; /* Light ground */
-  --danger: #a63d32; /* not in the kit */
+
+  --status-active: #1b6e44;
+  --status-completed: #5e6172;
+  --status-failed: #b5372e;
+  --status-text: #f3efe4; /* Light ground */
 }
 
 @theme inline {
@@ -47,9 +53,10 @@
   --color-accent: var(--accent);
   --color-button: var(--button);
   --color-button-text: var(--button-text);
-  --color-active: var(--active);
-  --color-active-text: var(--active-text);
-  --color-danger: var(--danger);
+  --color-status-active: var(--status-active);
+  --color-status-completed: var(--status-completed);
+  --color-status-failed: var(--status-failed);
+  --color-status-text: var(--status-text);
   --font-sans: var(--font-archivo);
   --font-mono: var(--font-plex-mono);
 }
