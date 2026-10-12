@@ -1,5 +1,10 @@
 import type { Prisma } from "@/generated/prisma/client";
-import type { Discipline, Status } from "@/generated/prisma/enums";
+import type {
+  Discipline,
+  PowerSource,
+  SpacecraftKind,
+  Status,
+} from "@/generated/prisma/enums";
 
 export const statusLabels: Record<Status, string> = {
   ACTIVE: "Active",
@@ -10,6 +15,23 @@ export const statusLabels: Record<Status, string> = {
 export const disciplineLabels: Record<Discipline, string> = {
   PLANETARY_SCIENCE: "Planetary science",
   ASTROPHYSICS: "Astrophysics",
+};
+
+export const spacecraftKindLabels: Record<SpacecraftKind, string> = {
+  FLYBY: "Flyby",
+  ORBITER: "Orbiter",
+  LANDER: "Lander",
+  ROVER: "Rover",
+  ATMOSPHERIC_PROBE: "Atmospheric probe",
+  IMPACTOR: "Impactor",
+  ROTORCRAFT: "Rotorcraft",
+  TELESCOPE: "Telescope",
+};
+
+export const powerSourceLabels: Record<PowerSource, string> = {
+  SOLAR: "Solar",
+  RADIOISOTOPE: "Radioisotope",
+  BATTERY: "Battery",
 };
 
 // Ordered by id so a mission's agencies and destinations always list in the
@@ -33,12 +55,49 @@ export function destinationList(
   return mission.destinations.map((destination) => destination.name).join(", ");
 }
 
-export function formatDate(date: Date, withTime = true) {
+function formatNumber(value: number) {
+  return value.toLocaleString("en-GB", { maximumFractionDigits: 1 });
+}
+
+export function formatMass(kilograms: number) {
+  return `${formatNumber(kilograms)} kg`;
+}
+
+// Body length and diameter, then the span with antennas and arrays deployed.
+export function formatSize(craft: {
+  lengthM: number | null;
+  diameterM: number | null;
+  spanM: number | null;
+}) {
+  const metres = (value: number) => `${formatNumber(value)} m`;
+  const { lengthM, diameterM, spanM } = craft;
+  const parts = [];
+
+  if (lengthM !== null && diameterM !== null) {
+    parts.push(`${metres(lengthM)} × ${metres(diameterM)}`);
+  } else if (lengthM !== null) {
+    parts.push(`length ${metres(lengthM)}`);
+  } else if (diameterM !== null) {
+    parts.push(`diameter ${metres(diameterM)}`);
+  }
+
+  if (spanM !== null) {
+    parts.push(`span ${metres(spanM)}`);
+  }
+
+  return parts.join(", ");
+}
+
+export function formatDate(
+  date: Date,
+  time: "none" | "minutes" | "seconds" = "minutes",
+) {
   const formatted = date.toLocaleString("en-GB", {
     timeZone: "UTC",
     dateStyle: "medium",
-    timeStyle: withTime ? "short" : undefined,
+    timeStyle:
+      time === "none" ? undefined : time === "seconds" ? "medium" : "short",
   });
 
-  return withTime ? `${formatted} UTC` : formatted;
+  return time === "none" ? formatted : `${formatted} UTC`;
 }

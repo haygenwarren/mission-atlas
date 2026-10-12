@@ -1,0 +1,59 @@
+{
+  "source": "GCAT (J. McDowell, planet4589.org/space/gcat)",
+  "fetched": "2026-10-12",
+  "objects": {
+    "S10271": {
+      "name": "Voyager 2",
+      "designator": "1977-076A",
+      "launchDate": "1977-08-20T14:29:44Z",
+      "launchMassKg": 820,
+      "dryMassKg": 716,
+      "lengthM": null,
+      "diameterM": 3.7,
+      "spanM": null,
+      "builders": [
+        "JPL"
+      ]
+    },
+    "S10321": {
+      "name": "Voyager 1",
+      "designator": "1977-084A",
+      "launchDate": "1977-09-05T12:56:01Z",
+      "launchMassKg": 820,
+      "dryMassKg": 716,
+      "lengthM": null,
+      "diameterM": 3.7,
+      "spanM": null,
+      "builders": [
+        "JPL"
+      ]
+    },
+    "S20580": {
+      "name": "Hubble Space Telescope",
+      "designator": "1990-037B",
+      "launchDate": "1990-04-24T12:33:52Z",
+      "launchMassKg": 7547,
+      "dryMassKg": 7547,
+      "lengthM": 13.1,
+      "diameterM": 4.3,
+      "spanM": 13.1,
+      "builders": [
+        "LMSC"
+      ]
+    },
+    "S50463": {
+      "name": "JWST",
+      "designator": "2021-130A",
+      "launchDate": "2021-12-25T12:20:07Z",
+      "launchMassKg": 6161,
+      "dryMassKg": 5861,
+      "lengthM": 8,
+      "diameterM": 4.5,
+      "spanM": 21.2,
+      "builders": [
+        "NGAS",
+        "GSFC"
+      ]
+    }
+  }
+}
