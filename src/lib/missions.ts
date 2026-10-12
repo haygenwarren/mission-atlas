@@ -53,17 +53,29 @@ export const missionLinks = {
   destinations: { orderBy: { id: "asc" } },
 } satisfies Prisma.MissionInclude;
 
-export type MissionWithLinks = Prisma.MissionGetPayload<{
-  include: typeof missionLinks;
+// The fields a mission tile shows, and nothing else, so lists stay light.
+export const missionTileSelect = {
+  id: true,
+  slug: true,
+  name: true,
+  status: true,
+  launchDate: true,
+  description: true,
+  agencies: { select: { abbreviation: true }, orderBy: { id: "asc" } },
+  destinations: { select: { name: true }, orderBy: { id: "asc" } },
+} satisfies Prisma.MissionSelect;
+
+export type MissionTileData = Prisma.MissionGetPayload<{
+  select: typeof missionTileSelect;
 }>;
 
-export function agencyList(mission: Pick<MissionWithLinks, "agencies">) {
+export function agencyList(mission: { agencies: { abbreviation: string }[] }) {
   return mission.agencies.map((agency) => agency.abbreviation).join("/");
 }
 
-export function destinationList(
-  mission: Pick<MissionWithLinks, "destinations">,
-) {
+export function destinationList(mission: {
+  destinations: { name: string }[];
+}) {
   return mission.destinations.map((destination) => destination.name).join(", ");
 }
 

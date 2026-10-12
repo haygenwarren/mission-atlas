@@ -5,7 +5,7 @@ import Pagination from "@/components/pagination";
 import { prisma } from "@/lib/prisma";
 import {
   destinationKindLabels,
-  missionLinks,
+  missionTileSelect,
   spacecraftKindLabels,
   statusLabels,
 } from "@/lib/missions";
@@ -117,7 +117,7 @@ export default async function MissionsPage({ searchParams }: PageProps) {
     prisma.mission.findMany({
       where,
       orderBy: sortOrders[sort].orderBy,
-      include: missionLinks,
+      select: missionTileSelect,
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
     }),

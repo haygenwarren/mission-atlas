@@ -3,7 +3,7 @@ import {
   agencyList,
   destinationList,
   statusLabels,
-  type MissionWithLinks,
+  type MissionTileData,
 } from "@/lib/missions";
 import type { Status } from "@/generated/prisma/enums";
 
@@ -13,7 +13,7 @@ const statusBadgeClasses: Record<Status, string> = {
   FAILED: "bg-red-100 text-red-700",
 };
 
-export default function MissionTile({ mission }: { mission: MissionWithLinks }) {
+export default function MissionTile({ mission }: { mission: MissionTileData }) {
   return (
     <Link
       href={`/missions/${mission.slug}`}

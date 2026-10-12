@@ -1,24 +1,37 @@
 import Link from "next/link";
+import FeaturedMissions from "@/components/featured-missions";
 import { prisma } from "@/lib/prisma";
-import {
-  agencyList,
-  destinationList,
-  missionLinks,
-  statusLabels,
-} from "@/lib/missions";
+import { missionTileSelect } from "@/lib/missions";
+import { sample } from "@/lib/random";
 
 export const revalidate = 3600;
 
-export default async function Home() {
-  const missionCount = await prisma.mission.count();
+// How many missions each hourly rebuild hands the browser to pick from.
+const FEATURED_POOL_SIZE = 24;
 
-  const featuredMissions = await prisma.mission.findMany({
-    take: 3,
-    orderBy: {
-      launchDate: "desc",
+export default async function Home() {
+  const [missionCount, activeCount, agencyCount, destinationCount, ids] =
+    await Promise.all([
+      prisma.mission.count(),
+      prisma.mission.count({ where: { status: "ACTIVE" } }),
+      prisma.agency.count(),
+      prisma.destination.count(),
+      prisma.mission.findMany({ select: { id: true } }),
+    ]);
+
+  const featuredPool = await prisma.mission.findMany({
+    where: {
+      id: { in: sample(ids, FEATURED_POOL_SIZE).map(({ id }) => id) },
     },
-    include: missionLinks,
+    select: missionTileSelect,
   });
+
+  const stats = [
+    { label: "Missions", value: missionCount },
+    { label: "Active now", value: activeCount },
+    { label: "Agencies", value: agencyCount },
+    { label: "Destinations", value: destinationCount },
+  ];
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
@@ -32,44 +45,42 @@ export default async function Home() {
         </h1>
 
         <p className="max-w-3xl text-lg text-gray-600">
-          Mission Atlas is a full-stack mission tracking platform for planetary
-          science and astrophysics. Browse a growing archive of missions, open
-          detailed mission pages, and build toward live mission status and data
-          tools.
+          Mission Atlas is an archive of planetary science and astrophysics
+          missions from space agencies around the world. Search the archive,
+          or open a mission to see its spacecraft, dates and destinations.
         </p>
 
-        <div className="mt-8 flex gap-4">
-          <Link
-            href="/missions"
+        <form action="/missions" method="GET" className="mt-8 flex gap-3">
+          <input
+            type="search"
+            name="q"
+            placeholder="Search missions, spacecraft, agencies or destinations"
+            aria-label="Search the archive"
+            className="w-full max-w-xl rounded-lg border px-4 py-3"
+          />
+          <button
+            type="submit"
             className="rounded-lg bg-black px-5 py-3 text-white transition hover:bg-gray-800"
           >
-            Browse Mission Archive
-          </Link>
+            Search
+          </button>
+        </form>
 
-          <Link
-            href="/missions"
-            className="rounded-lg border px-5 py-3 transition hover:bg-gray-50"
-          >
-            View Missions
-          </Link>
-        </div>
+        <Link
+          href="/missions"
+          className="mt-4 inline-block text-sm font-medium hover:underline"
+        >
+          Or browse all {missionCount} missions
+        </Link>
       </section>
 
-      <section className="mb-12 grid gap-4 md:grid-cols-3">
-        <div className="rounded-xl border p-5">
-          <p className="text-sm text-gray-500">Missions in database</p>
-          <p className="mt-2 text-3xl font-bold">{missionCount}</p>
-        </div>
-
-        <div className="rounded-xl border p-5">
-          <p className="text-sm text-gray-500">Project status</p>
-          <p className="mt-2 text-3xl font-bold">MVP</p>
-        </div>
-
-        <div className="rounded-xl border p-5">
-          <p className="text-sm text-gray-500">Database</p>
-          <p className="mt-2 text-3xl font-bold">Neon + Prisma</p>
-        </div>
+      <section className="mb-12 grid grid-cols-2 gap-4 md:grid-cols-4">
+        {stats.map(({ label, value }) => (
+          <div key={label} className="rounded-xl border p-5">
+            <p className="text-sm text-gray-500">{label}</p>
+            <p className="mt-2 text-3xl font-bold">{value}</p>
+          </div>
+        ))}
       </section>
 
       <section>
@@ -80,22 +91,7 @@ export default async function Home() {
           </Link>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          {featuredMissions.map((mission) => (
-            <Link
-              key={mission.id}
-              href={`/missions/${mission.slug}`}
-              className="rounded-xl border p-5 transition hover:bg-gray-50"
-            >
-              <p className="text-sm text-gray-500">{agencyList(mission)}</p>
-              <h3 className="mt-2 text-xl font-semibold">{mission.name}</h3>
-              <p className="mt-2 text-sm text-gray-600">
-                {statusLabels[mission.status]} · {destinationList(mission)}
-              </p>
-              <p className="mt-4 text-sm">{mission.description}</p>
-            </Link>
-          ))}
-        </div>
+        <FeaturedMissions pool={featuredPool} />
       </section>
     </main>
   );
