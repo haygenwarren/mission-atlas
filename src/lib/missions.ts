@@ -125,3 +125,62 @@ export function formatDate(
 
   return time === "none" ? formatted : `${formatted} UTC`;
 }
+
+export function formatTime(date: Date) {
+  return `${date.toLocaleTimeString("en-GB", { timeZone: "UTC" })} UTC`;
+}
+
+function plural(count: number, unit: string) {
+  return `${count} ${unit}${count === 1 ? "" : "s"}`;
+}
+
+// The calendar gap between two UTC dates in its two largest units, such as
+// "19 years 11 months" or "3 months 28 days".
+export function formatDuration(from: Date, to: Date) {
+  let years = to.getUTCFullYear() - from.getUTCFullYear();
+  let months = to.getUTCMonth() - from.getUTCMonth();
+  let days = to.getUTCDate() - from.getUTCDate();
+
+  if (days < 0) {
+    months -= 1;
+    // Day 0 of a month is the last day of the month before it.
+    days += new Date(
+      Date.UTC(to.getUTCFullYear(), to.getUTCMonth(), 0),
+    ).getUTCDate();
+  }
+
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+
+  if (years > 0) {
+    return months > 0
+      ? `${plural(years, "year")} ${plural(months, "month")}`
+      : plural(years, "year");
+  }
+
+  if (months > 0) {
+    return days > 0
+      ? `${plural(months, "month")} ${plural(days, "day")}`
+      : plural(months, "month");
+  }
+
+  return days > 0 ? plural(days, "day") : "Less than a day";
+}
+
+// How long a mission ran: from launch to its last contact (or, failing that,
+// the day its end was declared), or to now while it is still active.
+export function missionDuration(mission: {
+  status: Status;
+  launchDate: Date;
+  lastContact: Date | null;
+  endDeclared: Date | null;
+}) {
+  const end =
+    mission.lastContact ??
+    mission.endDeclared ??
+    (mission.status === "ACTIVE" ? new Date() : null);
+
+  return end && formatDuration(mission.launchDate, end);
+}

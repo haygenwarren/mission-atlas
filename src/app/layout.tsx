@@ -16,7 +16,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mission Atlas",
+  title: { default: "Mission Atlas", template: "%s | Mission Atlas" },
   description: "A full-stack mission tracking platform for planetary science and astrophysics space missions.",
   manifest: "/site.webmanifest",
   // Keeps the site out of search results until v1 launch; remove then.

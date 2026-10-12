@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import MissionTile from "@/components/mission-tile";
@@ -15,6 +16,8 @@ import type {
   SpacecraftKind,
   Status,
 } from "@/generated/prisma/enums";
+
+export const metadata: Metadata = { title: "Mission Archive" };
 
 type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

@@ -1,53 +1,36 @@
+import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache, Fragment } from "react";
+import SpacecraftTile from "@/components/spacecraft-tile";
+import StatusBadge from "@/components/status-badge";
 import { prisma } from "@/lib/prisma";
 import {
-  agencyList,
-  destinationList,
   disciplineLabels,
   formatDate,
-  formatMass,
-  formatSize,
+  formatTime,
+  missionDuration,
   missionLinks,
-  powerSourceLabels,
-  spacecraftKindLabels,
-  statusLabels,
 } from "@/lib/missions";
-import type { Prisma } from "@/generated/prisma/client";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-type SpacecraftWithBuilders = Prisma.SpacecraftGetPayload<{
-  include: { builders: true };
-}>;
-
-function spacecraftFacts(craft: SpacecraftWithBuilders) {
-  const facts: [string, string | false | null][] = [
-    ["Launch mass", craft.launchMassKg !== null && formatMass(craft.launchMassKg)],
-    [
-      "Dry mass",
-      craft.dryMassKg !== null &&
-        craft.dryMassKg !== craft.launchMassKg &&
-        formatMass(craft.dryMassKg),
-    ],
-    ["Size", formatSize(craft)],
-    ["Power", craft.powerSource && powerSourceLabels[craft.powerSource]],
-    ["Built by", craft.builders.map((builder) => builder.name).join(", ")],
-    [
-      "Last contact",
-      craft.lastContact &&
-        formatDate(
-          craft.lastContact,
-          craft.lastContactTimeKnown ? "seconds" : "none",
-        ),
-    ],
-    ["End declared", craft.endDeclared && formatDate(craft.endDeclared, "none")],
-    ["Designator", craft.designator],
-  ];
-
-  return facts.filter(([, value]) => value);
-}
+// Both the page and its title need the mission; cache() makes them share one
+// database query per request.
+const getMission = cache((slug: string) =>
+  prisma.mission.findUnique({
+    where: { slug },
+    include: {
+      ...missionLinks,
+      spacecraft: {
+        orderBy: { id: "asc" },
+        include: { builders: { orderBy: { id: "asc" } } },
+      },
+    },
+  }),
+);
 
 export const revalidate = 3600;
 
@@ -59,88 +42,155 @@ export async function generateStaticParams() {
   return missions.map(({ slug }) => ({ slug }));
 }
 
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const mission = await getMission((await params).slug);
+
+  return mission
+    ? { title: mission.name, description: mission.description }
+    : {};
+}
+
+const linkClasses = "text-accent hover:underline";
+
+function Fact({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-surface p-4">
+      <dt className="label-caps text-muted">{label}</dt>
+      <dd className="mt-2 font-semibold">{children}</dd>
+    </div>
+  );
+}
+
+function Detail({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="mt-1 block text-sm font-normal text-muted">
+      {children}
+    </span>
+  );
+}
+
 export default async function MissionDetailPage({ params }: PageProps) {
   const { slug } = await params;
-
-  const mission = await prisma.mission.findUnique({
-    where: { slug },
-    include: {
-      ...missionLinks,
-      spacecraft: {
-        orderBy: { id: "asc" },
-        include: { builders: { orderBy: { id: "asc" } } },
-      },
-    },
-  });
+  const mission = await getMission(slug);
 
   if (!mission) {
     notFound();
   }
 
-  return (
-    <main className="mx-auto max-w-5xl p-6">
-      <h1 className="font-display mb-2 text-3xl">{mission.name}</h1>
+  const duration = missionDuration(mission);
 
-      <p className="mb-4 text-muted">
-        {agencyList(mission)} · {statusLabels[mission.status]} ·{" "}
-        {destinationList(mission)}
+  return (
+    <main className="mx-auto max-w-5xl px-6 py-10">
+      <Link
+        href="/missions"
+        className="label-caps text-muted transition-colors hover:text-foreground"
+      >
+        ← Mission archive
+      </Link>
+
+      <header className="mt-6">
+        <p className="label-caps text-muted">
+          {disciplineLabels[mission.discipline]}
+        </p>
+
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <h1 className="font-display text-4xl">{mission.name}</h1>
+          <StatusBadge status={mission.status} />
+        </div>
+
+        <p className="mt-3">
+          {mission.agencies.map((agency, i) => (
+            <Fragment key={agency.id}>
+              {i > 0 && <span className="text-muted"> · </span>}
+              <Link
+                href={`/missions?agency=${encodeURIComponent(agency.abbreviation)}`}
+                title={agency.name}
+                className={linkClasses}
+              >
+                {agency.abbreviation}
+              </Link>
+            </Fragment>
+          ))}
+        </p>
+      </header>
+
+      <dl className="mt-8 grid grid-cols-[repeat(auto-fit,minmax(11rem,1fr))] gap-4">
+        <Fact label="Launched">
+          {formatDate(mission.launchDate, "none")}
+          <Detail>{formatTime(mission.launchDate)}</Detail>
+        </Fact>
+
+        {mission.lastContact && (
+          <Fact label="Last contact">
+            {formatDate(mission.lastContact, "none")}
+            {mission.lastContactTimeKnown && (
+              <Detail>{formatTime(mission.lastContact)}</Detail>
+            )}
+          </Fact>
+        )}
+
+        {mission.endDeclared && (
+          <Fact label="End declared">
+            {formatDate(mission.endDeclared, "none")}
+          </Fact>
+        )}
+
+        {duration && (
+          <Fact label={mission.status === "ACTIVE" ? "Active for" : "Duration"}>
+            {duration}
+          </Fact>
+        )}
+
+        <Fact label="Destinations">
+          {mission.destinations.map((destination, i) => (
+            <Fragment key={destination.id}>
+              {i > 0 && ", "}
+              <Link
+                href={`/missions?destination=${destination.slug}`}
+                className={linkClasses}
+              >
+                {destination.name}
+              </Link>
+            </Fragment>
+          ))}
+        </Fact>
+      </dl>
+
+      <p className="mt-8 max-w-3xl text-lg leading-relaxed">
+        {mission.description}
       </p>
 
-      <div className="space-y-2">
-        <p>
-          <strong>Field:</strong> {disciplineLabels[mission.discipline]}
-        </p>
-        <p>
-          <strong>Launch Date:</strong>{" "}
-          {formatDate(mission.launchDate, "seconds")}
-        </p>
-        {mission.lastContact && (
-          <p>
-            <strong>Last Contact:</strong>{" "}
-            {formatDate(
-              mission.lastContact,
-              mission.lastContactTimeKnown ? "seconds" : "none",
-            )}
-          </p>
-        )}
-        {mission.endDeclared && (
-          <p>
-            <strong>End Declared:</strong>{" "}
-            {formatDate(mission.endDeclared, "none")}
-          </p>
-        )}
-        <p>
-          <strong>Description:</strong> {mission.description}
-        </p>
-      </div>
+      <section className="mt-10">
+        <h2 className="text-2xl font-semibold">Spacecraft</h2>
 
-      <section className="mt-8">
-        <h2 className="text-2xl font-semibold mb-4">Spacecraft</h2>
-
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
           {mission.spacecraft.map((craft) => (
-            <div
+            <SpacecraftTile
               key={craft.id}
-              className="rounded-xl border border-border bg-surface p-5"
-            >
-              <h3 className="text-xl font-semibold">{craft.name}</h3>
-              <p className="mt-1 text-sm text-muted">
-                {spacecraftKindLabels[craft.kind]} ·{" "}
-                {statusLabels[craft.status]}
-              </p>
-              <p className="mt-3 text-sm">{craft.description}</p>
-
-              <div className="mt-4 space-y-1 text-sm">
-                {spacecraftFacts(craft).map(([label, value]) => (
-                  <p key={label}>
-                    <strong>{label}:</strong> {value}
-                  </p>
-                ))}
-              </div>
-            </div>
+              craft={craft}
+              wide={mission.spacecraft.length === 1}
+            />
           ))}
         </div>
       </section>
+
+      {mission.sourceUrl && (
+        <p className="mt-10 text-sm text-muted">
+          Mission details from{" "}
+          <a href={mission.sourceUrl} className="text-accent underline">
+            {new URL(mission.sourceUrl).hostname.replace(/^www\./, "")}
+          </a>
+          .
+        </p>
+      )}
     </main>
   );
 }
