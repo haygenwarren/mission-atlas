@@ -74,15 +74,20 @@ model Spacecraft {
   id           Int            @id @default(autoincrement())
   name         String
   slug         String         @unique
+  catalogueId  String?        @unique
+  designator   String?
   kind         SpacecraftKind
   description  String
   status       Status
   endDate      DateTime?
   endTimeKnown Boolean        @default(false)
   launchMassKg Float?
+  dryMassKg    Float?
+  lengthM      Float?
+  diameterM    Float?
+  spanM        Float?
   powerSource  PowerSource?
-  dimensions   String?
-  builder      String?
+  builders     Builder[]
   imageUrl     String?
   imageCredit  String?
   mission      Mission        @relation(fields: [missionId], references: [id], onDelete: Cascade)
@@ -91,6 +96,13 @@ model Spacecraft {
   updatedAt    DateTime       @updatedAt
 
   @@index([missionId])
+}
+
+model Builder {
+  id         Int          @id @default(autoincrement())
+  code       String       @unique
+  name       String
+  spacecraft Spacecraft[]
 }
 
 model Agency {

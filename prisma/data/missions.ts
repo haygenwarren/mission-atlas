@@ -5,32 +5,41 @@ import type {
   Status,
 } from "../../src/generated/prisma/enums";
 import type { AgencyAbbreviation } from "./agencies";
+import type { BuilderCode } from "./builders";
 import type { DestinationSlug } from "./destinations";
 
-// Dates are ISO 8601 in UTC, e.g. "1977-09-05T12:56:01Z". Set endTimeKnown
-// only when the end date carries a real time of day.
+// A spacecraft with a catalogueId takes its designator, masses, size and
+// builders from catalogue.json. A value set here overrides the catalogue, and
+// null blanks it. Dates are ISO 8601 in UTC, e.g. "2017-09-15T11:55:46Z". Set
+// endTimeKnown only when the end date carries a real time of day.
 export type SpacecraftSeed = {
   slug: string;
   name: string;
+  catalogueId?: string;
+  designator?: string | null;
   kind: SpacecraftKind;
   description: string;
   status: Status;
   endDate?: string;
   endTimeKnown?: boolean;
-  launchMassKg?: number;
+  launchMassKg?: number | null;
+  dryMassKg?: number | null;
+  lengthM?: number | null;
+  diameterM?: number | null;
+  spanM?: number | null;
   powerSource?: PowerSource;
-  dimensions?: string;
-  builder?: string;
+  builders?: BuilderCode[];
   imageUrl?: string;
   imageCredit?: string;
 };
 
+// launchDate defaults to the catalogue launch time of the first spacecraft.
 export type MissionSeed = {
   slug: string;
   name: string;
   discipline: Discipline;
   status: Status;
-  launchDate: string;
+  launchDate?: string;
   endDate?: string;
   endTimeKnown?: boolean;
   description: string;
@@ -48,7 +57,6 @@ export const missions: MissionSeed[] = [
     name: "James Webb Space Telescope",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
-    launchDate: "2021-12-25T12:20:00Z",
     description: "Infrared space telescope located at the Sun-Earth L2 point.",
     sourceUrl:
       "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2021-130A",
@@ -58,14 +66,12 @@ export const missions: MissionSeed[] = [
       {
         slug: "jwst",
         name: "James Webb Space Telescope",
+        catalogueId: "S50463",
         kind: "TELESCOPE",
         description:
           "Infrared observatory with a 6.5 m segmented primary mirror, kept cold behind a five-layer sunshield.",
         status: "ACTIVE",
-        launchMassKg: 6500,
         powerSource: "SOLAR",
-        dimensions: "21.2 m × 14.2 m (sunshield)",
-        builder: "Northrop Grumman, Ball Aerospace, L3Harris",
       },
     ],
   },
@@ -74,7 +80,6 @@ export const missions: MissionSeed[] = [
     name: "Voyager 1",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
-    launchDate: "1977-09-05T12:56:01Z",
     description:
       "A spacecraft that performed flybys of Jupiter, Saturn, and Saturn's moon Titan. Currently exploring interstellar space.",
     sourceUrl:
@@ -85,13 +90,12 @@ export const missions: MissionSeed[] = [
       {
         slug: "voyager-1",
         name: "Voyager 1",
+        catalogueId: "S10321",
         kind: "FLYBY",
         description:
           "Three-axis stabilised probe built around a 3.7 m high-gain antenna, powered by three radioisotope thermoelectric generators.",
         status: "ACTIVE",
-        launchMassKg: 721.9,
         powerSource: "RADIOISOTOPE",
-        builder: "Jet Propulsion Laboratory",
       },
     ],
   },
@@ -100,7 +104,6 @@ export const missions: MissionSeed[] = [
     name: "Voyager 2",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
-    launchDate: "1977-08-20T14:29:00Z",
     description:
       "A spacecraft that performed flybys of Jupiter, Saturn, Uranus, and Neptune. Currently exploring interstellar space.",
     sourceUrl:
@@ -117,13 +120,12 @@ export const missions: MissionSeed[] = [
       {
         slug: "voyager-2",
         name: "Voyager 2",
+        catalogueId: "S10271",
         kind: "FLYBY",
         description:
           "Three-axis stabilised probe built around a 3.7 m high-gain antenna, powered by three radioisotope thermoelectric generators.",
         status: "ACTIVE",
-        launchMassKg: 721.9,
         powerSource: "RADIOISOTOPE",
-        builder: "Jet Propulsion Laboratory",
       },
     ],
   },
@@ -132,7 +134,6 @@ export const missions: MissionSeed[] = [
     name: "Hubble Space Telescope",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
-    launchDate: "1990-04-24T12:33:51Z",
     description:
       "Space telescope capable of observing the universe in ultraviolet, visible, and infrared light.",
     sourceUrl:
@@ -143,14 +144,17 @@ export const missions: MissionSeed[] = [
       {
         slug: "hubble",
         name: "Hubble Space Telescope",
+        catalogueId: "S20580",
         kind: "TELESCOPE",
         description:
           "Reflecting telescope with a 2.4 m primary mirror, serviced in orbit by five Space Shuttle missions.",
         status: "ACTIVE",
-        launchMassKg: 11110,
+        // GCAT gives 7,547 kg for the main body alone and counts attached
+        // parts separately. This is its total at launch; Hubble carries no
+        // propellant, so there is no separate dry mass.
+        launchMassKg: 10843,
+        dryMassKg: null,
         powerSource: "SOLAR",
-        dimensions: "13 m × 4.3 m",
-        builder: "Lockheed (spacecraft), Perkin-Elmer (optics)",
       },
     ],
   },

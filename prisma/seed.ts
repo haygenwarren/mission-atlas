@@ -2,14 +2,51 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { agencies } from "./data/agencies";
+import { builders } from "./data/builders";
+import { catalogue } from "./data/catalogue";
 import { destinations } from "./data/destinations";
-import { missions } from "./data/missions";
+import { missions, type SpacecraftSeed } from "./data/missions";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
 });
 
 const prisma = new PrismaClient({ adapter });
+
+const builderCodes = new Set<string>(builders.map(({ code }) => code));
+
+function catalogueRecord(craft: SpacecraftSeed) {
+  if (!craft.catalogueId) return undefined;
+
+  const record = catalogue[craft.catalogueId];
+
+  if (!record) {
+    throw new Error(
+      `${craft.slug}: ${craft.catalogueId} is not in catalogue.json. Run "npm run import:catalogue".`,
+    );
+  }
+
+  return record;
+}
+
+// A value set in the data file wins, including null; otherwise the catalogue
+// value is used.
+function pick<T>(own: T | null | undefined, fromCatalogue?: T | null) {
+  return own !== undefined ? own : (fromCatalogue ?? null);
+}
+
+function craftBuilders(craft: SpacecraftSeed) {
+  const codes = craft.builders ?? catalogueRecord(craft)?.builders ?? [];
+  const unknown = codes.filter((code) => !builderCodes.has(code));
+
+  if (unknown.length > 0) {
+    throw new Error(
+      `${craft.slug}: add ${unknown.join(", ")} to prisma/data/builders.ts.`,
+    );
+  }
+
+  return codes.map((code) => ({ code }));
+}
 
 // Makes the database match the files in prisma/data: rows are created or
 // updated by their slug, and rows no longer in the files are deleted. It all
@@ -33,13 +70,30 @@ async function main() {
         });
       }
 
+      for (const builder of builders) {
+        await tx.builder.upsert({
+          where: { code: builder.code },
+          update: builder,
+          create: builder,
+        });
+      }
+
       for (const mission of missions) {
+        const firstCraft = mission.spacecraft[0];
+        const launchDate =
+          mission.launchDate ??
+          (firstCraft && catalogueRecord(firstCraft)?.launchDate);
+
+        if (!launchDate) {
+          throw new Error(`${mission.slug}: no launch date.`);
+        }
+
         const fields = {
           slug: mission.slug,
           name: mission.name,
           discipline: mission.discipline,
           status: mission.status,
-          launchDate: new Date(mission.launchDate),
+          launchDate: new Date(launchDate),
           endDate: mission.endDate ? new Date(mission.endDate) : null,
           endTimeKnown: mission.endTimeKnown ?? false,
           description: mission.description,
@@ -67,18 +121,24 @@ async function main() {
         });
 
         for (const craft of mission.spacecraft) {
+          const record = catalogueRecord(craft);
+          const builderLinks = craftBuilders(craft);
           const craftFields = {
             slug: craft.slug,
             name: craft.name,
+            catalogueId: craft.catalogueId ?? null,
+            designator: pick(craft.designator, record?.designator),
             kind: craft.kind,
             description: craft.description,
             status: craft.status,
             endDate: craft.endDate ? new Date(craft.endDate) : null,
             endTimeKnown: craft.endTimeKnown ?? false,
-            launchMassKg: craft.launchMassKg ?? null,
+            launchMassKg: pick(craft.launchMassKg, record?.launchMassKg),
+            dryMassKg: pick(craft.dryMassKg, record?.dryMassKg),
+            lengthM: pick(craft.lengthM, record?.lengthM),
+            diameterM: pick(craft.diameterM, record?.diameterM),
+            spanM: pick(craft.spanM, record?.spanM),
             powerSource: craft.powerSource ?? null,
-            dimensions: craft.dimensions ?? null,
-            builder: craft.builder ?? null,
             imageUrl: craft.imageUrl ?? null,
             imageCredit: craft.imageCredit ?? null,
             missionId: saved.id,
@@ -86,8 +146,8 @@ async function main() {
 
           await tx.spacecraft.upsert({
             where: { slug: craft.slug },
-            update: craftFields,
-            create: craftFields,
+            update: { ...craftFields, builders: { set: builderLinks } },
+            create: { ...craftFields, builders: { connect: builderLinks } },
           });
         }
       }
@@ -112,9 +172,12 @@ async function main() {
           },
         },
       });
+      await tx.builder.deleteMany({
+        where: { code: { notIn: builders.map(({ code }) => code) } },
+      });
 
       console.log(
-        `Seeded ${missions.length} missions, ${craftSlugs.length} spacecraft, ${agencies.length} agencies, ${destinations.length} destinations.`,
+        `Seeded ${missions.length} missions, ${craftSlugs.length} spacecraft, ${agencies.length} agencies, ${destinations.length} destinations, ${builders.length} builders.`,
       );
     },
     { maxWait: 15_000, timeout: 120_000 },
