@@ -145,9 +145,10 @@ async function main() {
       lengthM: measured(row.Length, row.LFlag),
       diameterM: measured(row.Diameter, row.DFlag),
       spanM: measured(row.Span, row.SpanFlag),
-      builders: row.Manufacturer.split("/").filter(
-        (code) => code && code !== "-",
-      ),
+      // A trailing "?" marks a builder GCAT is unsure of; the code is kept.
+      builders: row.Manufacturer.split("/")
+        .map((code) => code.replace(/\?$/, ""))
+        .filter((code) => code && code !== "-"),
     };
   }
 
