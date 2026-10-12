@@ -1,5 +1,13 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import {
+  agencyList,
+  destinationList,
+  disciplineLabels,
+  formatDate,
+  missionLinks,
+  statusLabels,
+} from "@/lib/missions";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -20,6 +28,7 @@ export default async function MissionDetailPage({ params }: PageProps) {
 
   const mission = await prisma.mission.findUnique({
     where: { slug },
+    include: missionLinks,
   });
 
   if (!mission) {
@@ -31,18 +40,16 @@ export default async function MissionDetailPage({ params }: PageProps) {
       <h1 className="text-3xl font-bold mb-2">{mission.name}</h1>
 
       <p className="text-gray-600 mb-4">
-        {mission.agency} · {mission.status} · {mission.target}
+        {agencyList(mission)} · {statusLabels[mission.status]} ·{" "}
+        {destinationList(mission)}
       </p>
 
       <div className="space-y-2">
         <p>
-          <strong>Mission Type:</strong> {mission.missionType}
+          <strong>Field:</strong> {disciplineLabels[mission.discipline]}
         </p>
         <p>
-          <strong>Launch Date:</strong>{" "}
-          {mission.launchDate
-            ? new Date(mission.launchDate).toLocaleDateString()
-            : "Unknown"}
+          <strong>Launch Date:</strong> {formatDate(mission.launchDate)}
         </p>
         <p>
           <strong>Description:</strong> {mission.description}

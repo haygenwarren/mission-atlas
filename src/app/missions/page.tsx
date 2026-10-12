@@ -1,5 +1,15 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import {
+  agencyList,
+  destinationList,
+  disciplineLabels,
+  formatDate,
+  missionLinks,
+  statusLabels,
+} from "@/lib/missions";
+import type { Prisma } from "@/generated/prisma/client";
+import type { Status } from "@/generated/prisma/enums";
 
 type PageProps = {
   searchParams: Promise<{
@@ -8,39 +18,51 @@ type PageProps = {
   }>;
 };
 
-function getStatusBadgeClasses(status: string) {
-  switch (status.toLowerCase()) {
-    case "active":
+const statuses = Object.keys(statusLabels) as Status[];
+
+function parseStatus(value?: string) {
+  return statuses.find((status) => status.toLowerCase() === value);
+}
+
+function getStatusBadgeClasses(status: Status) {
+  switch (status) {
+    case "ACTIVE":
       return "bg-green-100 text-green-700";
-    case "completed":
+    case "COMPLETED":
       return "bg-gray-200 text-gray-700";
-    default:
-      return "bg-blue-100 text-blue-700";
+    case "FAILED":
+      return "bg-red-100 text-red-700";
   }
 }
 
 export default async function MissionsPage({ searchParams }: PageProps) {
   const params = await searchParams;
+  const status = parseStatus(params.status);
 
-  const where: {
-    status?: string;
-    agency?: string;
-  } = {};
+  const where: Prisma.MissionWhereInput = {};
 
-  if (params.status) {
-    where.status = params.status;
+  if (status) {
+    where.status = status;
   }
 
   if (params.agency) {
-    where.agency = params.agency;
+    where.agencies = { some: { abbreviation: params.agency } };
   }
 
-  const missions = await prisma.mission.findMany({
-    where,
-    orderBy: {
-      launchDate: "desc",
-    },
-  });
+  const [missions, agencies] = await Promise.all([
+    prisma.mission.findMany({
+      where,
+      orderBy: {
+        launchDate: "desc",
+      },
+      include: missionLinks,
+    }),
+    prisma.agency.findMany({
+      orderBy: {
+        abbreviation: "asc",
+      },
+    }),
+  ]);
 
   return (
     <main className="mx-auto max-w-5xl p-6">
@@ -52,12 +74,15 @@ export default async function MissionsPage({ searchParams }: PageProps) {
       <form method="GET" className="mb-8 flex flex-wrap gap-4 items-center">
         <select
           name="status"
-          defaultValue={params.status || ""}
+          defaultValue={status?.toLowerCase() ?? ""}
           className="border rounded px-3 py-2"
         >
           <option value="">All statuses</option>
-          <option value="active">Active</option>
-          <option value="completed">Completed</option>
+          {statuses.map((status) => (
+            <option key={status} value={status.toLowerCase()}>
+              {statusLabels[status]}
+            </option>
+          ))}
         </select>
 
         <select
@@ -66,8 +91,11 @@ export default async function MissionsPage({ searchParams }: PageProps) {
           className="border rounded px-3 py-2"
         >
           <option value="">All agencies</option>
-          <option value="NASA">NASA</option>
-          <option value="NASA/ESA/CSA">NASA/ESA/CSA</option>
+          {agencies.map((agency) => (
+            <option key={agency.id} value={agency.abbreviation}>
+              {agency.abbreviation}
+            </option>
+          ))}
         </select>
 
         <button
@@ -110,7 +138,7 @@ export default async function MissionsPage({ searchParams }: PageProps) {
                 <div>
                   <h2 className="text-xl font-semibold">{mission.name}</h2>
                   <p className="text-sm text-gray-600 mt-1">
-                    {mission.agency} · {mission.target}
+                    {agencyList(mission)} · {destinationList(mission)}
                   </p>
                 </div>
 
@@ -119,7 +147,7 @@ export default async function MissionsPage({ searchParams }: PageProps) {
                     mission.status
                   )}`}
                 >
-                  {mission.status}
+                  {statusLabels[mission.status]}
                 </span>
               </div>
 
@@ -127,13 +155,10 @@ export default async function MissionsPage({ searchParams }: PageProps) {
 
               <div className="mt-4 text-sm text-gray-500">
                 <span className="mr-4">
-                  <strong>Type:</strong> {mission.missionType}
+                  <strong>Field:</strong> {disciplineLabels[mission.discipline]}
                 </span>
                 <span>
-                  <strong>Launch:</strong>{" "}
-                  {mission.launchDate
-                    ? new Date(mission.launchDate).toLocaleDateString()
-                    : "Unknown"}
+                  <strong>Launch:</strong> {formatDate(mission.launchDate)}
                 </span>
               </div>
             </Link>
