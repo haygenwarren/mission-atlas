@@ -437,9 +437,6 @@ export const missions: MissionSeed[] = [
         description:
           "Three-axis stabilised orbiter carrying a colour imager and an atmospheric sounder.",
         powerSource: "SOLAR",
-        // GCAT's second code for this craft resolves to the University of
-        // Denver, which looks like a catalogue slip.
-        builders: ["LMA"],
       },
     ],
   },
@@ -1357,6 +1354,785 @@ export const missions: MissionSeed[] = [
         kind: "ORBITER",
         description:
           "The largest spacecraft NASA has built for a planetary mission, more than 30 m across with its solar arrays open.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "mariner-4",
+    name: "Mariner 4",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1967-12-21",
+    description:
+      "The first spacecraft to return close-up pictures of another planet, sending back 21 images of a cratered Mars from its flyby in July 1965.",
+    sourceUrl: "https://science.nasa.gov/mission/mariner-4/",
+    agencies: ["NASA"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "mariner-4",
+        name: "Mariner 4",
+        catalogueId: "S00938",
+        kind: "FLYBY",
+        description:
+          "Probe with a television camera on a scan platform and a tape recorder that played the images back over several days.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "mariner-9",
+    name: "Mariner 9",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1972-10-27",
+    description:
+      "The first spacecraft to orbit another planet. It waited out a global dust storm and then mapped the whole of Mars, revealing its volcanoes, canyons and dry riverbeds.",
+    sourceUrl: "https://science.nasa.gov/mission/mariner-9/",
+    agencies: ["NASA"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "mariner-9",
+        name: "Mariner 9",
+        catalogueId: "S05261",
+        kind: "ORBITER",
+        description:
+          "Orbiter that returned 7,329 images, covering the whole planet and its two moons.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "mars-3",
+    name: "Mars 3",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    endDeclared: "1972-08-22",
+    description:
+      "A Soviet orbiter and lander. The lander made the first soft landing on Mars but fell silent about 20 seconds after it began transmitting; the orbiter returned data for eight months.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1971-049A",
+    agencies: ["USSR"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "mars-3-orbiter",
+        name: "Mars 3 orbiter",
+        catalogueId: "S05252",
+        kind: "ORBITER",
+        description:
+          "Orbiter that studied the Martian surface and atmosphere, though the dust storm raging at its arrival hid much of the planet.",
+        status: "COMPLETED",
+        endDeclared: "1972-08-22",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "mars-3-lander",
+        name: "Mars 3 lander",
+        catalogueId: "S05667",
+        kind: "LANDER",
+        description:
+          "Lander that reached the surface by aerobraking, parachute and retro-rockets. It carried a small tethered rover that was never deployed.",
+        status: "FAILED",
+        lastContact: "1971-12-02",
+        // GCAT's total at launch, including the entry shell.
+        launchMassKg: 1210,
+        dryMassKg: null,
+        powerSource: "BATTERY",
+      },
+    ],
+  },
+  {
+    slug: "viking-1",
+    name: "Viking 1",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1982-11-11",
+    description:
+      "The first American mission to land on Mars and the first to operate there for years. Its orbiter mapped the planet while the lander searched the soil for signs of life.",
+    sourceUrl: "https://science.nasa.gov/mission/viking-1/",
+    agencies: ["NASA"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "viking-1-orbiter",
+        name: "Viking 1 orbiter",
+        catalogueId: "S08108",
+        kind: "ORBITER",
+        description:
+          "Orbiter that carried the lander to Mars, surveyed landing sites and relayed the lander's data to Earth.",
+        status: "COMPLETED",
+        lastContact: "1980-08-17",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "viking-1-lander",
+        name: "Viking 1 lander",
+        catalogueId: "S09024",
+        kind: "LANDER",
+        description:
+          "Lander with a robotic arm, a weather station and three biology experiments, which worked on Chryse Planitia for more than six years.",
+        status: "COMPLETED",
+        lastContact: "1982-11-11",
+        powerSource: "RADIOISOTOPE",
+      },
+    ],
+  },
+  {
+    slug: "mars-pathfinder",
+    name: "Mars Pathfinder",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1997-09-27T10:23:00Z",
+    endDeclared: "1998-03-10",
+    description:
+      "A NASA technology demonstration that landed on Mars cushioned by airbags and delivered Sojourner, the first rover to operate on another planet.",
+    sourceUrl: "https://science.nasa.gov/mission/mars-pathfinder/",
+    agencies: ["NASA"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "mars-pathfinder-lander",
+        name: "Pathfinder lander",
+        catalogueId: "S24667",
+        kind: "LANDER",
+        description:
+          "Lander that opened like a flower after bouncing to rest, carrying a stereo camera and weather instruments.",
+        status: "COMPLETED",
+        lastContact: "1997-09-27T10:23:00Z",
+        endDeclared: "1998-03-10",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "sojourner",
+        name: "Sojourner",
+        catalogueId: "A05947",
+        kind: "ROVER",
+        description:
+          "Microwave-oven-sized, six-wheeled rover that analysed rocks near the lander for 83 Martian days, far beyond its planned seven.",
+        status: "COMPLETED",
+        lastContact: "1997-09-27T10:23:00Z",
+        endDeclared: "1998-03-10",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "mars-global-surveyor",
+    name: "Mars Global Surveyor",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2006-11-05",
+    description:
+      "A NASA orbiter that mapped Mars for nine years, charting its topography and magnetic field and finding gullies that suggested recent liquid water.",
+    sourceUrl: "https://science.nasa.gov/mission/mars-global-surveyor/",
+    agencies: ["NASA"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "mars-global-surveyor",
+        name: "Mars Global Surveyor",
+        catalogueId: "S24648",
+        kind: "ORBITER",
+        description:
+          "Orbiter carrying a camera, a laser altimeter, a thermal spectrometer and a magnetometer, built largely from spares of the lost Mars Observer.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "mars-odyssey",
+    name: "2001 Mars Odyssey",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "NASA's longest-serving Mars orbiter, which mapped the planet's surface chemistry, found vast deposits of buried water ice and has relayed data for every rover since Spirit.",
+    sourceUrl: "https://science.nasa.gov/mission/odyssey/",
+    agencies: ["NASA"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "mars-odyssey",
+        name: "2001 Mars Odyssey",
+        catalogueId: "S26734",
+        kind: "ORBITER",
+        description:
+          "Orbiter carrying a thermal imaging camera and a gamma-ray spectrometer on a 6 m boom.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "mars-express",
+    name: "Mars Express",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "ESA's first mission to another planet. Its orbiter has studied Mars since 2003, finding water ice at the south pole and signs of liquid water beneath it.",
+    sourceUrl:
+      "https://www.esa.int/Science_Exploration/Space_Science/Mars_Express",
+    agencies: ["ESA"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "mars-express",
+        name: "Mars Express",
+        catalogueId: "S27816",
+        kind: "ORBITER",
+        description:
+          "Orbiter with a stereo camera and a ground-penetrating radar that probes kilometres below the surface.",
+        status: "ACTIVE",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "beagle-2",
+        name: "Beagle 2",
+        catalogueId: "A06833",
+        kind: "LANDER",
+        description:
+          "British-built lander that reached the surface but never made contact. Images taken eleven years later showed that its solar panels had only partly opened.",
+        status: "FAILED",
+        lastContact: "2003-12-19",
+        endDeclared: "2004-02-06",
+        powerSource: "SOLAR",
+        // GCAT also lists Martin-Baker, which supplied the landing system.
+        builders: ["ASTT"],
+      },
+    ],
+  },
+  {
+    slug: "spirit",
+    name: "Spirit",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2010-03-22",
+    endDeclared: "2011-05-25",
+    description:
+      "One of NASA's twin Mars Exploration Rovers, which explored Gusev crater for more than six years and found evidence that hot water once flowed there.",
+    sourceUrl: "https://science.nasa.gov/mission/mer-spirit/",
+    agencies: ["NASA"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "spirit",
+        name: "Spirit",
+        catalogueId: "S27827",
+        kind: "ROVER",
+        description:
+          "Golf-cart-sized, six-wheeled rover with a panoramic camera and a robotic arm for studying rocks up close.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "opportunity",
+    name: "Opportunity",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2018-06-10",
+    endDeclared: "2019-02-13",
+    description:
+      "One of NASA's twin Mars Exploration Rovers, built to last 90 days. It drove more than 45 km across Meridiani Planum over 14 years and found minerals that form in water.",
+    sourceUrl: "https://science.nasa.gov/mission/mer-opportunity/",
+    agencies: ["NASA"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "opportunity",
+        name: "Opportunity",
+        catalogueId: "S27849",
+        kind: "ROVER",
+        description:
+          "Twin of Spirit. It worked until a planet-wide dust storm cut off the sunlight to its solar panels.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "mars-reconnaissance-orbiter",
+    name: "Mars Reconnaissance Orbiter",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "A NASA orbiter that has studied Mars since 2006 with the most powerful camera ever sent to another planet, and relays most of the data from the rovers on the surface.",
+    sourceUrl: "https://science.nasa.gov/mission/mars-reconnaissance-orbiter/",
+    agencies: ["NASA"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "mars-reconnaissance-orbiter",
+        name: "Mars Reconnaissance Orbiter",
+        catalogueId: "S28788",
+        kind: "ORBITER",
+        description:
+          "Orbiter with a 3 m dish antenna and a telescopic camera that can pick out features the size of a kitchen table.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "phoenix",
+    name: "Phoenix",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2008-11-02",
+    endDeclared: "2008-11-10",
+    description:
+      "A NASA lander that touched down in the Martian arctic, dug into the soil and confirmed water ice just below the surface.",
+    sourceUrl: "https://science.nasa.gov/mission/mars-phoenix/",
+    agencies: ["NASA"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "phoenix",
+        name: "Phoenix",
+        catalogueId: "S32003",
+        kind: "LANDER",
+        description:
+          "Stationary lander with a 2.4 m robotic arm, ovens and a wet chemistry lab for analysing soil samples.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "mars-science-laboratory",
+    name: "Mars Science Laboratory",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "A NASA mission that landed the Curiosity rover in Gale crater in 2012, where it found that Mars once had lakes and streams able to support microbial life.",
+    sourceUrl: "https://science.nasa.gov/mission/msl-curiosity/",
+    agencies: ["NASA"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "curiosity",
+        name: "Curiosity",
+        catalogueId: "S37936",
+        kind: "ROVER",
+        description:
+          "Car-sized rover with a rock-vaporising laser and an onboard chemistry lab, lowered to the surface by a rocket-powered sky crane.",
+        powerSource: "RADIOISOTOPE",
+        // GCAT lists Lockheed Martin, which built the aeroshell.
+        builders: ["JPL"],
+      },
+    ],
+  },
+  {
+    slug: "mars-orbiter-mission",
+    name: "Mars Orbiter Mission",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    endDeclared: "2022-10-03",
+    description:
+      "India's first interplanetary mission, which made ISRO the first agency to reach Mars orbit on its first attempt. Planned for six months, it operated for nearly eight years.",
+    sourceUrl: "https://www.isro.gov.in/MarsOrbiterMissionSpacecraft.html",
+    agencies: ["ISRO"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "mars-orbiter-mission",
+        name: "Mars Orbiter Mission",
+        catalogueId: "S39370",
+        kind: "ORBITER",
+        description:
+          "Compact orbiter carrying five instruments, including a colour camera and a methane sensor.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "exomars-trace-gas-orbiter",
+    name: "ExoMars Trace Gas Orbiter",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "A joint ESA and Roscosmos mission to map trace gases such as methane in the Martian atmosphere. It also carried the Schiaparelli landing demonstrator, which crashed on arrival.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2016-017A",
+    agencies: ["ESA", "Roscosmos"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "trace-gas-orbiter",
+        name: "Trace Gas Orbiter",
+        catalogueId: "S41388",
+        kind: "ORBITER",
+        description:
+          "Orbiter that measures gases making up less than 1% of the atmosphere and relays data from rovers on the surface.",
+        status: "ACTIVE",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "schiaparelli",
+        name: "Schiaparelli",
+        catalogueId: "A08532",
+        kind: "LANDER",
+        description:
+          "Test lander that entered the atmosphere and deployed its parachute successfully, but cut its thrusters too early after a sensor fault and hit the surface at about 540 km/h.",
+        status: "FAILED",
+        lastContact: "2016-10-19",
+        // GCAT's total at launch, including the heat shield and back shell.
+        launchMassKg: 600,
+        dryMassKg: null,
+        powerSource: "BATTERY",
+      },
+    ],
+  },
+  {
+    slug: "insight",
+    name: "InSight",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2022-12-15",
+    endDeclared: "2022-12-21",
+    description:
+      "A NASA lander that listened to the interior of Mars, recording more than 1,300 marsquakes and measuring the size of the planet's core.",
+    sourceUrl: "https://science.nasa.gov/mission/insight/",
+    agencies: ["NASA", "CNES", "DLR"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "insight",
+        name: "InSight",
+        catalogueId: "S43457",
+        kind: "LANDER",
+        description:
+          "Stationary lander that placed a French-built seismometer on the ground with its robotic arm. A German heat probe meant to burrow five metres down could not get past the surface soil.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "hope",
+    name: "Hope",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "The first interplanetary mission by an Arab nation. From a high orbit it tracks Martian weather through the whole day and across the seasons.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2020-047A",
+    agencies: ["MBRSC"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "hope",
+        name: "Hope",
+        catalogueId: "S45918",
+        kind: "ORBITER",
+        description:
+          "Orbiter with a camera and two spectrometers, built by the Mohammed bin Rashid Space Centre with the University of Colorado.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "tianwen-1",
+    name: "Tianwen-1",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "China's first independent mission to Mars, which succeeded in orbiting, landing and deploying a rover in a single attempt.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2020-049A",
+    agencies: ["CNSA"],
+    destinations: ["mars"],
+    spacecraft: [
+      {
+        slug: "tianwen-1-orbiter",
+        name: "Tianwen-1 orbiter",
+        catalogueId: "S45935",
+        kind: "ORBITER",
+        description:
+          "Orbiter that mapped the whole planet and relayed the rover's data.",
+        status: "ACTIVE",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "zhurong",
+        name: "Zhurong",
+        catalogueId: "A09604",
+        kind: "ROVER",
+        description:
+          "Six-wheeled rover that explored Utopia Planitia with ground-penetrating radar for a year before going into hibernation for the winter, from which it did not wake.",
+        status: "COMPLETED",
+        lastContact: "2022-05-18",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "giotto",
+    name: "Giotto",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "1992-07-23",
+    description:
+      "ESA's first deep-space mission, which passed within 600 km of the nucleus of Halley's Comet in 1986 and returned the first close-up images of a comet's core. It later flew past a second comet, Grigg–Skjellerup.",
+    sourceUrl:
+      "https://www.esa.int/Science_Exploration/Space_Science/Giotto_overview",
+    agencies: ["ESA"],
+    destinations: ["halley", "grigg-skjellerup"],
+    spacecraft: [
+      {
+        slug: "giotto",
+        name: "Giotto",
+        catalogueId: "S15875",
+        kind: "FLYBY",
+        description:
+          "Spin-stabilised probe protected by a two-layer dust shield, which was battered but survived the encounter.",
+        // GCAT's total at launch, including the solid motor that sent it
+        // out of Earth orbit.
+        launchMassKg: 958,
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "near-shoemaker",
+    name: "NEAR Shoemaker",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2001-02-28",
+    description:
+      "The first spacecraft to orbit an asteroid and the first to land on one, settling onto Eros in 2001 after a year in orbit around it. On the way it flew past the asteroid Mathilde.",
+    sourceUrl: "https://science.nasa.gov/mission/near-shoemaker/",
+    agencies: ["NASA"],
+    destinations: ["mathilde", "eros"],
+    spacecraft: [
+      {
+        slug: "near-shoemaker",
+        name: "NEAR Shoemaker",
+        catalogueId: "S23784",
+        kind: "ORBITER",
+        description:
+          "Solar-powered orbiter with six instruments. It was not designed to land, yet kept working on the surface for two weeks.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "stardust",
+    name: "Stardust",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2011-03-24T23:33:00Z",
+    endDeclared: "2011-03-24",
+    description:
+      "The first mission to bring back samples from a comet, catching dust from comet Wild 2 in aerogel and returning it to Earth in 2006. The spacecraft then flew on to visit comet Tempel 1.",
+    sourceUrl: "https://science.nasa.gov/mission/stardust/",
+    agencies: ["NASA"],
+    destinations: ["wild-2", "tempel-1"],
+    spacecraft: [
+      {
+        slug: "stardust",
+        name: "Stardust",
+        catalogueId: "S25618",
+        kind: "FLYBY",
+        description:
+          "Probe with a tennis-racket-shaped aerogel collector and shields to protect it from comet dust.",
+        // Includes the 46 kg sample return capsule, which GCAT lists
+        // separately.
+        launchMassKg: 385,
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "hayabusa",
+    name: "Hayabusa",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2010-06-13",
+    endDeclared: "2010-06-13",
+    description:
+      "The first mission to return samples from an asteroid, bringing back grains from Itokawa in 2010 after a seven-year journey troubled by failed reaction wheels, fuel leaks and a lost signal.",
+    sourceUrl:
+      "https://www.isas.jaxa.jp/en/missions/spacecraft/past/hayabusa.html",
+    agencies: ["JAXA"],
+    destinations: ["itokawa"],
+    spacecraft: [
+      {
+        slug: "hayabusa",
+        name: "Hayabusa",
+        catalogueId: "S27809",
+        kind: "ORBITER",
+        description:
+          "Ion-engine spacecraft that touched down briefly on Itokawa. Its small hopping rover, MINERVA, missed the asteroid when released.",
+        // GCAT's total at launch, including the return capsule and rover.
+        launchMassKg: 509,
+        powerSource: "SOLAR",
+        // GCAT lists ISAS, the operator; NEC built the spacecraft.
+        builders: ["NECT"],
+      },
+    ],
+  },
+  {
+    slug: "deep-impact",
+    name: "Deep Impact",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2013-08-08",
+    endDeclared: "2013-09-20",
+    description:
+      "A NASA mission that fired a 372 kg impactor into comet Tempel 1 to expose material from beneath its surface. The flyby spacecraft later visited a second comet, Hartley 2, as the EPOXI mission.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2005-001A",
+    agencies: ["NASA"],
+    destinations: ["tempel-1", "hartley-2"],
+    spacecraft: [
+      {
+        slug: "deep-impact-flyby",
+        name: "Deep Impact flyby spacecraft",
+        catalogueId: "S28517",
+        kind: "FLYBY",
+        description:
+          "Spacecraft that released the impactor and watched the collision with two telescopes from 500 km away.",
+        status: "COMPLETED",
+        lastContact: "2013-08-08",
+        endDeclared: "2013-09-20",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "deep-impact-impactor",
+        name: "Deep Impact impactor",
+        catalogueId: "A06946",
+        kind: "IMPACTOR",
+        description:
+          "Copper-fronted probe that steered itself into the comet's path and was hit at 10 km/s, filming until the end.",
+        status: "COMPLETED",
+        lastContact: "2005-07-04T05:52:00Z",
+        powerSource: "BATTERY",
+      },
+    ],
+  },
+  {
+    slug: "dawn",
+    name: "Dawn",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2018-10-30",
+    endDeclared: "2018-11-01",
+    description:
+      "The first spacecraft to orbit two different worlds beyond Earth, the giant asteroid Vesta and the dwarf planet Ceres, made possible by ion propulsion.",
+    sourceUrl: "https://science.nasa.gov/mission/dawn/",
+    agencies: ["NASA"],
+    destinations: ["vesta", "ceres"],
+    spacecraft: [
+      {
+        slug: "dawn",
+        name: "Dawn",
+        catalogueId: "S32249",
+        kind: "ORBITER",
+        description:
+          "Ion-engine orbiter with solar arrays nearly 20 m across, carrying a camera and two spectrometers.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "osiris-rex",
+    name: "OSIRIS-REx",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "A NASA mission that collected 121 grams of material from the asteroid Bennu and delivered it to Earth in September 2023. The spacecraft, renamed OSIRIS-APEX, is now on its way to the asteroid Apophis.",
+    sourceUrl: "https://science.nasa.gov/mission/osiris-rex/",
+    agencies: ["NASA"],
+    destinations: ["bennu"],
+    spacecraft: [
+      {
+        slug: "osiris-rex",
+        name: "OSIRIS-REx",
+        catalogueId: "S41757",
+        kind: "ORBITER",
+        description:
+          "Orbiter with a 3.4 m sampling arm that touched Bennu for a few seconds to grab loose material.",
+        // GCAT's total at launch, including the sample return capsule.
+        launchMassKg: 2110,
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "dart",
+    name: "DART",
+    discipline: "PLANETARY_SCIENCE",
+    status: "COMPLETED",
+    lastContact: "2022-09-26T23:14:00Z",
+    description:
+      "The first planetary defence test. NASA deliberately crashed the spacecraft into Dimorphos, the small moon of the asteroid Didymos, and shortened its orbit by 32 minutes.",
+    sourceUrl: "https://science.nasa.gov/mission/dart/",
+    agencies: ["NASA", "ASI"],
+    destinations: ["didymos", "dimorphos"],
+    spacecraft: [
+      {
+        slug: "dart",
+        name: "DART",
+        catalogueId: "S49497",
+        kind: "IMPACTOR",
+        description:
+          "Box-shaped spacecraft that steered itself into the asteroid at about 6 km/s using an onboard camera.",
+        status: "COMPLETED",
+        lastContact: "2022-09-26T23:14:00Z",
+        powerSource: "SOLAR",
+      },
+      {
+        slug: "liciacube",
+        name: "LICIACube",
+        catalogueId: "A10780",
+        kind: "FLYBY",
+        description:
+          "Italian cubesat that separated two weeks earlier and photographed the impact and its plume of debris.",
+        status: "COMPLETED",
+        lastContact: "2022-10-24",
+        endDeclared: "2022-12-23",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "lucy",
+    name: "Lucy",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "A NASA mission on a twelve-year tour of the Trojan asteroids that share Jupiter's orbit. On the way it has flown past two main-belt asteroids, finding that the first, Dinkinesh, has a small moon.",
+    sourceUrl: "https://science.nasa.gov/mission/lucy/",
+    agencies: ["NASA"],
+    destinations: ["dinkinesh", "donaldjohanson"],
+    spacecraft: [
+      {
+        slug: "lucy",
+        name: "Lucy",
+        catalogueId: "S49328",
+        kind: "FLYBY",
+        description:
+          "Probe with two round solar arrays more than 7 m across, built to operate farther from the Sun than any solar-powered spacecraft before it.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "psyche",
+    name: "Psyche",
+    discipline: "PLANETARY_SCIENCE",
+    status: "ACTIVE",
+    description:
+      "A NASA mission on its way to Psyche, a metal-rich asteroid that may be the exposed core of an early planet. It is due to arrive in 2029.",
+    sourceUrl: "https://science.nasa.gov/mission/psyche/",
+    agencies: ["NASA"],
+    destinations: ["psyche"],
+    spacecraft: [
+      {
+        slug: "psyche",
+        name: "Psyche",
+        catalogueId: "S58049",
+        kind: "ORBITER",
+        description:
+          "Orbiter driven by Hall-effect thrusters, with five-panel solar arrays spanning nearly 25 m.",
         powerSource: "SOLAR",
       },
     ],

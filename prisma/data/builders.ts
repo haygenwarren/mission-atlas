@@ -26,6 +26,12 @@ export const builders = [
   { code: "SAST", name: "Shanghai Academy of Spaceflight Technology" },
   { code: "SPAIL", name: "SpaceIL" },
   { code: "TRW", name: "TRW" },
+  { code: "ARGOT", name: "Argotec" },
+  { code: "BAES", name: "British Aerospace" },
+  { code: "CLASP", name: "LASP (University of Colorado)" },
+  { code: "MAXSS", name: "Maxar" },
+  { code: "OSCD", name: "Orbital Sciences" },
+  { code: "THALES", name: "Thales Alenia Space" },
 ] as const;
 
 export type BuilderCode = (typeof builders)[number]["code"];
@@ -34,12 +40,17 @@ export type BuilderCode = (typeof builders)[number]["code"];
 // into the single builder the site shows.
 export const builderAliases: Record<string, BuilderCode> = {
   ADSUK: "ADST",
+  ASTD: "ASTT",
   ASTDF: "ASTT",
   BABTS: "NPOL",
+  // GCAT pairs this code with Lockheed Martin's Denver works.
+  DENV: "LMA",
   EADSB: "ASTT",
   HSES: "HAC",
   ISRO: "ISAC",
+  LMSS: "LMA",
   LMSSD: "LMA",
   NECTF: "NECT",
   NECTKA: "NECT",
+  THALA: "THALES",
 };
