@@ -22,6 +22,7 @@ export const destinations = [
     kind: "INTERSTELLAR_SPACE",
   },
   { slug: "heliocentric-orbit", name: "Heliocentric orbit", kind: "ORBIT" },
+  { slug: "high-earth-orbit", name: "High Earth orbit", kind: "ORBIT" },
   { slug: "venus", name: "Venus", kind: "PLANET" },
   { slug: "moon", name: "Moon", kind: "MOON" },
   { slug: "mars", name: "Mars", kind: "PLANET" },

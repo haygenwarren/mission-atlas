@@ -2137,4 +2137,668 @@ export const missions: MissionSeed[] = [
       },
     ],
   },
+  {
+    slug: "uhuru",
+    name: "Uhuru",
+    discipline: "ASTROPHYSICS",
+    status: "COMPLETED",
+    description:
+      "The first satellite built specifically for X-ray astronomy. Launched from a platform off the coast of Kenya, it produced the first full catalogue of X-ray sources in the sky.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1970-107A",
+    agencies: ["NASA"],
+    destinations: ["low-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "uhuru",
+        name: "Uhuru",
+        catalogueId: "S04797",
+        kind: "TELESCOPE",
+        description:
+          "Small spinning satellite with two sets of X-ray detectors that swept the sky as it turned.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "iue",
+    name: "IUE",
+    discipline: "ASTROPHYSICS",
+    status: "COMPLETED",
+    lastContact: "1996-09-30T18:44:00Z",
+    endDeclared: "1996-09-30",
+    description:
+      "The International Ultraviolet Explorer, run jointly by NASA, ESA and the United Kingdom. Planned for three years, it worked for nearly nineteen and was the first space telescope astronomers could operate in real time.",
+    sourceUrl: "https://science.nasa.gov/mission/iue/",
+    agencies: ["NASA", "ESA", "SERC"],
+    destinations: ["high-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "iue",
+        name: "IUE",
+        catalogueId: "S10637",
+        kind: "TELESCOPE",
+        description:
+          "Telescope with a 45 cm mirror in a geosynchronous orbit, always in view of a ground station.",
+        // GCAT's total at launch, including the motor that raised it to
+        // geosynchronous orbit.
+        launchMassKg: 671,
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "iras",
+    name: "IRAS",
+    discipline: "ASTROPHYSICS",
+    status: "COMPLETED",
+    lastContact: "1983-11-21",
+    description:
+      "The Infrared Astronomical Satellite, the first telescope to survey the whole sky in infrared light, flown jointly by the United States, the Netherlands and the United Kingdom. In ten months it catalogued about 350,000 sources.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1983-004A",
+    agencies: ["NASA", "NIVR", "SERC"],
+    destinations: ["low-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "iras",
+        name: "IRAS",
+        catalogueId: "S13777",
+        kind: "TELESCOPE",
+        description:
+          "Telescope with a 57 cm mirror cooled by liquid helium to about 2 kelvin.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "hipparcos",
+    name: "Hipparcos",
+    discipline: "ASTROPHYSICS",
+    status: "COMPLETED",
+    description:
+      "The first space mission devoted to measuring the positions, distances and motions of stars. It was stranded in the wrong orbit by a motor failure but still measured about 118,000 stars with high precision.",
+    sourceUrl:
+      "https://www.esa.int/Science_Exploration/Space_Science/Hipparcos_overview",
+    agencies: ["ESA"],
+    destinations: ["high-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "hipparcos",
+        name: "Hipparcos",
+        catalogueId: "S20169",
+        kind: "TELESCOPE",
+        description:
+          "Spinning satellite with a 29 cm telescope that viewed two patches of sky at once to measure the angles between stars.",
+        // GCAT's total at launch, including the apogee motor that failed.
+        launchMassKg: 1130,
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "cobe",
+    name: "COBE",
+    discipline: "ASTROPHYSICS",
+    status: "COMPLETED",
+    lastContact: "1993-12-23",
+    description:
+      "The Cosmic Background Explorer, which measured the faint glow left over from the Big Bang and showed it has an almost perfect black-body spectrum with tiny temperature variations. The work earned the 2006 Nobel Prize in Physics.",
+    sourceUrl: "https://science.nasa.gov/mission/cobe/",
+    agencies: ["NASA"],
+    destinations: ["low-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "cobe",
+        name: "COBE",
+        catalogueId: "S20322",
+        kind: "TELESCOPE",
+        description:
+          "Satellite with three instruments behind a conical sunshade, two of them cooled by liquid helium.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "rosat",
+    name: "ROSAT",
+    discipline: "ASTROPHYSICS",
+    status: "COMPLETED",
+    lastContact: "1999-02-12",
+    description:
+      "A German-led X-ray observatory, built with the United States and the United Kingdom, that made the first imaging X-ray survey of the whole sky and catalogued more than 150,000 sources.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1990-049A",
+    agencies: ["DLR", "NASA", "SERC"],
+    destinations: ["low-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "rosat",
+        name: "ROSAT",
+        catalogueId: "S20638",
+        kind: "TELESCOPE",
+        description:
+          "Satellite carrying an X-ray telescope with an 84 cm mirror assembly and a smaller extreme-ultraviolet telescope.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "compton-gamma-ray-observatory",
+    name: "Compton Gamma Ray Observatory",
+    discipline: "ASTROPHYSICS",
+    status: "COMPLETED",
+    lastContact: "2000-06-04",
+    endDeclared: "2000-06-04",
+    description:
+      "The second of NASA's Great Observatories, which studied the Universe in gamma rays and showed that gamma-ray bursts come from all directions in the sky. At 17 tonnes it was the heaviest astrophysics payload flown at the time.",
+    sourceUrl: "https://science.nasa.gov/mission/cgro/",
+    agencies: ["NASA"],
+    destinations: ["low-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "compton-gamma-ray-observatory",
+        name: "Compton Gamma Ray Observatory",
+        catalogueId: "S21225",
+        kind: "TELESCOPE",
+        description:
+          "Observatory with four gamma-ray instruments, deployed from Space Shuttle Atlantis and deliberately brought down after a gyroscope failed.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "iso",
+    name: "ISO",
+    discipline: "ASTROPHYSICS",
+    status: "COMPLETED",
+    lastContact: "1998-05-16T12:00:00Z",
+    endDeclared: "1998-05-16",
+    description:
+      "ESA's Infrared Space Observatory, which made more than 26,000 observations and found water vapour in star-forming clouds, around old stars and in the atmospheres of the giant planets.",
+    sourceUrl:
+      "https://www.esa.int/Science_Exploration/Space_Science/ISO_overview",
+    agencies: ["ESA"],
+    destinations: ["high-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "iso",
+        name: "ISO",
+        catalogueId: "S23715",
+        kind: "TELESCOPE",
+        description:
+          "Telescope with a 60 cm mirror inside a tank of superfluid helium, which lasted eight months longer than planned.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "chandra",
+    name: "Chandra",
+    discipline: "ASTROPHYSICS",
+    status: "ACTIVE",
+    description:
+      "The third of NASA's Great Observatories, an X-ray telescope with the sharpest vision of any yet flown. It studies black holes, supernova remnants and the hot gas in galaxy clusters.",
+    sourceUrl: "https://science.nasa.gov/mission/chandra/",
+    agencies: ["NASA"],
+    destinations: ["high-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "chandra",
+        name: "Chandra X-ray Observatory",
+        catalogueId: "S25867",
+        kind: "TELESCOPE",
+        description:
+          "Observatory with four pairs of nested mirrors, the smoothest ever made, in an orbit that reaches a third of the way to the Moon.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "xmm-newton",
+    name: "XMM-Newton",
+    discipline: "ASTROPHYSICS",
+    status: "ACTIVE",
+    description:
+      "ESA's X-ray observatory, whose three telescopes give it an unusually large collecting area for studying faint sources, from comets to distant galaxy clusters.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1999-066A",
+    agencies: ["ESA"],
+    destinations: ["high-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "xmm-newton",
+        name: "XMM-Newton",
+        catalogueId: "S25989",
+        kind: "TELESCOPE",
+        description:
+          "Ten-metre-long satellite carrying three X-ray telescopes, each with 58 nested mirror shells, and an optical monitor.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "wmap",
+    name: "WMAP",
+    discipline: "ASTROPHYSICS",
+    status: "COMPLETED",
+    lastContact: "2010-10-20",
+    description:
+      "The Wilkinson Microwave Anisotropy Probe, which mapped the cosmic microwave background from the Sun–Earth L2 point. It fixed the age of the Universe at about 13.8 billion years and measured its mix of ordinary matter, dark matter and dark energy.",
+    sourceUrl: "https://science.nasa.gov/mission/wmap/",
+    agencies: ["NASA"],
+    destinations: ["sun-earth-l2"],
+    spacecraft: [
+      {
+        slug: "wmap",
+        name: "WMAP",
+        catalogueId: "S26859",
+        kind: "TELESCOPE",
+        description:
+          "Spinning satellite with a pair of back-to-back telescopes that compared the temperature of two patches of sky at a time.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "integral",
+    name: "INTEGRAL",
+    discipline: "ASTROPHYSICS",
+    status: "COMPLETED",
+    endDeclared: "2025-02-28",
+    description:
+      "ESA's gamma-ray observatory, which observed for more than 22 years. It studied black holes, neutron stars and the gamma-ray glow of the Milky Way, and helped pinpoint the 2017 neutron-star merger first detected in gravitational waves.",
+    sourceUrl:
+      "https://www.esa.int/Science_Exploration/Space_Science/Integral_overview",
+    agencies: ["ESA"],
+    destinations: ["high-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "integral",
+        name: "INTEGRAL",
+        catalogueId: "S27540",
+        kind: "TELESCOPE",
+        description:
+          "Observatory with a gamma-ray imager and spectrometer, supported by X-ray and optical monitors.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "spitzer",
+    name: "Spitzer",
+    discipline: "ASTROPHYSICS",
+    status: "COMPLETED",
+    lastContact: "2020-01-30",
+    endDeclared: "2020-01-30",
+    description:
+      "The last of NASA's Great Observatories, an infrared telescope that trailed the Earth around the Sun for 16 years. It studied young stars, distant galaxies and exoplanets, including the seven Earth-sized planets of TRAPPIST-1.",
+    sourceUrl: "https://science.nasa.gov/mission/spitzer/",
+    agencies: ["NASA"],
+    destinations: ["heliocentric-orbit"],
+    spacecraft: [
+      {
+        slug: "spitzer",
+        name: "Spitzer Space Telescope",
+        catalogueId: "S27871",
+        kind: "TELESCOPE",
+        description:
+          "Telescope with an 85 cm beryllium mirror, cooled at first by liquid helium and later by its shade alone.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "swift",
+    name: "Swift",
+    discipline: "ASTROPHYSICS",
+    status: "ACTIVE",
+    description:
+      "A NASA observatory that detects gamma-ray bursts and turns within about a minute to observe their afterglows in X-ray, ultraviolet and visible light.",
+    sourceUrl: "https://science.nasa.gov/mission/swift/",
+    agencies: ["NASA"],
+    destinations: ["low-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "swift",
+        name: "Neil Gehrels Swift Observatory",
+        catalogueId: "S28485",
+        kind: "TELESCOPE",
+        description:
+          "Fast-slewing satellite with a wide-field burst detector and two narrow-field telescopes.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "corot",
+    name: "CoRoT",
+    discipline: "ASTROPHYSICS",
+    status: "COMPLETED",
+    lastContact: "2014-06-17T10:27:00Z",
+    endDeclared: "2013-06-24",
+    description:
+      "A French-led mission that was the first built to find planets by the dimming of their stars, and that also studied the vibrations of stars to probe their interiors.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2006-063A",
+    agencies: ["CNES", "ESA"],
+    destinations: ["low-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "corot",
+        name: "CoRoT",
+        catalogueId: "S29678",
+        kind: "TELESCOPE",
+        description:
+          "Satellite with a 27 cm telescope that stared at one field of stars for up to five months at a time.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "fermi",
+    name: "Fermi",
+    discipline: "ASTROPHYSICS",
+    status: "ACTIVE",
+    description:
+      "A NASA observatory that surveys the whole sky in gamma rays every three hours, studying pulsars, black-hole jets and gamma-ray bursts.",
+    sourceUrl: "https://science.nasa.gov/mission/fermi/",
+    agencies: ["NASA"],
+    destinations: ["low-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "fermi",
+        name: "Fermi Gamma-ray Space Telescope",
+        catalogueId: "S33053",
+        kind: "TELESCOPE",
+        description:
+          "Satellite carrying the Large Area Telescope and a burst monitor that watches the entire unblocked sky.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "herschel",
+    name: "Herschel",
+    discipline: "ASTROPHYSICS",
+    status: "COMPLETED",
+    lastContact: "2013-06-17T12:25:00Z",
+    endDeclared: "2013-04-29",
+    description:
+      "ESA's far-infrared observatory, which carried the largest mirror flown in space at the time. It studied how stars and galaxies form from cold gas and dust.",
+    sourceUrl:
+      "https://www.esa.int/Science_Exploration/Space_Science/Herschel_overview",
+    agencies: ["ESA"],
+    destinations: ["sun-earth-l2"],
+    spacecraft: [
+      {
+        slug: "herschel",
+        name: "Herschel Space Observatory",
+        catalogueId: "S34937",
+        kind: "TELESCOPE",
+        description:
+          "Telescope with a 3.5 m mirror, its instruments cooled by more than 2,300 litres of liquid helium.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "planck",
+    name: "Planck",
+    discipline: "ASTROPHYSICS",
+    status: "COMPLETED",
+    lastContact: "2013-10-23T12:10:27Z",
+    endDeclared: "2013-10-23",
+    description:
+      "An ESA mission that mapped the cosmic microwave background in greater detail than any before it, giving the most precise measurements of the age and contents of the Universe.",
+    sourceUrl:
+      "https://www.esa.int/Science_Exploration/Space_Science/Planck_overview",
+    agencies: ["ESA"],
+    destinations: ["sun-earth-l2"],
+    spacecraft: [
+      {
+        slug: "planck",
+        name: "Planck",
+        catalogueId: "S34938",
+        kind: "TELESCOPE",
+        description:
+          "Spinning satellite with a 1.5 m telescope and detectors cooled to a tenth of a degree above absolute zero.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "wise",
+    name: "WISE",
+    discipline: "ASTROPHYSICS",
+    status: "COMPLETED",
+    lastContact: "2024-08-08",
+    endDeclared: "2024-08-08",
+    description:
+      "The Wide-field Infrared Survey Explorer, which surveyed the whole sky in infrared light. After its coolant ran out it was revived as NEOWISE to find and track asteroids and comets near the Earth.",
+    sourceUrl: "https://science.nasa.gov/mission/neowise/",
+    agencies: ["NASA"],
+    destinations: ["low-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "wise",
+        name: "WISE",
+        catalogueId: "S36119",
+        kind: "TELESCOPE",
+        description:
+          "Satellite with a 40 cm telescope and four infrared detectors, originally cooled by solid hydrogen.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "nustar",
+    name: "NuSTAR",
+    discipline: "ASTROPHYSICS",
+    status: "ACTIVE",
+    description:
+      "The first telescope to focus high-energy X-rays, used to study black holes, exploded stars and the hottest regions around them.",
+    sourceUrl: "https://science.nasa.gov/mission/nustar/",
+    agencies: ["NASA"],
+    destinations: ["low-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "nustar",
+        name: "NuSTAR",
+        catalogueId: "S38358",
+        kind: "TELESCOPE",
+        description:
+          "Small satellite whose two telescopes focus X-rays onto detectors at the end of a 10 m mast, unfolded after launch.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "astrosat",
+    name: "Astrosat",
+    discipline: "ASTROPHYSICS",
+    status: "ACTIVE",
+    description:
+      "India's first dedicated astronomy satellite, which observes the same target in ultraviolet, visible and X-ray light at the same time.",
+    sourceUrl: "https://www.isro.gov.in/AstroSat.html",
+    agencies: ["ISRO"],
+    destinations: ["low-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "astrosat",
+        name: "Astrosat",
+        catalogueId: "S40930",
+        kind: "TELESCOPE",
+        description:
+          "Satellite with twin ultraviolet telescopes and three X-ray instruments pointing in the same direction.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "hitomi",
+    name: "Hitomi",
+    discipline: "ASTROPHYSICS",
+    status: "FAILED",
+    lastContact: "2016-03-26",
+    endDeclared: "2016-04-28",
+    description:
+      "A JAXA X-ray observatory built with NASA. It broke apart five weeks after launch when a software error set it spinning out of control, but had already measured the motion of hot gas in the Perseus galaxy cluster.",
+    sourceUrl: "https://global.jaxa.jp/projects/sas/astro_h/",
+    agencies: ["JAXA", "NASA"],
+    destinations: ["low-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "hitomi",
+        name: "Hitomi",
+        catalogueId: "S41337",
+        kind: "TELESCOPE",
+        description:
+          "Observatory carrying an X-ray microcalorimeter cooled to a twentieth of a degree above absolute zero.",
+        powerSource: "SOLAR",
+        // GCAT also lists JAXA's Tsukuba Space Center.
+        builders: ["NECT"],
+      },
+    ],
+  },
+  {
+    slug: "tess",
+    name: "TESS",
+    discipline: "ASTROPHYSICS",
+    status: "ACTIVE",
+    description:
+      "The Transiting Exoplanet Survey Satellite, which watches the brightest nearby stars for planets crossing in front of them. It has found thousands of candidate planets across almost the whole sky.",
+    sourceUrl: "https://science.nasa.gov/mission/tess/",
+    agencies: ["NASA"],
+    destinations: ["high-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "tess",
+        name: "TESS",
+        catalogueId: "S43435",
+        kind: "TELESCOPE",
+        description:
+          "Small satellite with four wide-field cameras, in a stretched orbit that takes it around the Earth twice for every orbit of the Moon.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "spektr-rg",
+    name: "Spektr-RG",
+    discipline: "ASTROPHYSICS",
+    status: "ACTIVE",
+    description:
+      "A Russian-German X-ray observatory at the Sun–Earth L2 point, built to survey the whole sky. The German eROSITA telescope was switched to safe mode in February 2022; the Russian ART-XC telescope continues to observe.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2019-040A",
+    agencies: ["Roscosmos", "DLR"],
+    destinations: ["sun-earth-l2"],
+    spacecraft: [
+      {
+        slug: "spektr-rg",
+        name: "Spektr-RG",
+        catalogueId: "S44432",
+        kind: "TELESCOPE",
+        description:
+          "Satellite carrying two X-ray telescopes, eROSITA and ART-XC, each with seven mirror modules.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "euclid",
+    name: "Euclid",
+    discipline: "ASTROPHYSICS",
+    status: "ACTIVE",
+    description:
+      "An ESA mission mapping the shapes and distances of billions of galaxies across a third of the sky, to study dark matter and dark energy.",
+    sourceUrl:
+      "https://www.esa.int/Science_Exploration/Space_Science/Euclid_overview",
+    agencies: ["ESA"],
+    destinations: ["sun-earth-l2"],
+    spacecraft: [
+      {
+        slug: "euclid",
+        name: "Euclid",
+        catalogueId: "S57209",
+        kind: "TELESCOPE",
+        description:
+          "Telescope with a 1.2 m mirror feeding a visible-light camera and a near-infrared instrument.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
+  {
+    slug: "xrism",
+    name: "XRISM",
+    discipline: "ASTROPHYSICS",
+    status: "ACTIVE",
+    description:
+      "A JAXA and NASA X-ray observatory that measures the energy of X-rays with great precision, revealing the temperature, composition and motion of hot gas around black holes and in galaxy clusters.",
+    sourceUrl: "https://global.jaxa.jp/projects/sas/xrism/",
+    agencies: ["JAXA", "NASA"],
+    destinations: ["low-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "xrism",
+        name: "XRISM",
+        catalogueId: "S57800",
+        kind: "TELESCOPE",
+        description:
+          "Successor to the lost Hitomi, carrying a microcalorimeter spectrometer and a wide-field X-ray imager.",
+        powerSource: "SOLAR",
+        // GCAT also lists JAXA's Tsukuba Space Center.
+        builders: ["NECT"],
+      },
+    ],
+  },
+  {
+    slug: "einstein-probe",
+    name: "Einstein Probe",
+    discipline: "ASTROPHYSICS",
+    status: "ACTIVE",
+    description:
+      "A Chinese Academy of Sciences mission, with ESA and German partners, that watches wide areas of the sky for sudden bursts of X-rays from events such as stars torn apart by black holes.",
+    sourceUrl:
+      "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2024-007A",
+    agencies: ["CAS"],
+    destinations: ["low-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "einstein-probe",
+        name: "Einstein Probe",
+        catalogueId: "S58753",
+        kind: "TELESCOPE",
+        description:
+          "Satellite with a wide-field telescope of twelve lobster-eye modules and a follow-up X-ray telescope.",
+        powerSource: "SOLAR",
+        // GCAT lists CAST; the academy's own microsatellite institute built
+        // it.
+        builders: ["IMICAS"],
+      },
+    ],
+  },
+  {
+    slug: "spherex",
+    name: "SPHEREx",
+    discipline: "ASTROPHYSICS",
+    status: "ACTIVE",
+    description:
+      "A NASA mission mapping the entire sky in 102 colours of near-infrared light, to study the origin of the Universe, the history of galaxies and the ices in star-forming clouds.",
+    sourceUrl: "https://science.nasa.gov/mission/spherex/",
+    agencies: ["NASA"],
+    destinations: ["low-earth-orbit"],
+    spacecraft: [
+      {
+        slug: "spherex",
+        name: "SPHEREx",
+        catalogueId: "S63182",
+        kind: "TELESCOPE",
+        description:
+          "Small telescope behind three nested, cone-shaped shields that keep it cold without any coolant.",
+        powerSource: "SOLAR",
+      },
+    ],
+  },
 ];

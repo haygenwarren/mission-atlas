@@ -32,6 +32,14 @@ export const builders = [
   { code: "MAXSS", name: "Maxar" },
   { code: "OSCD", name: "Orbital Sciences" },
   { code: "THALES", name: "Thales Alenia Space" },
+  { code: "ALCAF", name: "Alcatel Alenia Space" },
+  { code: "ALEN", name: "Alenia Spazio" },
+  { code: "DASAF", name: "Dornier" },
+  { code: "FOKKS", name: "Fokker Space" },
+  { code: "GDG", name: "General Dynamics" },
+  { code: "IMICAS", name: "Innovation Academy for Microsatellites (CAS)" },
+  { code: "MMST", name: "Matra Marconi Space" },
+  { code: "OATKD", name: "Orbital ATK" },
 ] as const;
 
 export type BuilderCode = (typeof builders)[number]["code"];
@@ -43,14 +51,18 @@ export const builderAliases: Record<string, BuilderCode> = {
   ASTD: "ASTT",
   ASTDF: "ASTT",
   BABTS: "NPOL",
+  BAEB: "BALL",
+  DASCF: "DASAF",
   // GCAT pairs this code with Lockheed Martin's Denver works.
   DENV: "LMA",
   EADSB: "ASTT",
   HSES: "HAC",
   ISRO: "ISAC",
+  LMMS: "LMA",
   LMSS: "LMA",
   LMSSD: "LMA",
   NECTF: "NECT",
   NECTKA: "NECT",
+  NPOLO: "NPOL",
   THALA: "THALES",
 };

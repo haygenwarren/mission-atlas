@@ -64,6 +64,21 @@ export const agencies = [
     name: "Mohammed bin Rashid Space Centre",
     country: "United Arab Emirates",
   },
+  {
+    abbreviation: "SERC",
+    name: "Science and Engineering Research Council",
+    country: "United Kingdom",
+  },
+  {
+    abbreviation: "NIVR",
+    name: "Netherlands Agency for Aerospace Programmes",
+    country: "Netherlands",
+  },
+  {
+    abbreviation: "CAS",
+    name: "Chinese Academy of Sciences",
+    country: "China",
+  },
 ] as const;
 
 export type AgencyAbbreviation = (typeof agencies)[number]["abbreviation"];
