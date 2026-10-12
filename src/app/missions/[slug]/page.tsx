@@ -78,10 +78,10 @@ export default async function MissionDetailPage({ params }: PageProps) {
   }
 
   return (
-    <main className="p-6">
-      <h1 className="text-3xl font-bold mb-2">{mission.name}</h1>
+    <main className="mx-auto max-w-5xl p-6">
+      <h1 className="font-display mb-2 text-3xl">{mission.name}</h1>
 
-      <p className="text-gray-600 mb-4">
+      <p className="mb-4 text-muted">
         {agencyList(mission)} · {statusLabels[mission.status]} ·{" "}
         {destinationList(mission)}
       </p>
@@ -119,9 +119,12 @@ export default async function MissionDetailPage({ params }: PageProps) {
 
         <div className="grid gap-4 md:grid-cols-2">
           {mission.spacecraft.map((craft) => (
-            <div key={craft.id} className="border rounded-xl p-5">
+            <div
+              key={craft.id}
+              className="rounded-xl border border-border bg-surface p-5"
+            >
               <h3 className="text-xl font-semibold">{craft.name}</h3>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="mt-1 text-sm text-muted">
                 {spacecraftKindLabels[craft.kind]} ·{" "}
                 {statusLabels[craft.status]}
               </p>

@@ -1,26 +1,97 @@
 @import "tailwindcss";
 
+/* Colours are the Celestial Cartography palette from the brand kit in
+   branding/. Dark is the default; the light theme applies when <html> has
+   data-theme="light". */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+
+  --background: #0f1126; /* Deep Space */
+  --surface: #191c3c; /* Indigo Sky */
+  --border: #2a2c5f; /* Earth Indigo */
+  --border-strong: #55529f; /* Land Violet */
+  --foreground: #efe8d6; /* Parchment */
+  --muted: #968dd3; /* Orbit Violet */
+  --accent: #c4bcf1; /* Signal Lavender */
+  --button: #c4bcf1; /* Signal Lavender */
+  --button-text: #0f1126; /* Deep Space */
+  --active: #c4bcf1; /* Signal Lavender, the kit's active-mission colour */
+  --active-text: #0f1126; /* Deep Space */
+  --danger: #e58f86; /* not in the kit, which has no warning colour */
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --background: #f3efe4; /* Light ground */
+  --surface: #efe8d6; /* Parchment */
+  --border: color-mix(in srgb, #5b53a0 25%, transparent); /* Caption Violet */
+  --border-strong: #5b53a0; /* Caption Violet */
+  --foreground: #191c3c; /* Indigo Sky */
+  --muted: #5b53a0; /* Caption Violet */
+  --accent: #55529f; /* Land Violet */
+  --button: #191c3c; /* Indigo Sky */
+  --button-text: #f3efe4; /* Light ground */
+  --active: #55529f; /* Land Violet */
+  --active-text: #f3efe4; /* Light ground */
+  --danger: #a63d32; /* not in the kit */
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-button: var(--button);
+  --color-button-text: var(--button-text);
+  --color-active: var(--active);
+  --color-active-text: var(--active-text);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-archivo);
+  --font-mono: var(--font-plex-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@custom-variant light (&:where([data-theme="light"], [data-theme="light"] *));
+
+/* Page titles, set like the wordmark: wide, heavy Archivo. */
+@utility font-display {
+  font-weight: 640;
+  font-stretch: 118%;
+  letter-spacing: 0.01em;
+}
+
+/* Small capital labels, set like the lockup caption in IBM Plex Mono. */
+@utility label-caps {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Text inputs and dropdowns. */
+@utility field {
+  border: 1px solid var(--border-strong);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  color: var(--foreground);
+  padding: 0.5rem 0.75rem;
+
+  &::placeholder {
+    color: var(--muted);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }

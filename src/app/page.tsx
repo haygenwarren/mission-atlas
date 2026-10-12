@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import FeaturedMissions from "@/components/featured-missions";
 import { prisma } from "@/lib/prisma";
@@ -36,19 +37,32 @@ export default async function Home() {
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
       <section className="mb-12">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-gray-500">
-          Mission Atlas
-        </p>
+        <div className="flex items-center gap-10">
+          <div>
+            <p className="label-caps mb-3 text-muted">Mission Atlas</p>
 
-        <h1 className="mb-4 text-5xl font-bold tracking-tight">
-          Explore the history and current state of space missions.
-        </h1>
+            <h1 className="font-display mb-4 text-4xl sm:text-5xl">
+              Explore the history and current state of space missions.
+            </h1>
 
-        <p className="max-w-3xl text-lg text-gray-600">
-          Mission Atlas is an archive of planetary science and astrophysics
-          missions from space agencies around the world. Search the archive,
-          or open a mission to see its spacecraft, dates and destinations.
-        </p>
+            <p className="max-w-3xl text-lg text-foreground/80">
+              Mission Atlas is an archive of planetary science and astrophysics
+              missions from space agencies around the world. Search the
+              archive, or open a mission to see its spacecraft, dates and
+              destinations.
+            </p>
+          </div>
+
+          <Image
+            src="/brand/mission-atlas-emblem.svg"
+            alt=""
+            width={192}
+            height={192}
+            unoptimized
+            priority
+            className="hidden shrink-0 md:block"
+          />
+        </div>
 
         <form action="/missions" method="GET" className="mt-8 flex gap-3">
           <input
@@ -56,11 +70,11 @@ export default async function Home() {
             name="q"
             placeholder="Search missions, spacecraft, agencies or destinations"
             aria-label="Search the archive"
-            className="w-full max-w-xl rounded-lg border px-4 py-3"
+            className="field w-full max-w-xl"
           />
           <button
             type="submit"
-            className="rounded-lg bg-black px-5 py-3 text-white transition hover:bg-gray-800"
+            className="rounded-lg bg-button px-5 py-2 font-medium text-button-text transition-opacity hover:opacity-90"
           >
             Search
           </button>
@@ -68,7 +82,7 @@ export default async function Home() {
 
         <Link
           href="/missions"
-          className="mt-4 inline-block text-sm font-medium hover:underline"
+          className="mt-4 inline-block text-sm font-medium text-accent hover:underline"
         >
           Or browse all {missionCount} missions
         </Link>
@@ -76,9 +90,12 @@ export default async function Home() {
 
       <section className="mb-12 grid grid-cols-2 gap-4 md:grid-cols-4">
         {stats.map(({ label, value }) => (
-          <div key={label} className="rounded-xl border p-5">
-            <p className="text-sm text-gray-500">{label}</p>
-            <p className="mt-2 text-3xl font-bold">{value}</p>
+          <div
+            key={label}
+            className="rounded-xl border border-border bg-surface p-5"
+          >
+            <p className="label-caps text-muted">{label}</p>
+            <p className="font-display mt-2 text-3xl">{value}</p>
           </div>
         ))}
       </section>
@@ -86,7 +103,10 @@ export default async function Home() {
       <section>
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-semibold">Featured Missions</h2>
-          <Link href="/missions" className="text-sm font-medium hover:underline">
+          <Link
+            href="/missions"
+            className="text-sm font-medium text-accent hover:underline"
+          >
             View all
           </Link>
         </div>

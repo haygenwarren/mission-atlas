@@ -51,7 +51,7 @@ function first(value: string | string[] | undefined) {
   return (Array.isArray(value) ? value[0] : value)?.trim() || undefined;
 }
 
-const selectClasses = "max-w-full border rounded px-3 py-2";
+const selectClasses = "field max-w-full";
 
 export default async function MissionsPage({ searchParams }: PageProps) {
   const params = await searchParams;
@@ -167,8 +167,8 @@ export default async function MissionsPage({ searchParams }: PageProps) {
 
   return (
     <main className="mx-auto max-w-5xl p-6">
-      <h1 className="text-3xl font-bold mb-2">Mission Archive</h1>
-      <p className="text-sm text-gray-600 mb-6">
+      <h1 className="font-display mb-2 text-3xl">Mission Archive</h1>
+      <p className="mb-6 text-sm text-muted">
         {total} mission{total === 1 ? "" : "s"} found
         {pageCount > 1 &&
           ` · showing ${firstShown}–${firstShown + missions.length - 1}`}
@@ -183,7 +183,7 @@ export default async function MissionsPage({ searchParams }: PageProps) {
           defaultValue={q ?? ""}
           placeholder="Search missions, spacecraft, agencies or destinations"
           aria-label="Search"
-          className="w-full border rounded px-3 py-2"
+          className="field w-full"
         />
 
         <div className="flex flex-wrap gap-4 items-center">
@@ -278,14 +278,14 @@ export default async function MissionsPage({ searchParams }: PageProps) {
 
           <button
             type="submit"
-            className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition"
+            className="rounded-lg bg-button px-5 py-2 font-medium text-button-text transition-opacity hover:opacity-90"
           >
             Apply Filters
           </button>
 
           <Link
             href="/missions"
-            className="text-sm text-gray-600 hover:text-black"
+            className="text-sm text-muted transition-colors hover:text-foreground"
           >
             Reset
           </Link>
@@ -293,14 +293,14 @@ export default async function MissionsPage({ searchParams }: PageProps) {
       </form>
 
       {missions.length === 0 ? (
-        <div className="border rounded-xl p-8 text-center text-gray-600">
+        <div className="rounded-xl border border-border bg-surface p-8 text-center text-muted">
           <p className="text-lg font-medium mb-2">No missions found</p>
           <p className="text-sm mb-4">
             Try changing or clearing your filters.
           </p>
           <Link
             href="/missions"
-            className="inline-block rounded-lg border px-4 py-2 hover:bg-gray-50 transition"
+            className="inline-block rounded-lg border border-border-strong px-4 py-2 transition-colors hover:border-accent hover:text-accent"
           >
             View all missions
           </Link>
