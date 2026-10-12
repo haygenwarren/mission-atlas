@@ -42,6 +42,21 @@ export const destinations = [
   { slug: "arrokoth", name: "Arrokoth", kind: "ASTEROID" },
   { slug: "ganymede", name: "Ganymede", kind: "MOON" },
   { slug: "europa", name: "Europa", kind: "MOON" },
+  { slug: "eros", name: "Eros", kind: "ASTEROID" },
+  { slug: "mathilde", name: "Mathilde", kind: "ASTEROID" },
+  { slug: "wild-2", name: "Wild 2", kind: "COMET" },
+  { slug: "tempel-1", name: "Tempel 1", kind: "COMET" },
+  { slug: "hartley-2", name: "Hartley 2", kind: "COMET" },
+  { slug: "grigg-skjellerup", name: "Grigg–Skjellerup", kind: "COMET" },
+  { slug: "itokawa", name: "Itokawa", kind: "ASTEROID" },
+  { slug: "vesta", name: "Vesta", kind: "ASTEROID" },
+  { slug: "ceres", name: "Ceres", kind: "DWARF_PLANET" },
+  { slug: "bennu", name: "Bennu", kind: "ASTEROID" },
+  { slug: "didymos", name: "Didymos", kind: "ASTEROID" },
+  { slug: "dimorphos", name: "Dimorphos", kind: "ASTEROID" },
+  { slug: "dinkinesh", name: "Dinkinesh", kind: "ASTEROID" },
+  { slug: "donaldjohanson", name: "Donaldjohanson", kind: "ASTEROID" },
+  { slug: "psyche", name: "Psyche", kind: "ASTEROID" },
 ] as const satisfies readonly DestinationSeed[];
 
 export type DestinationSlug = (typeof destinations)[number]["slug"];

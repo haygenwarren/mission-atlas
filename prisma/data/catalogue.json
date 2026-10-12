@@ -28,6 +28,33 @@
         "HSES"
       ]
     },
+    "A05947": {
+      "name": "Sojourner",
+      "designator": null,
+      "launchDate": "1996-12-04T06:58:07Z",
+      "launchMassKg": 11,
+      "dryMassKg": 11,
+      "lengthM": 0.3,
+      "diameterM": 0.5,
+      "spanM": 0.5,
+      "builders": [
+        "JPL"
+      ]
+    },
+    "A06833": {
+      "name": "Beagle 2",
+      "designator": null,
+      "launchDate": "2003-06-02T17:45:26Z",
+      "launchMassKg": 34,
+      "dryMassKg": 34,
+      "lengthM": 0.5,
+      "diameterM": 0.9,
+      "spanM": 0.9,
+      "builders": [
+        "EADSB",
+        "MBAK"
+      ]
+    },
     "A06860": {
       "name": "Philae",
       "designator": null,
@@ -52,6 +79,19 @@
       "spanM": 1.1,
       "builders": [
         "ALC"
+      ]
+    },
+    "A06946": {
+      "name": "DI Impactor",
+      "designator": null,
+      "launchDate": "2005-01-12T18:47:08Z",
+      "launchMassKg": 372,
+      "dryMassKg": 364,
+      "lengthM": 1,
+      "diameterM": 1,
+      "spanM": 1,
+      "builders": [
+        "BALL"
       ]
     },
     "A07423": {
@@ -93,6 +133,20 @@
         "DLR"
       ]
     },
+    "A08532": {
+      "name": "Schiaparelli",
+      "designator": null,
+      "launchDate": "2016-03-14T09:31:42Z",
+      "launchMassKg": 326,
+      "dryMassKg": 280,
+      "lengthM": null,
+      "diameterM": 1.65,
+      "spanM": 1.7,
+      "builders": [
+        "THALES",
+        "THALA"
+      ]
+    },
     "A09204": {
       "name": "Mio",
       "designator": null,
@@ -115,6 +169,19 @@
       "lengthM": null,
       "diameterM": null,
       "spanM": 1.5,
+      "builders": [
+        "CAST"
+      ]
+    },
+    "A09604": {
+      "name": "Zhurong",
+      "designator": null,
+      "launchDate": "2020-07-23T04:41:12Z",
+      "launchMassKg": 240,
+      "dryMassKg": 240,
+      "lengthM": 0.8,
+      "diameterM": 2,
+      "spanM": 2,
       "builders": [
         "CAST"
       ]
@@ -143,6 +210,19 @@
       "spanM": null,
       "builders": [
         "CAST"
+      ]
+    },
+    "A10780": {
+      "name": "LICIACube",
+      "designator": null,
+      "launchDate": "2021-11-24T06:21:02Z",
+      "launchMassKg": 13,
+      "dryMassKg": 12,
+      "lengthM": 0.3,
+      "diameterM": 0.2,
+      "spanM": 0.3,
+      "builders": [
+        "ARGOT"
       ]
     },
     "A10997": {
@@ -193,6 +273,19 @@
       "lengthM": 3.4,
       "diameterM": 1,
       "spanM": 5,
+      "builders": [
+        "JPL"
+      ]
+    },
+    "S00938": {
+      "name": "Mariner 4",
+      "designator": "1964-077A",
+      "launchDate": "1964-11-28T14:22:01Z",
+      "launchMassKg": 261,
+      "dryMassKg": 251,
+      "lengthM": 2.9,
+      "diameterM": 1.3,
+      "spanM": 6.9,
       "builders": [
         "JPL"
       ]
@@ -262,6 +355,45 @@
         "NPOL"
       ]
     },
+    "S05252": {
+      "name": "Mars-3",
+      "designator": "1971-049A",
+      "launchDate": "1971-05-28T15:26:30Z",
+      "launchMassKg": 3440,
+      "dryMassKg": null,
+      "lengthM": 4.1,
+      "diameterM": 2,
+      "spanM": 5.9,
+      "builders": [
+        "NPOL"
+      ]
+    },
+    "S05261": {
+      "name": "Mariner 9",
+      "designator": "1971-051A",
+      "launchDate": "1971-05-30T22:23:04Z",
+      "launchMassKg": 1031,
+      "dryMassKg": 555,
+      "lengthM": 2.3,
+      "diameterM": 1.4,
+      "spanM": 6.9,
+      "builders": [
+        "JPL"
+      ]
+    },
+    "S05667": {
+      "name": "SA Marsa-3",
+      "designator": "1971-049E",
+      "launchDate": "1971-05-28T15:26:30Z",
+      "launchMassKg": 645,
+      "dryMassKg": 645,
+      "lengthM": 1.2,
+      "diameterM": 1.2,
+      "spanM": null,
+      "builders": [
+        "NPOL"
+      ]
+    },
     "S05860": {
       "name": "Pioneer 10",
       "designator": "1972-012A",
@@ -314,6 +446,19 @@
         "NPOL"
       ]
     },
+    "S08108": {
+      "name": "Viking Orbiter 1",
+      "designator": "1975-075A",
+      "launchDate": "1975-08-20T21:22:00Z",
+      "launchMassKg": 2328,
+      "dryMassKg": 883,
+      "lengthM": 3.3,
+      "diameterM": 2,
+      "spanM": 9.8,
+      "builders": [
+        "JPL"
+      ]
+    },
     "S08411": {
       "name": "SA Veneri-9",
       "designator": "1975-050D",
@@ -325,6 +470,19 @@
       "spanM": null,
       "builders": [
         "NPOL"
+      ]
+    },
+    "S09024": {
+      "name": "Viking Lander 1",
+      "designator": "1975-075C",
+      "launchDate": "1975-08-20T21:22:00Z",
+      "launchMassKg": 685,
+      "dryMassKg": 590,
+      "lengthM": 1,
+      "diameterM": 2.8,
+      "spanM": 2.8,
+      "builders": [
+        "MMD"
       ]
     },
     "S10271": {
@@ -392,6 +550,19 @@
         "NPOL"
       ]
     },
+    "S15875": {
+      "name": "Giotto",
+      "designator": "1985-056A",
+      "launchDate": "1985-07-02T11:23:13Z",
+      "launchMassKg": 545,
+      "dryMassKg": 476,
+      "lengthM": 2.9,
+      "diameterM": 1.9,
+      "spanM": 2.9,
+      "builders": [
+        "BAES"
+      ]
+    },
     "S19969": {
       "name": "Magellan",
       "designator": "1989-033B",
@@ -431,6 +602,45 @@
         "LMSC"
       ]
     },
+    "S23784": {
+      "name": "NEAR Shoemaker",
+      "designator": "1996-008A",
+      "launchDate": "1996-02-17T20:43:27Z",
+      "launchMassKg": 805,
+      "dryMassKg": 468,
+      "lengthM": 2.8,
+      "diameterM": 1.5,
+      "spanM": null,
+      "builders": [
+        "APL"
+      ]
+    },
+    "S24648": {
+      "name": "Mars Global Surveyor",
+      "designator": "1996-062A",
+      "launchDate": "1996-11-07T17:00:49Z",
+      "launchMassKg": 1062,
+      "dryMassKg": 674,
+      "lengthM": 3,
+      "diameterM": 1.5,
+      "spanM": 12,
+      "builders": [
+        "LMA"
+      ]
+    },
+    "S24667": {
+      "name": "Sagan Memorial Station",
+      "designator": "1996-068A",
+      "launchDate": "1996-12-04T06:58:07Z",
+      "launchMassKg": 398,
+      "dryMassKg": 350,
+      "lengthM": 0.5,
+      "diameterM": 1.4,
+      "spanM": null,
+      "builders": [
+        "JPL"
+      ]
+    },
     "S25008": {
       "name": "Cassini",
       "designator": "1997-061A",
@@ -456,6 +666,86 @@
       "builders": [
         "LMA",
         "DENV"
+      ]
+    },
+    "S25618": {
+      "name": "Stardust",
+      "designator": "1999-003A",
+      "launchDate": "1999-02-07T21:04:15Z",
+      "launchMassKg": 339,
+      "dryMassKg": 254,
+      "lengthM": 1.7,
+      "diameterM": 0.6,
+      "spanM": 4.8,
+      "builders": [
+        "LMA",
+        "DENV"
+      ]
+    },
+    "S26734": {
+      "name": "Mars Odyssey",
+      "designator": "2001-013A",
+      "launchDate": "2001-04-07T15:02:22Z",
+      "launchMassKg": 725,
+      "dryMassKg": 376,
+      "lengthM": 2.2,
+      "diameterM": 2.6,
+      "spanM": 8.5,
+      "builders": [
+        "LMA",
+        "DENV"
+      ]
+    },
+    "S27809": {
+      "name": "Hayabusa",
+      "designator": "2003-019A",
+      "launchDate": "2003-05-09T04:29:25Z",
+      "launchMassKg": 489,
+      "dryMassKg": 359,
+      "lengthM": 1.5,
+      "diameterM": 2,
+      "spanM": 5.7,
+      "builders": [
+        "ISASS"
+      ]
+    },
+    "S27816": {
+      "name": "Mars Express",
+      "designator": "2003-022A",
+      "launchDate": "2003-06-02T17:45:26Z",
+      "launchMassKg": 1117,
+      "dryMassKg": 637,
+      "lengthM": 1.5,
+      "diameterM": 1.8,
+      "spanM": null,
+      "builders": [
+        "ASTD"
+      ]
+    },
+    "S27827": {
+      "name": "Spirit Rover",
+      "designator": "2003-027A",
+      "launchDate": "2003-06-10T17:58:47Z",
+      "launchMassKg": 174,
+      "dryMassKg": 174,
+      "lengthM": 1.4,
+      "diameterM": 1,
+      "spanM": 1.4,
+      "builders": [
+        "JPL"
+      ]
+    },
+    "S27849": {
+      "name": "Opportunity Rover",
+      "designator": "2003-032A",
+      "launchDate": "2003-07-08T03:18:15Z",
+      "launchMassKg": 185,
+      "dryMassKg": 185,
+      "lengthM": 1.4,
+      "diameterM": 1,
+      "spanM": 1.4,
+      "builders": [
+        "JPL"
       ]
     },
     "S27949": {
@@ -498,6 +788,32 @@
         "APL"
       ]
     },
+    "S28517": {
+      "name": "DIF",
+      "designator": "2005-001A",
+      "launchDate": "2005-01-12T18:47:08Z",
+      "launchMassKg": 601,
+      "dryMassKg": 515,
+      "lengthM": 3.3,
+      "diameterM": 1.7,
+      "spanM": 3.3,
+      "builders": [
+        "BALL"
+      ]
+    },
+    "S28788": {
+      "name": "Mars Reconnaissance Orbiter",
+      "designator": "2005-029A",
+      "launchDate": "2005-08-12T11:43:00Z",
+      "launchMassKg": 2180,
+      "dryMassKg": 984,
+      "lengthM": 6.5,
+      "diameterM": null,
+      "spanM": 13.6,
+      "builders": [
+        "LMSSD"
+      ]
+    },
     "S28901": {
       "name": "Venus Express",
       "designator": "2005-045A",
@@ -522,6 +838,20 @@
       "spanM": null,
       "builders": [
         "APL"
+      ]
+    },
+    "S32003": {
+      "name": "Phoenix",
+      "designator": "2007-034A",
+      "launchDate": "2007-08-04T09:26:34Z",
+      "launchMassKg": 410,
+      "dryMassKg": 343,
+      "lengthM": 2.2,
+      "diameterM": 1.5,
+      "spanM": 5.5,
+      "builders": [
+        "LMSSD",
+        "DENV"
       ]
     },
     "S32054": {
@@ -561,6 +891,19 @@
       "spanM": 1.5,
       "builders": [
         "NECTKA"
+      ]
+    },
+    "S32249": {
+      "name": "Dawn",
+      "designator": "2007-043A",
+      "launchDate": "2007-09-27T11:34:00Z",
+      "launchMassKg": 1218,
+      "dryMassKg": 747,
+      "lengthM": 1.8,
+      "diameterM": 1.3,
+      "spanM": 19.7,
+      "builders": [
+        "OSCD"
       ]
     },
     "S33405": {
@@ -628,6 +971,32 @@
         "LMSSD"
       ]
     },
+    "S37936": {
+      "name": "Curiosity",
+      "designator": "2011-070A",
+      "launchDate": "2011-11-26T15:02:00Z",
+      "launchMassKg": 899,
+      "dryMassKg": 899,
+      "lengthM": null,
+      "diameterM": null,
+      "spanM": null,
+      "builders": [
+        "LMSSD"
+      ]
+    },
+    "S39370": {
+      "name": "Mars Orbiter Mission",
+      "designator": "2013-060A",
+      "launchDate": "2013-11-05T09:08:00Z",
+      "launchMassKg": 1337,
+      "dryMassKg": 483,
+      "lengthM": 1.5,
+      "diameterM": 1.5,
+      "spanM": null,
+      "builders": [
+        "ISAC"
+      ]
+    },
     "S39458": {
       "name": "Chang'e-3",
       "designator": "2013-070A",
@@ -665,6 +1034,46 @@
       "spanM": 6,
       "builders": [
         "ISASJ"
+      ]
+    },
+    "S41388": {
+      "name": "ExoMars Trace Gas Orbiter",
+      "designator": "2016-017A",
+      "launchDate": "2016-03-14T09:31:42Z",
+      "launchMassKg": 3732,
+      "dryMassKg": 1365,
+      "lengthM": 3.2,
+      "diameterM": 2,
+      "spanM": 17.5,
+      "builders": [
+        "THALES",
+        "THALA"
+      ]
+    },
+    "S41757": {
+      "name": "OSIRIS-REx",
+      "designator": "2016-055A",
+      "launchDate": "2016-09-08T23:05:00Z",
+      "launchMassKg": 2064,
+      "dryMassKg": 834,
+      "lengthM": 3.2,
+      "diameterM": 2.4,
+      "spanM": 6.2,
+      "builders": [
+        "LMSS"
+      ]
+    },
+    "S43457": {
+      "name": "Mars InSight Lander",
+      "designator": "2018-042A",
+      "launchDate": "2018-05-05T11:05:01Z",
+      "launchMassKg": 425,
+      "dryMassKg": 358,
+      "lengthM": 1.1,
+      "diameterM": 1.6,
+      "spanM": 6,
+      "builders": [
+        "LMSSD"
       ]
     },
     "S43653": {
@@ -707,6 +1116,32 @@
         "SPAIL"
       ]
     },
+    "S45918": {
+      "name": "Misabar Al'Amal",
+      "designator": "2020-047A",
+      "launchDate": "2020-07-19T21:58:14Z",
+      "launchMassKg": 1350,
+      "dryMassKg": 550,
+      "lengthM": 2.9,
+      "diameterM": 2.4,
+      "spanM": 7.9,
+      "builders": [
+        "CLASP"
+      ]
+    },
+    "S45935": {
+      "name": "Tianwen-1 Orbiter",
+      "designator": "2020-049A",
+      "launchDate": "2020-07-23T04:41:12Z",
+      "launchMassKg": 3175,
+      "dryMassKg": 1645,
+      "lengthM": 2,
+      "diameterM": 4,
+      "spanM": null,
+      "builders": [
+        "SAST"
+      ]
+    },
     "S45983": {
       "name": "Perseverance",
       "designator": "2020-052A",
@@ -731,6 +1166,32 @@
       "spanM": null,
       "builders": [
         "SAST"
+      ]
+    },
+    "S49328": {
+      "name": "Lucy",
+      "designator": "2021-093A",
+      "launchDate": "2021-10-16T09:34:00Z",
+      "launchMassKg": 1550,
+      "dryMassKg": 821,
+      "lengthM": 3.8,
+      "diameterM": 2.8,
+      "spanM": 15.8,
+      "builders": [
+        "LMSSD"
+      ]
+    },
+    "S49497": {
+      "name": "DART",
+      "designator": "2021-110A",
+      "launchDate": "2021-11-24T06:21:02Z",
+      "launchMassKg": 610,
+      "dryMassKg": 500,
+      "lengthM": 1.2,
+      "diameterM": 1.3,
+      "spanM": 19,
+      "builders": [
+        "APL"
       ]
     },
     "S50463": {
@@ -784,6 +1245,19 @@
       "spanM": 2.7,
       "builders": [
         "JAXA"
+      ]
+    },
+    "S58049": {
+      "name": "Psyche",
+      "designator": "2023-157A",
+      "launchDate": "2023-10-13T14:19:43Z",
+      "launchMassKg": 2608,
+      "dryMassKg": 1648,
+      "lengthM": 3.1,
+      "diameterM": 2.4,
+      "spanM": 24.7,
+      "builders": [
+        "MAXSS"
       ]
     },
     "S61507": {

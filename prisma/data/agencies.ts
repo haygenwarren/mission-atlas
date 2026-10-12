@@ -54,6 +54,16 @@ export const agencies = [
     name: "SpaceIL",
     country: "Israel",
   },
+  {
+    abbreviation: "Roscosmos",
+    name: "Roscosmos",
+    country: "Russia",
+  },
+  {
+    abbreviation: "MBRSC",
+    name: "Mohammed bin Rashid Space Centre",
+    country: "United Arab Emirates",
+  },
 ] as const;
 
 export type AgencyAbbreviation = (typeof agencies)[number]["abbreviation"];
