@@ -130,11 +130,26 @@ async function main() {
           },
         });
 
+        // A mission's only spacecraft shares its status and end dates. With
+        // more than one, each states its own and nothing is borrowed.
+        const soleCraft = mission.spacecraft.length === 1;
+
         for (const craft of mission.spacecraft) {
           const record = catalogueRecord(craft);
           const builderLinks = craftBuilders(craft);
-          const lastContact = pick(craft.lastContact, mission.lastContact);
-          const endDeclared = pick(craft.endDeclared, mission.endDeclared);
+
+          if (!soleCraft && !craft.status) {
+            throw new Error(
+              `${craft.slug}: set a status. ${mission.slug} has more than one spacecraft, so each states its own.`,
+            );
+          }
+
+          const lastContact = soleCraft
+            ? pick(craft.lastContact, mission.lastContact)
+            : (craft.lastContact ?? null);
+          const endDeclared = soleCraft
+            ? pick(craft.endDeclared, mission.endDeclared)
+            : (craft.endDeclared ?? null);
           const craftFields = {
             slug: craft.slug,
             name: craft.name,

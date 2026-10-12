@@ -12,8 +12,9 @@ import type { DestinationSlug } from "./destinations";
 // builders from catalogue.json. A value set here overrides the catalogue, and
 // null blanks it.
 //
-// A spacecraft also takes its status, lastContact and endDeclared from its
-// mission unless it sets its own; again, null blanks one.
+// A mission's only spacecraft takes its status, lastContact and endDeclared
+// from the mission unless it sets its own. When a mission has more than one
+// spacecraft, each must set its own status and dates; nothing is borrowed.
 //
 // lastContact is when the craft was last heard from or commanded, as received
 // on Earth: "2017-09-15T11:55:46Z" when the time is known, "2018-11-15" when
@@ -181,6 +182,9 @@ export const missions: MissionSeed[] = [
         kind: "ORBITER",
         description:
           "Saturn orbiter carrying twelve science instruments and a 4 m high-gain antenna, powered by three radioisotope thermoelectric generators.",
+        status: "COMPLETED",
+        lastContact: "2017-09-15T11:55:46Z",
+        endDeclared: "2017-09-15",
         powerSource: "RADIOISOTOPE",
       },
       {
@@ -190,8 +194,8 @@ export const missions: MissionSeed[] = [
         kind: "LANDER",
         description:
           "ESA's atmospheric probe, which descended by parachute through Titan's atmosphere and returned data from the surface: the first landing in the outer Solar System.",
+        status: "COMPLETED",
         lastContact: "2005-01-14",
-        endDeclared: null,
         // GCAT gives 211 kg for the descent module alone. This is its total
         // at launch, including the heat shield and back cover.
         launchMassKg: 320,
@@ -220,6 +224,7 @@ export const missions: MissionSeed[] = [
         kind: "ROVER",
         description:
           "Car-sized rover with a drill and sample-caching system, powered by a radioisotope thermoelectric generator.",
+        status: "ACTIVE",
         powerSource: "RADIOISOTOPE",
         // GCAT lists Lockheed Martin, which built the aeroshell.
         builders: ["JPL"],
@@ -259,6 +264,9 @@ export const missions: MissionSeed[] = [
         kind: "ORBITER",
         description:
           "Comet orbiter carrying eleven science instruments, with two 14 m solar wings for operating far from the Sun.",
+        status: "COMPLETED",
+        lastContact: "2016-09-30T11:19:36Z",
+        endDeclared: "2016-09-30",
         powerSource: "SOLAR",
         // GCAT lists EADS Bremen; the prime contractor was Astrium in
         // Friedrichshafen.
@@ -271,6 +279,7 @@ export const missions: MissionSeed[] = [
         kind: "LANDER",
         description:
           "Lander that made the first soft landing on a comet. It bounced into a shaded spot and ran for about two and a half days on its primary battery.",
+        status: "COMPLETED",
         lastContact: "2015-07-09",
         endDeclared: "2016-07-27",
         powerSource: "SOLAR",
@@ -298,6 +307,7 @@ export const missions: MissionSeed[] = [
         kind: "LANDER",
         description:
           "Stationary lander carrying cameras, a low-frequency radio spectrometer and a small biology experiment.",
+        status: "ACTIVE",
         powerSource: "SOLAR",
       },
       {
@@ -307,6 +317,7 @@ export const missions: MissionSeed[] = [
         kind: "ROVER",
         description:
           "Six-wheeled rover, and the longest-lived rover on the Moon.",
+        status: "ACTIVE",
         powerSource: "SOLAR",
       },
     ],
@@ -330,6 +341,8 @@ export const missions: MissionSeed[] = [
         kind: "LANDER",
         description:
           "Lander that touched down at about 69° south, carrying instruments to measure surface temperature, seismic activity and plasma.",
+        status: "COMPLETED",
+        lastContact: "2023-09-04",
         powerSource: "SOLAR",
       },
       {
@@ -339,6 +352,8 @@ export const missions: MissionSeed[] = [
         kind: "ROVER",
         description:
           "Six-wheeled, 26 kg rover that analysed the composition of the soil near the landing site.",
+        status: "COMPLETED",
+        lastContact: "2023-09-04",
         powerSource: "SOLAR",
       },
     ],
@@ -387,6 +402,7 @@ export const missions: MissionSeed[] = [
         kind: "ORBITER",
         description:
           "Ion-engine spacecraft that touched down on Ryugu twice to collect samples and deployed several small landers.",
+        status: "ACTIVE",
         powerSource: "SOLAR",
         // GCAT lists ISAS/JAXA, the operator; NEC built the spacecraft.
         builders: ["NECT"],
