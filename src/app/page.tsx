@@ -1,5 +1,11 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import {
+  agencyList,
+  destinationList,
+  missionLinks,
+  statusLabels,
+} from "@/lib/missions";
 
 export const revalidate = 3600;
 
@@ -11,6 +17,7 @@ export default async function Home() {
     orderBy: {
       launchDate: "desc",
     },
+    include: missionLinks,
   });
 
   return (
@@ -80,10 +87,10 @@ export default async function Home() {
               href={`/missions/${mission.slug}`}
               className="rounded-xl border p-5 transition hover:bg-gray-50"
             >
-              <p className="text-sm text-gray-500">{mission.agency}</p>
+              <p className="text-sm text-gray-500">{agencyList(mission)}</p>
               <h3 className="mt-2 text-xl font-semibold">{mission.name}</h3>
               <p className="mt-2 text-sm text-gray-600">
-                {mission.status} · {mission.target}
+                {statusLabels[mission.status]} · {destinationList(mission)}
               </p>
               <p className="mt-4 text-sm">{mission.description}</p>
             </Link>

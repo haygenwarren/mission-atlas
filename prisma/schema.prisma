@@ -12,17 +12,99 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Status {
+  ACTIVE
+  COMPLETED
+  FAILED
+}
+
+enum Discipline {
+  PLANETARY_SCIENCE
+  ASTROPHYSICS
+}
+
+enum SpacecraftKind {
+  FLYBY
+  ORBITER
+  LANDER
+  ROVER
+  ATMOSPHERIC_PROBE
+  IMPACTOR
+  ROTORCRAFT
+  TELESCOPE
+}
+
+enum PowerSource {
+  SOLAR
+  RADIOISOTOPE
+  BATTERY
+}
+
+enum DestinationKind {
+  PLANET
+  DWARF_PLANET
+  MOON
+  ASTEROID
+  COMET
+  ORBIT
+  INTERSTELLAR_SPACE
+}
+
 model Mission {
-    id        Int      @id @default(autoincrement())
-    name      String
-    slug      String   @unique
-    agency    String
-    status    String
-    launchDate DateTime
-    target    String
-    missionType String
-    description String
-    imageURL    String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id           Int           @id @default(autoincrement())
+  name         String
+  slug         String        @unique
+  discipline   Discipline
+  status       Status
+  launchDate   DateTime
+  endDate      DateTime?
+  endTimeKnown Boolean       @default(false)
+  description  String
+  imageUrl     String?
+  imageCredit  String?
+  sourceUrl    String?
+  agencies     Agency[]
+  destinations Destination[]
+  spacecraft   Spacecraft[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Spacecraft {
+  id           Int            @id @default(autoincrement())
+  name         String
+  slug         String         @unique
+  kind         SpacecraftKind
+  description  String
+  status       Status
+  endDate      DateTime?
+  endTimeKnown Boolean        @default(false)
+  launchMassKg Float?
+  powerSource  PowerSource?
+  dimensions   String?
+  builder      String?
+  imageUrl     String?
+  imageCredit  String?
+  mission      Mission        @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  missionId    Int
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([missionId])
+}
+
+model Agency {
+  id           Int       @id @default(autoincrement())
+  name         String    @unique
+  abbreviation String    @unique
+  country      String?
+  missions     Mission[]
+}
+
+model Destination {
+  id       Int             @id @default(autoincrement())
+  name     String          @unique
+  slug     String          @unique
+  kind     DestinationKind
+  missions Mission[]
 }
