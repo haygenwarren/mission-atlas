@@ -25,15 +25,24 @@ type SpacecraftWithBuilders = Prisma.SpacecraftGetPayload<{
 function spacecraftFacts(craft: SpacecraftWithBuilders) {
   const facts: [string, string | false | null][] = [
     ["Launch mass", craft.launchMassKg !== null && formatMass(craft.launchMassKg)],
-    ["Dry mass", craft.dryMassKg !== null && formatMass(craft.dryMassKg)],
+    [
+      "Dry mass",
+      craft.dryMassKg !== null &&
+        craft.dryMassKg !== craft.launchMassKg &&
+        formatMass(craft.dryMassKg),
+    ],
     ["Size", formatSize(craft)],
     ["Power", craft.powerSource && powerSourceLabels[craft.powerSource]],
     ["Built by", craft.builders.map((builder) => builder.name).join(", ")],
     [
-      "Ended",
-      craft.endDate &&
-        formatDate(craft.endDate, craft.endTimeKnown ? "minutes" : "none"),
+      "Last contact",
+      craft.lastContact &&
+        formatDate(
+          craft.lastContact,
+          craft.lastContactTimeKnown ? "seconds" : "none",
+        ),
     ],
+    ["End declared", craft.endDeclared && formatDate(craft.endDeclared, "none")],
     ["Designator", craft.designator],
   ];
 
@@ -85,13 +94,19 @@ export default async function MissionDetailPage({ params }: PageProps) {
           <strong>Launch Date:</strong>{" "}
           {formatDate(mission.launchDate, "seconds")}
         </p>
-        {mission.endDate && (
+        {mission.lastContact && (
           <p>
-            <strong>End Date:</strong>{" "}
+            <strong>Last Contact:</strong>{" "}
             {formatDate(
-              mission.endDate,
-              mission.endTimeKnown ? "minutes" : "none",
+              mission.lastContact,
+              mission.lastContactTimeKnown ? "seconds" : "none",
             )}
+          </p>
+        )}
+        {mission.endDeclared && (
+          <p>
+            <strong>End Declared:</strong>{" "}
+            {formatDate(mission.endDeclared, "none")}
           </p>
         )}
         <p>

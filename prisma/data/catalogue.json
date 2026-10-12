@@ -2,6 +2,97 @@
   "source": "GCAT (J. McDowell, planet4589.org/space/gcat)",
   "fetched": "2026-10-12",
   "objects": {
+    "A06860": {
+      "name": "Philae",
+      "designator": null,
+      "launchDate": "2004-03-02T07:17:44Z",
+      "launchMassKg": 100,
+      "dryMassKg": 100,
+      "lengthM": 0.9,
+      "diameterM": 0.9,
+      "spanM": 2,
+      "builders": [
+        "EADSB"
+      ]
+    },
+    "A06904": {
+      "name": "Huygens",
+      "designator": null,
+      "launchDate": "1997-10-15T08:43:01Z",
+      "launchMassKg": 211,
+      "dryMassKg": 211,
+      "lengthM": 0.5,
+      "diameterM": 1.1,
+      "spanM": 1.1,
+      "builders": [
+        "ALC"
+      ]
+    },
+    "A08308": {
+      "name": "MASCOT",
+      "designator": null,
+      "launchDate": "2014-12-03T04:22:04Z",
+      "launchMassKg": 9.8,
+      "dryMassKg": 9.8,
+      "lengthM": 0.195,
+      "diameterM": 0.29,
+      "spanM": 0.3,
+      "builders": [
+        "DLR"
+      ]
+    },
+    "A09236": {
+      "name": "Yutu-2",
+      "designator": null,
+      "launchDate": "2018-12-07T18:23:00Z",
+      "launchMassKg": 140,
+      "dryMassKg": 140,
+      "lengthM": null,
+      "diameterM": null,
+      "spanM": 1.5,
+      "builders": [
+        "CAST"
+      ]
+    },
+    "A09615": {
+      "name": "Ingenuity",
+      "designator": null,
+      "launchDate": "2020-07-30T11:50:00Z",
+      "launchMassKg": 1.8,
+      "dryMassKg": 1.8,
+      "lengthM": 0.2,
+      "diameterM": 0.3,
+      "spanM": 1.2,
+      "builders": [
+        "LMSSD"
+      ]
+    },
+    "A10997": {
+      "name": "Pragyan",
+      "designator": null,
+      "launchDate": "2023-07-14T09:05:17Z",
+      "launchMassKg": 26,
+      "dryMassKg": 26,
+      "lengthM": 0.9,
+      "diameterM": 0.4,
+      "spanM": 0.9,
+      "builders": [
+        "ISAC"
+      ]
+    },
+    "S04489": {
+      "name": "Venera-7",
+      "designator": "1970-060A",
+      "launchDate": "1970-08-17T05:38:22Z",
+      "launchMassKg": 680,
+      "dryMassKg": null,
+      "lengthM": 2.5,
+      "diameterM": 1.2,
+      "spanM": null,
+      "builders": [
+        "NPOL"
+      ]
+    },
     "S10271": {
       "name": "Voyager 2",
       "designator": "1977-076A",
@@ -41,6 +132,111 @@
         "LMSC"
       ]
     },
+    "S25008": {
+      "name": "Cassini",
+      "designator": "1997-061A",
+      "launchDate": "1997-10-15T08:43:01Z",
+      "launchMassKg": 5254,
+      "dryMassKg": 2125,
+      "lengthM": 6.7,
+      "diameterM": 4,
+      "spanM": null,
+      "builders": [
+        "JPL"
+      ]
+    },
+    "S25571": {
+      "name": "Mars Climate Orbiter",
+      "designator": "1998-073A",
+      "launchDate": "1998-12-11T18:45:52Z",
+      "launchMassKg": 629,
+      "dryMassKg": 338,
+      "lengthM": 2.1,
+      "diameterM": 1.6,
+      "spanM": 5.5,
+      "builders": [
+        "LMA",
+        "DENV"
+      ]
+    },
+    "S28169": {
+      "name": "Rosetta",
+      "designator": "2004-006A",
+      "launchDate": "2004-03-02T07:17:44Z",
+      "launchMassKg": 2965,
+      "dryMassKg": 1295,
+      "lengthM": 2.8,
+      "diameterM": 2,
+      "spanM": 32,
+      "builders": [
+        "EADSB"
+      ]
+    },
+    "S34380": {
+      "name": "Kepler",
+      "designator": "2009-011A",
+      "launchDate": "2009-03-07T03:49:57Z",
+      "launchMassKg": 1052,
+      "dryMassKg": 1040,
+      "lengthM": 4.7,
+      "diameterM": 2.7,
+      "spanM": 4.7,
+      "builders": [
+        "BALL"
+      ]
+    },
+    "S39479": {
+      "name": "Gaia",
+      "designator": "2013-074A",
+      "launchDate": "2013-12-19T09:12:18Z",
+      "launchMassKg": 1934,
+      "dryMassKg": 1392,
+      "lengthM": null,
+      "diameterM": 3,
+      "spanM": 9.5,
+      "builders": [
+        "ASTT"
+      ]
+    },
+    "S40319": {
+      "name": "Hayabusa 2",
+      "designator": "2014-076A",
+      "launchDate": "2014-12-03T04:22:04Z",
+      "launchMassKg": 554,
+      "dryMassKg": 446,
+      "lengthM": 1.6,
+      "diameterM": 1,
+      "spanM": 6,
+      "builders": [
+        "ISASJ"
+      ]
+    },
+    "S43845": {
+      "name": "Chang'e-4",
+      "designator": "2018-103A",
+      "launchDate": "2018-12-07T18:23:00Z",
+      "launchMassKg": 3640,
+      "dryMassKg": 1200,
+      "lengthM": 2.2,
+      "diameterM": 1.7,
+      "spanM": null,
+      "builders": [
+        "CAST"
+      ]
+    },
+    "S45983": {
+      "name": "Perseverance",
+      "designator": "2020-052A",
+      "launchDate": "2020-07-30T11:50:00Z",
+      "launchMassKg": 1025,
+      "dryMassKg": 1025,
+      "lengthM": null,
+      "diameterM": null,
+      "spanM": null,
+      "builders": [
+        "LMSSD"
+      ]
+    },
     "S50463": {
       "name": "JWST",
       "designator": "2021-130A",
@@ -53,6 +249,19 @@
       "builders": [
         "NGAS",
         "GSFC"
+      ]
+    },
+    "S57320": {
+      "name": "Chandrayaan-3",
+      "designator": "2023-098A",
+      "launchDate": "2023-07-14T09:05:17Z",
+      "launchMassKg": 1724,
+      "dryMassKg": null,
+      "lengthM": 2,
+      "diameterM": 2,
+      "spanM": null,
+      "builders": [
+        "ISAC"
       ]
     }
   }
