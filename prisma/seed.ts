@@ -35,6 +35,15 @@ function pick<T>(own: T | null | undefined, fromCatalogue?: T | null) {
   return own !== undefined ? own : (fromCatalogue ?? null);
 }
 
+// "2018-11-15" is a day; "2017-09-15T11:55:46Z" also carries a time.
+function toDate(value?: string | null) {
+  return value ? new Date(value) : null;
+}
+
+function hasTime(value?: string | null) {
+  return Boolean(value?.includes("T"));
+}
+
 function craftBuilders(craft: SpacecraftSeed) {
   const codes = craft.builders ?? catalogueRecord(craft)?.builders ?? [];
   const unknown = codes.filter((code) => !builderCodes.has(code));
@@ -94,8 +103,9 @@ async function main() {
           discipline: mission.discipline,
           status: mission.status,
           launchDate: new Date(launchDate),
-          endDate: mission.endDate ? new Date(mission.endDate) : null,
-          endTimeKnown: mission.endTimeKnown ?? false,
+          lastContact: toDate(mission.lastContact),
+          lastContactTimeKnown: hasTime(mission.lastContact),
+          endDeclared: toDate(mission.endDeclared),
           description: mission.description,
           imageUrl: mission.imageUrl ?? null,
           imageCredit: mission.imageCredit ?? null,
@@ -123,6 +133,8 @@ async function main() {
         for (const craft of mission.spacecraft) {
           const record = catalogueRecord(craft);
           const builderLinks = craftBuilders(craft);
+          const lastContact = pick(craft.lastContact, mission.lastContact);
+          const endDeclared = pick(craft.endDeclared, mission.endDeclared);
           const craftFields = {
             slug: craft.slug,
             name: craft.name,
@@ -130,9 +142,10 @@ async function main() {
             designator: pick(craft.designator, record?.designator),
             kind: craft.kind,
             description: craft.description,
-            status: craft.status,
-            endDate: craft.endDate ? new Date(craft.endDate) : null,
-            endTimeKnown: craft.endTimeKnown ?? false,
+            status: craft.status ?? mission.status,
+            lastContact: toDate(lastContact),
+            lastContactTimeKnown: hasTime(lastContact),
+            endDeclared: toDate(endDeclared),
             launchMassKg: pick(craft.launchMassKg, record?.launchMassKg),
             dryMassKg: pick(craft.dryMassKg, record?.dryMassKg),
             lengthM: pick(craft.lengthM, record?.lengthM),
