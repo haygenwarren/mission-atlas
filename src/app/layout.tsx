@@ -15,9 +15,17 @@ const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
 });
 
+// Absolute base for link-preview image URLs. Vercel sets this variable to
+// the production domain; local builds fall back to localhost.
+const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: { default: "Mission Atlas", template: "%s | Mission Atlas" },
-  description: "A full-stack mission tracking platform for planetary science and astrophysics space missions.",
+  description:
+    "An archive of planetary science and astrophysics missions, with the spacecraft, dates and destinations of each.",
   manifest: "/site.webmanifest",
   // Keeps the site out of search results until v1 launch; remove then.
   robots: { index: false, follow: false },

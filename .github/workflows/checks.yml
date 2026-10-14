@@ -1,0 +1,33 @@
+# Runs on every pull request and on pushes to main, and marks the pull
+# request red if lint or the TypeScript check fails. The full build, which
+# needs a database, runs on Vercel's preview deployment instead.
+name: Checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint-and-types:
+    runs-on: ubuntu-latest
+    env:
+      # `prisma generate` runs on install and reads this variable, but never
+      # connects, so a placeholder is enough.
+      DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npx tsc --noEmit
