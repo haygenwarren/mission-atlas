@@ -22,7 +22,7 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      className="label-caps rounded-lg border border-border-strong px-3 py-2 text-muted transition-colors hover:border-accent hover:text-foreground"
+      className="label-caps whitespace-nowrap rounded-lg border border-border-strong px-3 py-2 text-muted transition-colors hover:border-accent hover:text-foreground"
     >
       <span className="light:hidden">Light mode</span>
       <span className="hidden light:inline">Dark mode</span>

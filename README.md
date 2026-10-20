@@ -11,6 +11,7 @@ Mission Atlas is an archive of robotic planetary science and astrophysics missio
 
 ## Features
 
+- **Map:** where every spacecraft is right now, on a true-scale map of the solar system. Drag, scroll or pinch to move around. Hover over a craft for its distance from the Sun and from Earth, and click it to see its mission's route so far and the path still ahead. Craft at the same planet are counted on a badge, and clicking the badge lists them.
 - **Archive:** search across missions, spacecraft, agencies and destinations, and filter by status, agency, destination, spacecraft type and builder. Results sort by launch date or name and come in pages of 24.
 - **Mission pages:** launch time to the second, last contact, end declared, duration and destinations, then a tile for each spacecraft with its mass, size, power source, builder and its own status.
 - **Linked facts:** every agency, destination, spacecraft type and builder links to the archive filtered by it.
@@ -19,6 +20,8 @@ Mission Atlas is an archive of robotic planetary science and astrophysics missio
 | Mission page | Archive, light theme |
 | --- | --- |
 | ![Cassini-Huygens mission page](docs/screenshots/mission.png) | ![Archive filtered to Mars missions](docs/screenshots/archive.png) |
+
+![The map, out to Jupiter, with the pointer over Lucy](docs/screenshots/map.png)
 
 ## How it works
 
@@ -43,7 +46,8 @@ flowchart LR
   - **Freshness:** a GitHub Actions job refreshes the file from Horizons every day and commits it to `main` when Horizons' data has changed, which redeploys the site. Horizons revises the paths of craft in transit as they are tracked and as they manoeuvre.
   - Facts such as where a craft ended up stay in the database; only the numbers live in the file.
 - **The seed** makes the database match the files: it creates or updates rows by slug, deletes rows no longer listed, and runs in one transaction so a failure changes nothing.
-- **Pages:** the home page and mission pages are built ahead of time and refreshed hourly. The archive is rendered on each request, because its results depend on the search and filters in the address.
+- **Pages:** the home page, the map and mission pages are built ahead of time and refreshed hourly. The archive is rendered on each request, because its results depend on the search and filters in the address.
+- **The map** is drawn on a canvas in the browser (`src/components/map/`), because it redraws hundreds of objects many times a second while moving. The page hands it each craft's facts from the database; it loads `positions.json` itself and works out every position for the current moment, once a second.
 
 ## Tech stack
 
@@ -140,9 +144,11 @@ scripts/
 public/
   positions.json         orbits and routes for the map
 src/
-  app/                   pages: home, archive, mission page, not-found
+  app/                   pages: home, map, archive, mission page, not-found
   components/            tiles, status tags, theme switch, navbar
-  lib/                   database client, formatting helpers, orbit maths
+    map/                 the map: camera, drawing, controls
+  lib/                   database client, formatting helpers, orbit maths,
+                         where each craft is on the map
 branding/                logo, colours and type
 docs/                    mission list and screenshots
 ```
