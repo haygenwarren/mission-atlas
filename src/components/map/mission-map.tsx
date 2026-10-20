@@ -65,8 +65,8 @@ const VIEWS = [
   { label: "Everything", radius: null },
 ] as const;
 
-// Room left at the edges of the map: the caption runs along the top.
-const INSETS = { top: 40, bottom: 16, side: 18 };
+// Room left at the edges of the map. The bottom grows to clear the caption.
+const INSETS = { top: 18, bottom: 18, side: 18 };
 
 // Wheel zoom speeds, per pixel of scroll. A trackpad pinch arrives as many
 // small steps with ctrlKey set (in Chrome, Edge and Firefox), so it needs a
@@ -489,6 +489,24 @@ export default function MissionMap({ craft, names, kinds }: Props) {
         daysSinceJ2000(new Date()),
       );
 
+      // Where the controls and caption sit over the map, in its own
+      // coordinates; labels keep clear of them.
+      const origin = wrap.getBoundingClientRect();
+      const overlay = (element: HTMLElement | null) => {
+        const box = element?.getBoundingClientRect();
+
+        return box && box.width > 0
+          ? {
+              left: box.left - origin.left - 4,
+              top: box.top - origin.top - 4,
+              right: box.right - origin.left + 4,
+              bottom: box.bottom - origin.top + 4,
+            }
+          : null;
+      };
+      const controls = overlay(controlsRef.current);
+      const caption = overlay(captionRef.current);
+
       v.scene = scene;
       v.hits = drawMap({
         ctx,
@@ -504,23 +522,14 @@ export default function MissionMap({ craft, names, kinds }: Props) {
         selectedBody: l.selection?.kind === "body" ? l.selection.slug : null,
         trails: l.trails,
         hoverTrails: l.hoverTrails,
-        insets: INSETS,
+        // Markers along the bottom stay above the caption, however many
+        // lines it wraps to.
+        insets: {
+          ...INSETS,
+          bottom: caption ? Math.max(INSETS.bottom, height - caption.top + 6) : INSETS.bottom,
+        },
         pulse: reducedMotion.matches ? null : (time % PULSE_MS) / PULSE_MS,
-        covered: [controlsRef.current, captionRef.current].flatMap((element) => {
-          const box = element?.getBoundingClientRect();
-          const origin = wrap.getBoundingClientRect();
-
-          return box && box.width > 0
-            ? [
-                {
-                  left: box.left - origin.left - 4,
-                  top: box.top - origin.top - 4,
-                  right: box.right - origin.left + 4,
-                  bottom: box.bottom - origin.top + 4,
-                },
-              ]
-            : [];
-        }),
+        covered: [controls, caption].filter((box) => box !== null),
       });
 
       // Keep the tooltip beside whatever it describes.
@@ -967,7 +976,7 @@ export default function MissionMap({ craft, names, kinds }: Props) {
       {scene && (
         <p
           ref={captionRef}
-          className="pointer-events-none absolute left-4 top-3 max-w-[calc(100%-2rem)] text-xs text-muted sm:max-w-md"
+          className={`pointer-events-none absolute bottom-3 left-4 right-44 text-xs text-muted sm:right-auto sm:max-w-md ${selection ? "hidden sm:block" : ""}`}
         >
           Positions for {timeFormat.format(dayToDate(scene.t))} UTC, from JPL
           Horizons. Not to scale.
