@@ -128,6 +128,9 @@ type View = {
   dragged: boolean;
   // Whether the visitor has moved the view themselves.
   moved: boolean;
+  // The view before the map flew in to a selection, to fly back to when its
+  // card is closed.
+  returnTo: Camera | null;
   request: () => void;
 };
 
@@ -553,6 +556,7 @@ export default function MissionMap({
     downAt: null,
     dragged: false,
     moved: false,
+    returnTo: null,
     request: () => {},
   });
 
@@ -622,7 +626,10 @@ export default function MissionMap({
               openArea(v, panelRef.current, wrapRef.current),
             );
 
-            if (target) fly(v, target);
+            if (target) {
+              v.returnTo ??= v.camera;
+              fly(v, target);
+            }
           }, 600);
         }
       })
@@ -995,7 +1002,23 @@ export default function MissionMap({
       openArea(v, panelRef.current, wrapRef.current),
     );
 
-    if (target) fly(v, target);
+    if (target) {
+      v.returnTo ??= v.camera;
+      fly(v, target);
+    }
+  }
+
+  // Closing the card flies back to the view from before the map flew in to
+  // what was selected.
+  function closeCard() {
+    const v = view.current;
+
+    setSelection(null);
+
+    if (v.returnTo) {
+      fly(v, v.returnTo);
+      v.returnTo = null;
+    }
   }
 
   // Clicking a craft selects its mission. Clicking a planet, asteroid or
@@ -1004,6 +1027,7 @@ export default function MissionMap({
   function select(hit: Hit | null) {
     if (!hit) {
       setSelection(null);
+      view.current.returnTo = null;
     } else if (hit.kind === "body") {
       const next: Selection = { kind: "body", slug: hit.slug };
 
@@ -1131,7 +1155,7 @@ export default function MissionMap({
 
     if (event.key === "+" || event.key === "=") zoomBy(1.5);
     else if (event.key === "-") zoomBy(1 / 1.5);
-    else if (event.key === "Escape") setSelection(null);
+    else if (event.key === "Escape") closeCard();
     else if (pans[event.key] && v.camera) {
       animateTo(panBy(v.animation?.to ?? v.camera, ...pans[event.key]), 200, easeOut);
     } else return;
@@ -1261,7 +1285,7 @@ export default function MissionMap({
           names={names}
           kinds={kinds}
           snapshot={data!.snapshot}
-          onClose={() => setSelection(null)}
+          onClose={closeCard}
         />
       )}
 
