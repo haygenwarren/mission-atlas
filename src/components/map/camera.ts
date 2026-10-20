@@ -75,6 +75,61 @@ export function between(from: Camera, to: Camera, k: number): Camera {
   };
 }
 
+// A flight from one view to another that pulls back while it pans and closes
+// in as it arrives, so a long move never smears across the screen. This is
+// "smooth and efficient zooming and panning" (J. van Wijk and W. Nuij, 2003),
+// the method behind d3's zoom transitions. `at(k)` gives the view part way,
+// for k from 0 to 1; `duration` is a comfortable length for the trip, in
+// milliseconds.
+const RHO = Math.SQRT2;
+
+export function flight(from: Camera, to: Camera, size: Size) {
+  const span = Math.min(size.width, size.height);
+  // How much of space (AU) the shorter side of the screen covers.
+  const w0 = span / from.scale;
+  const w1 = span / to.scale;
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const d = Math.hypot(dx, dy);
+  const view = (x: number, y: number, w: number): Camera => ({
+    x,
+    y,
+    scale: span / w,
+  });
+
+  // Zooming on the spot.
+  if (d < 1e-9) {
+    const S = Math.log(w1 / w0) / RHO;
+
+    return {
+      duration: Math.abs(S) * 1000,
+      at: (k: number) => view(from.x, from.y, w0 * Math.exp(RHO * k * S)),
+    };
+  }
+
+  const b0 = (w1 * w1 - w0 * w0 + RHO ** 4 * d * d) / (2 * w0 * RHO ** 2 * d);
+  const b1 = (w1 * w1 - w0 * w0 - RHO ** 4 * d * d) / (2 * w1 * RHO ** 2 * d);
+  const r0 = Math.log(Math.sqrt(b0 * b0 + 1) - b0);
+  const r1 = Math.log(Math.sqrt(b1 * b1 + 1) - b1);
+  const S = (r1 - r0) / RHO;
+
+  return {
+    duration: S * 1000,
+    at: (k: number) => {
+      const s = k * S;
+      const u =
+        (w0 / (RHO ** 2 * d)) *
+        (Math.cosh(r0) * Math.tanh(RHO * s + r0) - Math.sinh(r0));
+
+      return view(
+        from.x + u * dx,
+        from.y + u * dy,
+        (w0 * Math.cosh(r0)) / Math.cosh(RHO * s + r0),
+      );
+    },
+  };
+}
+
 export function easeInOut(k: number) {
   return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
 }

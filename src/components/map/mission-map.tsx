@@ -30,6 +30,7 @@ import {
 import {
   between,
   easeInOut,
+  flight,
   easeOut,
   fitRadius,
   panBy,
@@ -89,8 +90,9 @@ const ORBITS: BodySlug[] = [...PLANETS, "pluto"];
 // rather than React state.
 type View = {
   camera: Camera | null;
+  // A move under way: the view part way along, for k from 0 to 1.
   animation: {
-    from: Camera;
+    path: (k: number) => Camera;
     to: Camera;
     start: number;
     duration: number;
@@ -102,12 +104,13 @@ type View = {
   pointers: Map<number, { x: number; y: number }>;
   downAt: { x: number; y: number } | null;
   dragged: boolean;
-  // How far out (AU) the first view reaches, before the map has a size.
-  firstRadius: number;
+  // Whether the visitor has moved the view themselves.
+  moved: boolean;
   request: () => void;
 };
 
-// Moves the camera smoothly from where it is to `to`.
+// Moves the camera smoothly from where it is to `to`, at the visitor's
+// request.
 function animate(
   v: View,
   to: Camera,
@@ -116,7 +119,39 @@ function animate(
 ) {
   if (!v.camera) return;
 
-  v.animation = { from: v.camera, to, start: performance.now(), duration, ease };
+  const from = v.camera;
+
+  v.moved = true;
+  v.animation = {
+    path: (k) => between(from, to, k),
+    to,
+    start: performance.now(),
+    duration,
+    ease,
+  };
+  v.request();
+}
+
+// Flies the camera to `to`, pulling back on the way for a long trip, or
+// jumps there for visitors who ask for reduced motion.
+function fly(v: View, to: Camera) {
+  if (!v.camera) return;
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    v.camera = to;
+    v.request();
+    return;
+  }
+
+  const trip = flight(v.camera, to, v.size);
+
+  v.animation = {
+    path: trip.at,
+    to,
+    start: performance.now(),
+    duration: Math.min(2800, Math.max(1200, trip.duration)),
+    ease: easeInOut,
+  };
   v.request();
 }
 
@@ -180,14 +215,18 @@ function missionTrails(
     .map(routeSamples);
 }
 
-// How far from the Sun (AU, in the plane of the map) the selected mission's
-// craft, or the selected body, are now.
-function reachOf(
+// A view of where the selected mission's craft, or the selected body, are
+// now: centred on them and showing their neighbourhood, a quarter of their
+// distance from the Sun across (at least 0.3 AU). They sit beside the info
+// card rather than under it: left of it on wide screens, above it on phones.
+// Null when nothing selected has a known position.
+function focusOn(
   selection: Selection,
   craft: MapCraft[],
   snapshot: PositionsSnapshot,
   t: Days,
-) {
+  size: Size,
+): Camera | null {
   const scene = buildScene(snapshot, craft, t);
   const positions =
     selection.kind === "body"
@@ -205,9 +244,31 @@ function reachOf(
             .map(({ position }) => position),
         ];
 
-  return positions.length > 0
-    ? Math.max(...positions.map(([x, y]) => Math.hypot(x, y)))
-    : null;
+  if (positions.length === 0) return null;
+
+  const xs = positions.map(([x]) => x);
+  const ys = positions.map(([, y]) => y);
+  const x = (Math.min(...xs) + Math.max(...xs)) / 2;
+  const y = (Math.min(...ys) + Math.max(...ys)) / 2;
+  const spread = Math.max(
+    Math.max(...xs) - Math.min(...xs),
+    Math.max(...ys) - Math.min(...ys),
+  );
+  const radius = Math.max(
+    spread * 0.7,
+    Math.min(40, Math.max(0.3, Math.hypot(x, y) * 0.25)),
+  );
+  const view = fitRadius(size, radius, x, y);
+  const wide = size.width >= 640;
+  // Where on screen, from the centre, the target should end up.
+  const dx = wide ? -200 : 0;
+  const dy = wide ? 0 : -size.height * 0.275;
+
+  return {
+    ...view,
+    x: view.x - dx / view.scale,
+    y: view.y + dy / view.scale,
+  };
 }
 
 function readSelection(
@@ -291,7 +352,7 @@ export default function MissionMap({ craft, names, kinds }: Props) {
     pointers: new Map(),
     downAt: null,
     dragged: false,
-    firstRadius: OPENING_RADIUS,
+    moved: false,
     request: () => {},
   });
 
@@ -337,16 +398,18 @@ export default function MissionMap({ craft, names, kinds }: Props) {
         setSelection(selected);
 
         // A mission or place picked in the address, perhaps from a mission
-        // page, is brought into view if the opening view would miss it.
-        const reach = selected && reachOf(selected, craft, snapshot, today);
-        const v = view.current;
+        // page's "See where it is now": the map opens on its usual view,
+        // then flies there, unless the visitor has started moving it.
+        if (selected) {
+          setTimeout(() => {
+            const v = view.current;
 
-        if (reach && reach * 1.15 > OPENING_RADIUS) {
-          if (v.camera) {
-            animate(v, fitRadius(v.size, reach * 1.15), 1200);
-          } else {
-            v.firstRadius = reach * 1.15;
-          }
+            if (cancelled || v.moved || !v.camera) return;
+
+            const target = focusOn(selected, craft, snapshot, today, v.size);
+
+            if (target) fly(v, target);
+          }, 600);
         }
       })
       .catch(() => {
@@ -407,7 +470,7 @@ export default function MissionMap({ craft, names, kinds }: Props) {
         const a = v.animation;
         const k = Math.min(1, (time - a.start) / a.duration);
 
-        v.camera = between(a.from, a.to, a.ease(k));
+        v.camera = a.path(a.ease(k));
         if (k >= 1) v.animation = null;
       }
 
@@ -502,7 +565,7 @@ export default function MissionMap({ craft, names, kinds }: Props) {
       v.size = { width, height };
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
-      v.camera ??= fitRadius(v.size, v.firstRadius);
+      v.camera ??= fitRadius(v.size, OPENING_RADIUS);
       render(performance.now());
     });
 
@@ -571,6 +634,7 @@ export default function MissionMap({ craft, names, kinds }: Props) {
       const rect = canvas.getBoundingClientRect();
 
       v.animation = null;
+      v.moved = true;
       v.camera = zoomAround(
         v.camera,
         v.size,
@@ -705,6 +769,7 @@ export default function MissionMap({ craft, names, kinds }: Props) {
     event.currentTarget.setPointerCapture(event.pointerId);
     v.pointers.set(event.pointerId, point);
     v.animation = null;
+    v.moved = true;
 
     if (v.pointers.size === 1) {
       v.downAt = point;
