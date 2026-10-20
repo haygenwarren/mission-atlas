@@ -65,6 +65,9 @@ export type Frame = {
   // map, which labels keep clear of.
   insets: { top: number; bottom: number; side: number };
   covered: Box[];
+  // Where the pulse around active missions is in its cycle, from 0 to 1, or
+  // null for no pulse (for visitors who ask for reduced motion).
+  pulse: number | null;
 };
 
 // Small bodies are left out until the map is zoomed in this far (pixels per
@@ -92,6 +95,26 @@ const DWARF_RADIUS = 4;
 const SMALL_BODY_RADIUS = 3;
 const CRAFT_RADIUS = 6;
 
+// How each kind of label is set, as on a printed map: planets in wide
+// capitals, asteroids and comets in italics, spacecraft plainly, and the
+// markers at the edge in monospace.
+type LabelStyle = "planet" | "small-body" | "craft" | "edge";
+
+function setLabelFont(
+  ctx: CanvasRenderingContext2D,
+  style: LabelStyle,
+  palette: Palette,
+) {
+  ctx.letterSpacing = style === "planet" ? "1.5px" : "0px";
+  ctx.fontStretch = style === "planet" ? "expanded" : "normal";
+  ctx.font = {
+    planet: `600 13px ${palette.sans}`,
+    "small-body": `italic 12px ${palette.sans}`,
+    craft: `12px ${palette.sans}`,
+    edge: `11px ${palette.mono}`,
+  }[style];
+}
+
 // A label beside something drawn at (x, y). It goes `right` pixels to the
 // right of x if there is room, otherwise `left` pixels to the left; a label
 // with only one of the two stays on that side. A label with a target can be
@@ -102,7 +125,7 @@ type Label = {
   y: number;
   right?: number;
   left?: number;
-  font: string;
+  style: LabelStyle;
   color: string;
   priority: number;
   target?: Target;
@@ -280,13 +303,36 @@ export function drawMap(frame: Frame): Hit[] {
   ctx.globalAlpha = 1;
   for (const trail of frame.trails) drawTrail(ctx, trail, scene.t, screen);
 
-  // Planets, dwarf planets, asteroids and comets, with a count of the craft
-  // at each.
+  // A soft ring that grows and fades around each active craft in flight.
+  if (frame.pulse !== null) {
+    ctx.strokeStyle = palette.active;
+    ctx.lineWidth = 1.5;
+    ctx.globalAlpha = 0.5 * (1 - frame.pulse);
+
+    for (const { craft, position } of scene.free) {
+      if (craft.status !== "ACTIVE") continue;
+
+      const [x, y] = screen(position[0], position[1]);
+
+      if (onScreen(size, x, y, 30)) {
+        ring(ctx, x, y, CRAFT_RADIUS + 2 + frame.pulse * 14);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // Planets, dwarf planets, asteroids and comets, with a count of the
+  // missions at each.
   for (const body of scene.bodies) {
     const planet = PLANETS.includes(body.slug);
     const dwarf = DWARF_PLANETS.includes(body.slug);
+    const holdsSelected =
+      selectedMission !== null &&
+      body.craft.some(({ mission }) => mission.slug === selectedMission);
     const highlighted =
-      same(hovered, "body", body.slug) || selectedBody === body.slug;
+      same(hovered, "body", body.slug) ||
+      selectedBody === body.slug ||
+      holdsSelected;
     const target: Target = { kind: "body", slug: body.slug };
     const [x, y] = screen(body.position[0], body.position[1]);
 
@@ -300,7 +346,7 @@ export function drawMap(frame: Frame): Hit[] {
         labels.push({
           text: `${names[body.slug]} · ${formatDistance(fromSun(body.position))}`,
           ...edgeLabel(edge, size),
-          font: `11px ${palette.mono}`,
+          style: "edge",
           color: highlighted ? palette.foreground : palette.muted,
           priority: highlighted ? 90 : 20,
           target,
@@ -338,13 +384,35 @@ export function drawMap(frame: Frame): Hit[] {
     let right = radius + 6;
 
     if (body.craft.length > 0) {
-      const text = String(body.craft.length);
+      const missions = new Set(body.craft.map(({ mission }) => mission.slug));
+      const text = String(missions.size);
 
+      ctx.letterSpacing = "0px";
+      ctx.fontStretch = "normal";
       ctx.font = `500 11px ${palette.mono}`;
 
       const width = ctx.measureText(text).width + 12;
       const left = x + radius + 6;
       const anyActive = body.craft.some(({ status }) => status === "ACTIVE");
+
+      // The badge of a body with an active mission pulses too.
+      if (anyActive && frame.pulse !== null) {
+        const grow = frame.pulse * 7;
+
+        ctx.strokeStyle = palette.active;
+        ctx.lineWidth = 1.5;
+        ctx.globalAlpha = 0.45 * (1 - frame.pulse);
+        ctx.beginPath();
+        ctx.roundRect(
+          left - grow,
+          y - 9 - grow,
+          width + 2 * grow,
+          18 + 2 * grow,
+          9 + grow,
+        );
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
 
       ctx.fillStyle = palette.surface;
       ctx.strokeStyle = anyActive ? palette.active : palette.borderStrong;
@@ -364,12 +432,12 @@ export function drawMap(frame: Frame): Hit[] {
 
     hits.push({ ...target, x, y, radius: radius + 10 });
     labels.push({
-      text: names[body.slug],
+      text: planet || dwarf ? names[body.slug].toUpperCase() : names[body.slug],
       x,
       y,
       right,
       left: radius + 6,
-      font: `${planet ? 13 : 12}px ${palette.sans}`,
+      style: planet || dwarf ? "planet" : "small-body",
       color: planet || dwarf ? palette.foreground : palette.muted,
       priority: highlighted
         ? 95
@@ -404,7 +472,7 @@ export function drawMap(frame: Frame): Hit[] {
       labels.push({
         text: `${craft.name} · ${formatDistance(fromSun(position))}`,
         ...edgeLabel(edge, size),
-        font: `11px ${palette.mono}`,
+        style: "edge",
         color: highlighted ? palette.foreground : palette.muted,
         priority: highlighted ? 90 : ended ? 15 : 25,
         target,
@@ -443,14 +511,16 @@ export function drawMap(frame: Frame): Hit[] {
       y,
       right: CRAFT_RADIUS + 6,
       left: CRAFT_RADIUS + 6,
-      font: `12px ${palette.sans}`,
+      style: "craft",
       color: ended && !highlighted ? palette.muted : palette.foreground,
       priority: highlighted ? 100 : ended ? 40 : 60,
       target,
     });
   }
 
-  hits.push(...drawLabels(ctx, size, labels, taken));
+  hits.push(...drawLabels(ctx, size, palette, labels, taken));
+  ctx.letterSpacing = "0px";
+  ctx.fontStretch = "normal";
 
   return hits;
 }
@@ -482,6 +552,7 @@ function drawEdgeArrow(
 function drawLabels(
   ctx: CanvasRenderingContext2D,
   size: Size,
+  palette: Palette,
   labels: Label[],
   taken: Box[],
 ) {
@@ -504,7 +575,7 @@ function drawLabels(
   ctx.textAlign = "left";
 
   for (const label of [...labels].sort((a, b) => b.priority - a.priority)) {
-    ctx.font = label.font;
+    setLabelFont(ctx, label.style, palette);
 
     const width = ctx.measureText(label.text).width;
     const options = [

@@ -24,11 +24,13 @@ export default async function MapPage() {
         horizonsId: true,
         lastContact: true,
         location: { select: { slug: true } },
-        mission: { select: { slug: true, name: true } },
+        mission: { select: { slug: true, name: true, status: true } },
       },
       orderBy: { name: "asc" },
     }),
-    prisma.destination.findMany({ select: { slug: true, name: true } }),
+    prisma.destination.findMany({
+      select: { slug: true, name: true, kind: true },
+    }),
   ]);
 
   const craft: MapCraft[] = rows.map((row) => ({
@@ -45,12 +47,16 @@ export default async function MapPage() {
     earth: "Earth",
     ...Object.fromEntries(destinations.map(({ slug, name }) => [slug, name])),
   };
+  const kinds = {
+    earth: "PLANET" as const,
+    ...Object.fromEntries(destinations.map(({ slug, kind }) => [slug, kind])),
+  };
 
   return (
     // Fills the window below the navbar.
     <main className="h-[calc(100dvh-73px)] min-h-[28rem]">
       <h1 className="sr-only">Map of the solar system</h1>
-      <MissionMap craft={craft} names={names} />
+      <MissionMap craft={craft} names={names} kinds={kinds} />
     </main>
   );
 }

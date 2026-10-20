@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import StatusBadge from "@/components/status-badge";
+import type { DestinationKind, Status } from "@/generated/prisma/enums";
+import { statusLabels } from "@/lib/missions";
 import {
   PLANETS,
   buildScene,
@@ -50,6 +52,7 @@ type Props = {
   craft: MapCraft[];
   // Display names of the bodies and of every place a craft can be.
   names: Record<string, string>;
+  kinds: Record<string, DestinationKind>;
 };
 
 // Views the buttons jump to: everything within `radius` AU of the Sun.
@@ -70,6 +73,12 @@ const INSETS = { top: 40, bottom: 16, side: 18 };
 const PINCH_RATE = 0.012;
 const WHEEL_RATE = 0.002;
 const LINE_RATE = 0.05;
+
+// How long one pulse around an active mission takes, in milliseconds.
+const PULSE_MS = 2400;
+
+// The view the map opens on: out to Jupiter.
+const OPENING_RADIUS = 6;
 
 // Safari reports a trackpad pinch as its own gesture events.
 type GestureEvent = UIEvent & { scale: number; clientX: number; clientY: number };
@@ -93,6 +102,8 @@ type View = {
   pointers: Map<number, { x: number; y: number }>;
   downAt: { x: number; y: number } | null;
   dragged: boolean;
+  // How far out (AU) the first view reaches, before the map has a size.
+  firstRadius: number;
   request: () => void;
 };
 
@@ -169,6 +180,36 @@ function missionTrails(
     .map(routeSamples);
 }
 
+// How far from the Sun (AU, in the plane of the map) the selected mission's
+// craft, or the selected body, are now.
+function reachOf(
+  selection: Selection,
+  craft: MapCraft[],
+  snapshot: PositionsSnapshot,
+  t: Days,
+) {
+  const scene = buildScene(snapshot, craft, t);
+  const positions =
+    selection.kind === "body"
+      ? scene.bodies
+          .filter(({ slug }) => slug === selection.slug)
+          .map(({ position }) => position)
+      : [
+          ...scene.free
+            .filter(({ craft: one }) => one.mission.slug === selection.slug)
+            .map(({ position }) => position),
+          ...scene.bodies
+            .filter(({ craft: here }) =>
+              here.some(({ mission }) => mission.slug === selection.slug),
+            )
+            .map(({ position }) => position),
+        ];
+
+  return positions.length > 0
+    ? Math.max(...positions.map(([x, y]) => Math.hypot(x, y)))
+    : null;
+}
+
 function readSelection(
   craft: MapCraft[],
   snapshot: PositionsSnapshot,
@@ -188,7 +229,7 @@ function readSelection(
   return null;
 }
 
-export default function MissionMap({ craft, names }: Props) {
+export default function MissionMap({ craft, names, kinds }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -250,6 +291,7 @@ export default function MissionMap({ craft, names }: Props) {
     pointers: new Map(),
     downAt: null,
     dragged: false,
+    firstRadius: OPENING_RADIUS,
     request: () => {},
   });
 
@@ -289,7 +331,23 @@ export default function MissionMap({ craft, names }: Props) {
           })),
         });
         setNow(today);
-        setSelection(readSelection(craft, snapshot));
+
+        const selected = readSelection(craft, snapshot);
+
+        setSelection(selected);
+
+        // A mission or place picked in the address, perhaps from a mission
+        // page, is brought into view if the opening view would miss it.
+        const reach = selected && reachOf(selected, craft, snapshot, today);
+        const v = view.current;
+
+        if (reach && reach * 1.15 > OPENING_RADIUS) {
+          if (v.camera) {
+            animate(v, fitRadius(v.size, reach * 1.15), 1200);
+          } else {
+            v.firstRadius = reach * 1.15;
+          }
+        }
       })
       .catch(() => {
         if (!cancelled) setFailed(true);
@@ -333,6 +391,9 @@ export default function MissionMap({ craft, names }: Props) {
     let frame = 0;
 
     latest.current.palette = readPalette();
+
+    // Visitors who ask their system for less motion get no pulse.
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     function render(time: number) {
       frame = 0;
@@ -381,6 +442,7 @@ export default function MissionMap({ craft, names }: Props) {
         trails: l.trails,
         hoverTrails: l.hoverTrails,
         insets: INSETS,
+        pulse: reducedMotion.matches ? null : (time % PULSE_MS) / PULSE_MS,
         covered: [controlsRef.current, captionRef.current].flatMap((element) => {
           const box = element?.getBoundingClientRect();
           const origin = wrap.getBoundingClientRect();
@@ -423,7 +485,8 @@ export default function MissionMap({ craft, names }: Props) {
         }
       }
 
-      if (v.animation) request();
+      // Keep drawing while the view moves or the pulse runs.
+      if (v.animation || !reducedMotion.matches) request();
     }
 
     function request() {
@@ -439,7 +502,7 @@ export default function MissionMap({ craft, names }: Props) {
       v.size = { width, height };
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
-      v.camera ??= fitRadius(v.size, 6);
+      v.camera ??= fitRadius(v.size, v.firstRadius);
       render(performance.now());
     });
 
@@ -793,17 +856,19 @@ export default function MissionMap({ craft, names }: Props) {
         ref={controlsRef}
         className={`absolute bottom-4 right-4 w-36 rounded-lg border border-border-strong bg-background/85 p-2 backdrop-blur ${selection ? "hidden sm:block" : ""}`}
       >
-        <p className="label-caps px-1.5 pb-1 text-muted">View</p>
-        {VIEWS.map((preset) => (
-          <button
-            key={preset.label}
-            type="button"
-            onClick={() => showView(preset.radius)}
-            className="block w-full rounded px-1.5 py-1 text-left text-xs text-muted transition-colors hover:bg-surface hover:text-foreground"
-          >
-            {preset.label}
-          </button>
-        ))}
+        <p className="label-caps px-0.5 pb-1.5 text-muted">View</p>
+        <div className="space-y-1.5">
+          {VIEWS.map((preset) => (
+            <button
+              key={preset.label}
+              type="button"
+              onClick={() => showView(preset.radius)}
+              className="block w-full rounded border border-border-strong px-2 py-1 text-left text-xs text-muted transition-colors hover:border-accent hover:text-foreground"
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
         <div className="mt-2 flex gap-2 border-t border-border pt-2">
           {[
             { label: "Zoom out", text: "−", factor: 1 / 1.6 },
@@ -828,6 +893,7 @@ export default function MissionMap({ craft, names }: Props) {
           scene={scene}
           craft={craft}
           names={names}
+          kinds={kinds}
           snapshot={data!.snapshot}
           onClose={() => setSelection(null)}
         />
@@ -932,55 +998,51 @@ function whereNow(
   return `Position unknown${since ? ` since ${since}` : ""}`;
 }
 
-function InfoCard({
-  selection,
-  scene,
-  craft,
-  names,
-  snapshot,
-  onClose,
-}: {
-  selection: Selection;
-  scene: Scene;
-  craft: MapCraft[];
-  names: Record<string, string>;
-  snapshot: PositionsSnapshot;
-  onClose: () => void;
-}) {
-  const members =
-    selection.kind === "mission"
-      ? craft.filter((one) => one.mission.slug === selection.slug)
-      : (scene.bodies.find(({ slug }) => slug === selection.slug)?.craft ?? []);
-  const title =
-    selection.kind === "mission"
-      ? members[0]?.mission.name
-      : names[selection.slug];
-  const ordered = [...members].sort(
-    (a, b) =>
-      Number(b.status === "ACTIVE") - Number(a.status === "ACTIVE") ||
-      a.name.localeCompare(b.name),
-  );
-  const body =
-    selection.kind === "body"
-      ? scene.bodies.find(({ slug }) => slug === selection.slug)
-      : null;
-  const fromEarth =
-    body && body.slug !== "earth" ? distance(body.position, scene.earth) : null;
+// What kind of place a body is, for the label above its name.
+const kindLabels: Partial<Record<DestinationKind, string>> = {
+  PLANET: "Planet",
+  DWARF_PLANET: "Dwarf planet",
+  MOON: "Moon",
+  ASTEROID: "Asteroid",
+  COMET: "Comet",
+};
 
+const statusDots: Record<Status, string> = {
+  ACTIVE: "bg-status-active",
+  COMPLETED: "bg-status-completed",
+  FAILED: "bg-status-failed",
+};
+
+// Active first, then by name.
+function byActivity<T extends { name: string; status: Status }>(a: T, b: T) {
   return (
-    <aside className="absolute inset-x-0 bottom-0 max-h-[55%] overflow-y-auto rounded-t-xl border border-border bg-surface p-5 shadow-xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:max-h-[calc(100%-15rem)] sm:w-96 sm:rounded-xl">
+    Number(b.status === "ACTIVE") - Number(a.status === "ACTIVE") ||
+    a.name.localeCompare(b.name)
+  );
+}
+
+// The card beside the map, the same for a mission and for a place: what it
+// is, its name, then the details.
+function Card({
+  label,
+  title,
+  detail,
+  onClose,
+  children,
+}: {
+  label: string;
+  title: string;
+  detail?: string | null;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <aside className="absolute inset-x-0 bottom-0 max-h-[55%] overflow-y-auto rounded-t-xl border border-border bg-surface p-5 shadow-xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:max-h-[calc(100%-17rem)] sm:w-96 sm:rounded-xl">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="label-caps text-muted">
-            {selection.kind === "mission" ? "Mission" : "Craft here"}
-          </p>
+          <p className="label-caps text-muted">{label}</p>
           <h2 className="font-display mt-1 text-xl">{title}</h2>
-          {fromEarth !== null && (
-            <p className="mt-1 text-sm text-muted">
-              {formatDistance(fromEarth)} from Earth (
-              {formatLightTime(fromEarth)} by radio)
-            </p>
-          )}
+          {detail && <p className="mt-1 text-sm text-muted">{detail}</p>}
         </div>
         <button
           type="button"
@@ -991,51 +1053,139 @@ function InfoCard({
           ×
         </button>
       </div>
+      {children}
+    </aside>
+  );
+}
 
-      {selection.kind === "body" && ordered.length === 0 && (
-        <p className="mt-4 text-sm text-muted">No spacecraft are here.</p>
-      )}
+function InfoCard({
+  selection,
+  scene,
+  craft,
+  names,
+  kinds,
+  snapshot,
+  onClose,
+}: {
+  selection: Selection;
+  scene: Scene;
+  craft: MapCraft[];
+  names: Record<string, string>;
+  kinds: Record<string, DestinationKind>;
+  snapshot: PositionsSnapshot;
+  onClose: () => void;
+}) {
+  if (selection.kind === "mission") {
+    const members = craft
+      .filter((one) => one.mission.slug === selection.slug)
+      .sort(byActivity);
 
-      <ul className="mt-4 space-y-4">
-        {ordered.map((one) => (
-          <li key={one.slug}>
-            <div className="flex items-start justify-between gap-3">
-              {selection.kind === "body" ? (
-                <Link
-                  href={`/missions/${one.mission.slug}`}
-                  className="font-semibold hover:text-accent hover:underline"
-                >
-                  {one.name}
-                </Link>
-              ) : (
+    return (
+      <Card label="Mission" title={members[0]?.mission.name} onClose={onClose}>
+        <ul className="mt-4 space-y-4">
+          {members.map((one) => (
+            <li key={one.slug}>
+              <div className="flex items-start justify-between gap-3">
                 <p className="font-semibold">{one.name}</p>
-              )}
-              <StatusBadge status={one.status} />
-            </div>
-            {selection.kind === "body" && one.mission.name !== one.name && (
-              <p className="text-sm text-muted">{one.mission.name}</p>
-            )}
-            {selection.kind === "mission" ? (
+                <StatusBadge status={one.status} />
+              </div>
               <p className="mt-1 text-sm">
                 {whereNow(one, scene, snapshot, names)}
               </p>
-            ) : (
-              names[one.location] !== title && (
-                <p className="mt-1 text-sm">{names[one.location]}</p>
-              )
-            )}
-          </li>
-        ))}
-      </ul>
-
-      {selection.kind === "mission" && (
+            </li>
+          ))}
+        </ul>
         <Link
           href={`/missions/${selection.slug}`}
           className="mt-5 inline-block text-sm text-accent hover:underline"
         >
           Mission page →
         </Link>
+      </Card>
+    );
+  }
+
+  const body = scene.bodies.find(({ slug }) => slug === selection.slug);
+  const here = body?.craft ?? [];
+  const title = names[selection.slug];
+  const fromEarth =
+    body && body.slug !== "earth" ? distance(body.position, scene.earth) : null;
+  // One entry per mission, with its craft here listed beneath it.
+  const missions = [
+    ...new Map(here.map(({ mission }) => [mission.slug, mission])).values(),
+  ].sort(byActivity);
+
+  return (
+    <Card
+      label={kindLabels[kinds[selection.slug]] ?? "Planet"}
+      title={title}
+      detail={
+        fromEarth === null
+          ? null
+          : `${formatDistance(fromEarth)} from Earth (${formatLightTime(fromEarth)} by radio)`
+      }
+      onClose={onClose}
+    >
+      <p className="label-caps mt-5 text-muted">Craft here</p>
+
+      {missions.length === 0 && (
+        <p className="mt-2 text-sm text-muted">No spacecraft are here.</p>
       )}
-    </aside>
+
+      <ul className="mt-3 space-y-4">
+        {missions.map((mission) => {
+          const members = here
+            .filter((one) => one.mission.slug === mission.slug)
+            .sort(byActivity);
+          // A mission with one craft here, named like the mission, needs no
+          // list: only where it is, if that is more exact than the body.
+          const lone = members.length === 1 && members[0].name === mission.name;
+
+          return (
+            <li key={mission.slug}>
+              <div className="flex items-start justify-between gap-3">
+                <Link
+                  href={`/missions/${mission.slug}`}
+                  className="font-semibold hover:text-accent hover:underline"
+                >
+                  {mission.name}
+                </Link>
+                <StatusBadge status={mission.status} />
+              </div>
+
+              {lone ? (
+                names[members[0].location] !== title && (
+                  <p className="mt-1 text-sm text-muted">
+                    {names[members[0].location]}
+                  </p>
+                )
+              ) : (
+                <ul className="mt-1.5 space-y-1">
+                  {members.map((one) => (
+                    <li
+                      key={one.slug}
+                      className="flex items-center gap-2 text-sm text-muted"
+                    >
+                      <span
+                        aria-hidden
+                        className={`h-2 w-2 shrink-0 rounded-full ${statusDots[one.status]}`}
+                      />
+                      <span>
+                        <span className="text-foreground">{one.name}</span>
+                        {names[one.location] !== title &&
+                          ` · ${names[one.location]}`}
+                        <span className="sr-only">
+                          , {statusLabels[one.status]}
+                        </span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </Card>
   );
 }
