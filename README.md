@@ -31,9 +31,16 @@ flowchart LR
   C --> S
   S -- "on every deploy" --> D[("PostgreSQL on Neon")]
   D --> W["Next.js on Vercel"]
+  H["JPL Horizons"] -- "npm run import:positions" --> P["public/positions.json"]
+  P -- "served as a static file" --> W
 ```
 
 - **Spacecraft facts** (launch time, mass, size, builder) come from GCAT, the General Catalog of Artificial Space Objects. A script saves the rows the project needs into `prisma/data/catalogue.json`, so builds never depend on the catalogue site. Any value written in `missions.ts` overrides the catalogue, with a comment saying why.
+- **Positions** for the map come from [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) and are saved to `public/positions.json`, which browsers download directly. `src/lib/orbits.ts` turns the file into a position, in three dimensions, at any moment:
+  - **Planets, asteroids, comets and the Moon** are stored as a series of orbits, closer together where an orbit changes quickly (a comet passing Jupiter), and positions come from Kepler's laws. Earth is worked out from the Earth–Moon barycentre and the Moon.
+  - **Spacecraft** are stored as the points of their route, with the velocity at each, and positions in between follow a curve that matches both (Hermite interpolation, as in NASA's SPICE toolkit). A route stops where the craft arrives at the body it stays at.
+  - **Accuracy:** from 90 days before the import to two years after it, every position is within 1,000 km of Horizons. Outside that window positions only feed trails and animations, and are within 75,000 km.
+  - Facts such as where a craft ended up stay in the database; only the numbers live in the file.
 - **The seed** makes the database match the files: it creates or updates rows by slug, deletes rows no longer listed, and runs in one transaction so a failure changes nothing.
 - **Pages:** the home page and mission pages are built ahead of time and refreshed hourly. The archive is rendered on each request, because its results depend on the search and filters in the address.
 
@@ -44,6 +51,7 @@ Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · Prisma 7 
 ## Data sources and credits
 
 - Launch and spacecraft data from [GCAT](https://planet4589.org/space/gcat) (J. McDowell), used under CC BY 4.0.
+- Positions of planets, asteroids, comets and spacecraft from [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) (NASA/JPL Solar System Dynamics).
 - End dates and statuses checked against agency mission pages, NASA's NSSDCA catalogue and Wikipedia. Each mission links to its main source.
 - Mission and spacecraft descriptions are written for this project.
 - Logo, colours and type from the brand kit in [`branding/`](branding/mission-atlas-brand/README.md).
@@ -83,6 +91,7 @@ npm run dev                  # http://localhost:3000
 | `npm run start` | Serves a production build. |
 | `npm run lint` | ESLint. |
 | `npm run import:catalogue` | Refreshes `prisma/data/catalogue.json` from GCAT for every spacecraft that has a `catalogueId`. |
+| `npm run import:positions` | Refreshes `public/positions.json` from JPL Horizons: orbits for every body, and routes for every spacecraft that has a `horizonsId`. Takes several minutes. Craft still on their way need it run regularly, since Horizons revises their paths as they manoeuvre. |
 
 ## Adding or changing a mission
 
@@ -122,10 +131,13 @@ prisma/
   seed.ts                loads prisma/data into the database
 scripts/
   import-catalogue.ts    refreshes the GCAT snapshot
+  import-positions.ts    refreshes the positions snapshot from JPL Horizons
+public/
+  positions.json         orbits and routes for the map
 src/
   app/                   pages: home, archive, mission page, not-found
   components/            tiles, status tags, theme switch, navbar
-  lib/                   database client and formatting helpers
+  lib/                   database client, formatting helpers, orbit maths
 branding/                logo, colours and type
 docs/                    mission list and screenshots
 ```
