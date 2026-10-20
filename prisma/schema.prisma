@@ -92,12 +92,19 @@ model Spacecraft {
   builders             Builder[]
   imageUrl             String?
   imageCredit          String?
+  // Where the craft is now: where it is headed if still on its way, or where
+  // it ended up if its mission is over.
+  location             Destination    @relation(fields: [locationId], references: [id])
+  locationId           Int
+  // Its entry in JPL Horizons, e.g. "-31" for Voyager 1.
+  horizonsId           String?
   mission              Mission        @relation(fields: [missionId], references: [id], onDelete: Cascade)
   missionId            Int
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
 
   @@index([missionId])
+  @@index([locationId])
 }
 
 model Builder {
@@ -119,6 +126,7 @@ model Destination {
   id       Int             @id @default(autoincrement())
   name     String          @unique
   slug     String          @unique
-  kind     DestinationKind
-  missions Mission[]
+  kind       DestinationKind
+  missions   Mission[]
+  spacecraft Spacecraft[]
 }

@@ -20,12 +20,21 @@ import type { DestinationSlug } from "./destinations";
 // on Earth: "2017-09-15T11:55:46Z" when the time is known, "2018-11-15" when
 // only the day is. endDeclared is the day the operating agency announced the
 // end, e.g. "2018-10-30".
+//
+// location is where the craft is now: where it is headed if it is still on
+// its way, or where it ended up if its mission is over. It can differ from
+// the mission's destinations (Gaia worked at L2 but was retired into an orbit
+// around the Sun). horizonsId is the craft's own entry in JPL Horizons, matched
+// by designator or by a name Horizons lists; a carried craft without its own
+// entry has none.
 export type SpacecraftSeed = {
   slug: string;
   name: string;
   catalogueId?: string;
   designator?: string | null;
   kind: SpacecraftKind;
+  location: DestinationSlug;
+  horizonsId?: string;
   description: string;
   status?: Status;
   lastContact?: string | null;
@@ -76,6 +85,8 @@ export const missions: MissionSeed[] = [
         name: "James Webb Space Telescope",
         catalogueId: "S50463",
         kind: "TELESCOPE",
+        location: "sun-earth-l2",
+        horizonsId: "-170",
         description:
           "Infrared observatory with a 6.5 m segmented primary mirror, kept cold behind a five-layer sunshield.",
         powerSource: "SOLAR",
@@ -99,6 +110,8 @@ export const missions: MissionSeed[] = [
         name: "Voyager 1",
         catalogueId: "S10321",
         kind: "FLYBY",
+        location: "interstellar-space",
+        horizonsId: "-31",
         description:
           "Three-axis stabilised probe built around a 3.7 m high-gain antenna, powered by three radioisotope thermoelectric generators.",
         powerSource: "RADIOISOTOPE",
@@ -128,6 +141,8 @@ export const missions: MissionSeed[] = [
         name: "Voyager 2",
         catalogueId: "S10271",
         kind: "FLYBY",
+        location: "interstellar-space",
+        horizonsId: "-32",
         description:
           "Three-axis stabilised probe built around a 3.7 m high-gain antenna, powered by three radioisotope thermoelectric generators.",
         powerSource: "RADIOISOTOPE",
@@ -151,6 +166,8 @@ export const missions: MissionSeed[] = [
         name: "Hubble Space Telescope",
         catalogueId: "S20580",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
+        horizonsId: "-48",
         description:
           "Reflecting telescope with a 2.4 m primary mirror, serviced in orbit by five Space Shuttle missions.",
         // GCAT gives 7,547 kg for the main body alone and counts attached
@@ -180,6 +197,8 @@ export const missions: MissionSeed[] = [
         name: "Cassini",
         catalogueId: "S25008",
         kind: "ORBITER",
+        location: "saturn",
+        horizonsId: "-82",
         description:
           "Saturn orbiter carrying twelve science instruments and a 4 m high-gain antenna, powered by three radioisotope thermoelectric generators.",
         status: "COMPLETED",
@@ -192,6 +211,8 @@ export const missions: MissionSeed[] = [
         name: "Huygens",
         catalogueId: "A06904",
         kind: "LANDER",
+        location: "titan",
+        horizonsId: "-150",
         description:
           "ESA's atmospheric probe, which descended by parachute through Titan's atmosphere and returned data from the surface: the first landing in the outer Solar System.",
         status: "COMPLETED",
@@ -222,6 +243,8 @@ export const missions: MissionSeed[] = [
         name: "Perseverance",
         catalogueId: "S45983",
         kind: "ROVER",
+        location: "mars",
+        horizonsId: "-168",
         description:
           "Car-sized rover with a drill and sample-caching system, powered by a radioisotope thermoelectric generator.",
         status: "ACTIVE",
@@ -234,6 +257,9 @@ export const missions: MissionSeed[] = [
         name: "Ingenuity",
         catalogueId: "A09615",
         kind: "ROTORCRAFT",
+        // Horizons lists Ingenuity under the Mars 2020 entry.
+        location: "mars",
+        horizonsId: "-168",
         description:
           "Small solar-powered helicopter that made the first powered, controlled flight on another planet and went on to fly 72 times.",
         status: "COMPLETED",
@@ -262,6 +288,8 @@ export const missions: MissionSeed[] = [
         name: "Rosetta",
         catalogueId: "S28169",
         kind: "ORBITER",
+        location: "67p-churyumov-gerasimenko",
+        horizonsId: "-226",
         description:
           "Comet orbiter carrying eleven science instruments, with two 14 m solar wings for operating far from the Sun.",
         status: "COMPLETED",
@@ -274,6 +302,7 @@ export const missions: MissionSeed[] = [
         name: "Philae",
         catalogueId: "A06860",
         kind: "LANDER",
+        location: "67p-churyumov-gerasimenko",
         description:
           "Lander that made the first soft landing on a comet. It bounced into a shaded spot and ran for about two and a half days on its primary battery.",
         status: "COMPLETED",
@@ -302,6 +331,7 @@ export const missions: MissionSeed[] = [
         name: "Chang'e 4 lander",
         catalogueId: "S43845",
         kind: "LANDER",
+        location: "moon",
         description:
           "Stationary lander carrying cameras, a low-frequency radio spectrometer and a small biology experiment.",
         status: "ACTIVE",
@@ -312,6 +342,7 @@ export const missions: MissionSeed[] = [
         name: "Yutu-2",
         catalogueId: "A09236",
         kind: "ROVER",
+        location: "moon",
         description:
           "Six-wheeled rover, and the longest-lived rover on the Moon.",
         status: "ACTIVE",
@@ -336,6 +367,8 @@ export const missions: MissionSeed[] = [
         name: "Vikram",
         catalogueId: "S57320",
         kind: "LANDER",
+        location: "moon",
+        horizonsId: "-158",
         description:
           "Lander that touched down at about 69° south, carrying instruments to measure surface temperature, seismic activity and plasma.",
         status: "COMPLETED",
@@ -347,6 +380,7 @@ export const missions: MissionSeed[] = [
         name: "Pragyan",
         catalogueId: "A10997",
         kind: "ROVER",
+        location: "moon",
         description:
           "Six-wheeled, 26 kg rover that analysed the composition of the soil near the landing site.",
         status: "COMPLETED",
@@ -373,6 +407,7 @@ export const missions: MissionSeed[] = [
         name: "Venera 7",
         catalogueId: "S04489",
         kind: "LANDER",
+        location: "venus",
         description:
           "Cruise stage carrying a descent capsule built to withstand the pressure and heat at the surface of Venus.",
         // GCAT gives 680 kg for the cruise stage alone. This is its total at
@@ -397,6 +432,9 @@ export const missions: MissionSeed[] = [
         name: "Hayabusa2",
         catalogueId: "S40319",
         kind: "ORBITER",
+        // On its way to asteroid 1998 KY26, which is not a destination here.
+        location: "heliocentric-orbit",
+        horizonsId: "-37",
         description:
           "Ion-engine spacecraft that touched down on Ryugu twice to collect samples and deployed several small landers.",
         status: "ACTIVE",
@@ -409,6 +447,7 @@ export const missions: MissionSeed[] = [
         name: "MASCOT",
         catalogueId: "A08308",
         kind: "LANDER",
+        location: "ryugu",
         description:
           "Shoebox-sized lander from the German and French space agencies, which hopped across Ryugu's surface for about 17 hours on battery power.",
         status: "COMPLETED",
@@ -434,6 +473,9 @@ export const missions: MissionSeed[] = [
         name: "Mars Climate Orbiter",
         catalogueId: "S25571",
         kind: "ORBITER",
+        // Thought to have burned up in the Martian atmosphere; it may instead have
+        // skipped out into an orbit around the Sun.
+        location: "mars",
         description:
           "Three-axis stabilised orbiter carrying a colour imager and an atmospheric sounder.",
         powerSource: "SOLAR",
@@ -458,6 +500,8 @@ export const missions: MissionSeed[] = [
         name: "Kepler",
         catalogueId: "S34380",
         kind: "TELESCOPE",
+        location: "heliocentric-orbit",
+        horizonsId: "-227",
         description:
           "Photometer with a 0.95 m aperture and a 95-megapixel camera, which stared at a single field of stars for four years before a second mission, K2.",
         powerSource: "SOLAR",
@@ -482,6 +526,9 @@ export const missions: MissionSeed[] = [
         name: "Gaia",
         catalogueId: "S39479",
         kind: "TELESCOPE",
+        // Moved off L2 into an orbit around the Sun when it was retired in 2025.
+        location: "heliocentric-orbit",
+        horizonsId: "-139479",
         description:
           "Two telescopes feeding a billion-pixel camera, spinning slowly to scan the whole sky from the Sun–Earth L2 point.",
         powerSource: "SOLAR",
@@ -508,6 +555,7 @@ export const missions: MissionSeed[] = [
         // GCAT uses the original Greek-letter designation, 1959 XI 1.
         designator: "1959-014A",
         kind: "IMPACTOR",
+        location: "moon",
         description:
           "Spherical probe carrying radiation detectors and a magnetometer, which found that the Moon has no significant magnetic field.",
         powerSource: "BATTERY",
@@ -534,6 +582,8 @@ export const missions: MissionSeed[] = [
         // GCAT uses the original Greek-letter designation, 1959 THE 1.
         designator: "1959-008A",
         kind: "FLYBY",
+        // Left in a long, looping Earth orbit, which later decayed.
+        location: "high-earth-orbit",
         description:
           "Probe that photographed the Moon on film, developed it on board and scanned the pictures for radio transmission to Earth.",
         powerSource: "SOLAR",
@@ -558,6 +608,7 @@ export const missions: MissionSeed[] = [
         name: "Luna 9",
         catalogueId: "S01954",
         kind: "LANDER",
+        location: "moon",
         description:
           "Cruise stage that delivered a 99 kg landing capsule, cushioned by airbags, to Oceanus Procellarum.",
         // GCAT's total at launch, including the landing capsule.
@@ -582,6 +633,7 @@ export const missions: MissionSeed[] = [
         name: "Surveyor 1",
         catalogueId: "S02185",
         kind: "LANDER",
+        location: "moon",
         description:
           "Three-legged lander with a television camera, slowed for landing by a solid retro-rocket and three vernier engines.",
         // GCAT's total at launch, including the retro-rocket it dropped
@@ -611,6 +663,7 @@ export const missions: MissionSeed[] = [
         name: "Luna 16",
         catalogueId: "S04527",
         kind: "LANDER",
+        location: "moon",
         description:
           "Descent stage with a drill arm, topped by an ascent stage that launched a sealed sample capsule back to Earth.",
         // GCAT's total at launch, including the ascent stage and capsule.
@@ -637,6 +690,7 @@ export const missions: MissionSeed[] = [
         name: "Luna 17 lander",
         catalogueId: "S04691",
         kind: "LANDER",
+        location: "moon",
         description:
           "Descent stage with twin ramps that let the rover drive off in either direction.",
         status: "COMPLETED",
@@ -649,6 +703,7 @@ export const missions: MissionSeed[] = [
         name: "Lunokhod 1",
         catalogueId: "A01885",
         kind: "ROVER",
+        location: "moon",
         description:
           "Eight-wheeled rover driven by radio from Earth, which travelled about 10.5 km over ten months.",
         status: "COMPLETED",
@@ -677,6 +732,7 @@ export const missions: MissionSeed[] = [
         name: "SMART-1",
         catalogueId: "S27949",
         kind: "ORBITER",
+        location: "moon",
         description:
           "Small orbiter driven by a Hall-effect ion thruster fed with xenon.",
         powerSource: "SOLAR",
@@ -701,6 +757,7 @@ export const missions: MissionSeed[] = [
         name: "Kaguya",
         catalogueId: "S32054",
         kind: "ORBITER",
+        location: "moon",
         description:
           "Main orbiter carrying the science instruments and a high-definition television camera.",
         status: "COMPLETED",
@@ -713,6 +770,7 @@ export const missions: MissionSeed[] = [
         name: "Okina",
         catalogueId: "S32055",
         kind: "ORBITER",
+        location: "moon",
         description:
           "Relay sub-satellite that passed on signals from the main orbiter while it was behind the Moon, allowing the far side's gravity to be mapped.",
         status: "COMPLETED",
@@ -724,6 +782,8 @@ export const missions: MissionSeed[] = [
         name: "Ouna",
         catalogueId: "S32056",
         kind: "ORBITER",
+        location: "moon",
+        horizonsId: "-39",
         description:
           "Sub-satellite carrying a radio source for precise measurements of the Moon's gravity field.",
         status: "COMPLETED",
@@ -748,6 +808,8 @@ export const missions: MissionSeed[] = [
         name: "Chandrayaan-1",
         catalogueId: "S33405",
         kind: "ORBITER",
+        location: "moon",
+        horizonsId: "-86",
         description:
           "Cube-shaped orbiter carrying eleven science instruments, five from India and six from abroad.",
         status: "COMPLETED",
@@ -759,6 +821,7 @@ export const missions: MissionSeed[] = [
         name: "Moon Impact Probe",
         catalogueId: "A07423",
         kind: "IMPACTOR",
+        location: "moon",
         description:
           "Small probe released from the orbiter to strike the Moon near its south pole, sampling the thin atmosphere on the way down.",
         status: "COMPLETED",
@@ -783,6 +846,8 @@ export const missions: MissionSeed[] = [
         name: "Lunar Reconnaissance Orbiter",
         catalogueId: "S35315",
         kind: "ORBITER",
+        location: "moon",
+        horizonsId: "-85",
         description:
           "Orbiter with seven instruments, including a camera that can resolve features half a metre across.",
         powerSource: "SOLAR",
@@ -806,6 +871,7 @@ export const missions: MissionSeed[] = [
         name: "Chang'e 3 lander",
         catalogueId: "S39458",
         kind: "LANDER",
+        location: "moon",
         description:
           "Stationary lander carrying a near-ultraviolet telescope that observed from the lunar surface for years.",
         status: "ACTIVE",
@@ -816,6 +882,7 @@ export const missions: MissionSeed[] = [
         name: "Yutu",
         catalogueId: "A08071",
         kind: "ROVER",
+        location: "moon",
         description:
           "Six-wheeled rover with ground-penetrating radar. It stopped driving after its second lunar day but kept returning data for more than two years.",
         status: "COMPLETED",
@@ -842,6 +909,9 @@ export const missions: MissionSeed[] = [
         name: "Chang'e 5 orbiter",
         catalogueId: "S47097",
         kind: "ORBITER",
+        // Went to the Sun–Earth L1 point after the sample return, then back to an
+        // orbit around the Moon.
+        location: "moon",
         description:
           "Orbiter that carried the return capsule back to Earth, then went on to an extended mission at the Sun–Earth L1 point and in a distant lunar orbit.",
         status: "ACTIVE",
@@ -852,6 +922,7 @@ export const missions: MissionSeed[] = [
         name: "Chang'e 5 lander",
         catalogueId: "A09653",
         kind: "LANDER",
+        location: "moon",
         description:
           "Lander that drilled and scooped the samples and served as the launch pad for the ascent vehicle that carried them to lunar orbit.",
         status: "COMPLETED",
@@ -877,6 +948,8 @@ export const missions: MissionSeed[] = [
         name: "SLIM",
         catalogueId: "S57803",
         kind: "LANDER",
+        location: "moon",
+        horizonsId: "-240",
         description:
           "Lightweight lander that navigated by matching camera images of craters against onboard maps. It released two tiny rovers just before touchdown.",
         powerSource: "SOLAR",
@@ -904,6 +977,7 @@ export const missions: MissionSeed[] = [
         name: "Beresheet",
         catalogueId: "S44049",
         kind: "LANDER",
+        location: "moon",
         description:
           "Compact four-legged lander that carried a magnetometer and a NASA laser retroreflector.",
         powerSource: "SOLAR",
@@ -928,6 +1002,7 @@ export const missions: MissionSeed[] = [
         name: "Mariner 10",
         catalogueId: "S06919",
         kind: "FLYBY",
+        location: "heliocentric-orbit",
         description:
           "Three-axis stabilised probe with twin television cameras and a sunshade to cope with the heat near Mercury.",
         powerSource: "SOLAR",
@@ -952,6 +1027,8 @@ export const missions: MissionSeed[] = [
         name: "MESSENGER",
         catalogueId: "S28391",
         kind: "ORBITER",
+        location: "mercury",
+        horizonsId: "-236",
         description:
           "Orbiter that worked behind a ceramic-cloth sunshade, carrying seven instruments and a radio science experiment.",
         powerSource: "SOLAR",
@@ -975,6 +1052,8 @@ export const missions: MissionSeed[] = [
         name: "Mercury Planetary Orbiter",
         catalogueId: "S43653",
         kind: "ORBITER",
+        location: "mercury",
+        horizonsId: "-121",
         description:
           "ESA's orbiter, built to study Mercury's surface and interior from a low orbit.",
         status: "ACTIVE",
@@ -985,6 +1064,10 @@ export const missions: MissionSeed[] = [
         name: "Mio",
         catalogueId: "A09204",
         kind: "ORBITER",
+        // Rides on the BepiColombo stack until arrival; Horizons lists it under the
+        // same entry.
+        location: "mercury",
+        horizonsId: "-121",
         description:
           "JAXA's spin-stabilised orbiter, built to study Mercury's magnetic field and its interaction with the solar wind.",
         status: "ACTIVE",
@@ -1011,6 +1094,8 @@ export const missions: MissionSeed[] = [
         // GCAT uses the original Greek-letter designation, 1962 A RHO 1.
         designator: "1962-041A",
         kind: "FLYBY",
+        location: "heliocentric-orbit",
+        horizonsId: "-2",
         description:
           "Probe based on the Ranger lunar design, with microwave and infrared radiometers to scan Venus during the flyby.",
         powerSource: "SOLAR",
@@ -1035,6 +1120,7 @@ export const missions: MissionSeed[] = [
         name: "Venera 9 orbiter",
         catalogueId: "S07915",
         kind: "ORBITER",
+        location: "venus",
         description:
           "Orbiter that relayed the lander's signals and then studied Venus's clouds and upper atmosphere.",
         status: "COMPLETED",
@@ -1046,6 +1132,7 @@ export const missions: MissionSeed[] = [
         name: "Venera 9 lander",
         catalogueId: "S08411",
         kind: "LANDER",
+        location: "venus",
         description:
           "Lander that survived 53 minutes on the surface, sending back a black-and-white panorama of the rocks around it.",
         status: "COMPLETED",
@@ -1074,6 +1161,7 @@ export const missions: MissionSeed[] = [
         name: "Vega 1",
         catalogueId: "S15432",
         kind: "FLYBY",
+        location: "heliocentric-orbit",
         description:
           "Three-axis stabilised spacecraft that carried the Venus package and then imaged the nucleus of Halley's Comet.",
         status: "COMPLETED",
@@ -1085,6 +1173,7 @@ export const missions: MissionSeed[] = [
         name: "Vega 1 lander",
         catalogueId: "S15858",
         kind: "LANDER",
+        location: "venus",
         description:
           "Lander that measured the atmosphere during descent. Its surface experiments switched on early and returned little.",
         status: "COMPLETED",
@@ -1096,6 +1185,7 @@ export const missions: MissionSeed[] = [
         name: "Vega 1 balloon",
         catalogueId: "S15859",
         kind: "ATMOSPHERIC_PROBE",
+        location: "venus",
         description:
           "Helium balloon that floated about 54 km up in Venus's clouds for nearly two days, tracked by radio telescopes on Earth.",
         status: "COMPLETED",
@@ -1122,6 +1212,7 @@ export const missions: MissionSeed[] = [
         name: "Magellan",
         catalogueId: "S19969",
         kind: "ORBITER",
+        location: "venus",
         description:
           "Orbiter built largely from spare Voyager and Galileo parts, using its 3.7 m dish for both radar mapping and communications.",
         // GCAT's total at launch, including the solid motor that put it
@@ -1150,6 +1241,8 @@ export const missions: MissionSeed[] = [
         name: "Venus Express",
         catalogueId: "S28901",
         kind: "ORBITER",
+        location: "venus",
+        horizonsId: "-248",
         description:
           "Orbiter built on the Mars Express design, reusing spare instruments from Mars Express and Rosetta.",
         powerSource: "SOLAR",
@@ -1173,6 +1266,8 @@ export const missions: MissionSeed[] = [
         name: "Akatsuki",
         catalogueId: "S36576",
         kind: "ORBITER",
+        location: "venus",
+        horizonsId: "-5",
         description:
           "Orbiter with five cameras observing at wavelengths from ultraviolet to infrared, each sensitive to a different layer of cloud.",
         powerSource: "SOLAR",
@@ -1199,6 +1294,9 @@ export const missions: MissionSeed[] = [
         name: "Pioneer 10",
         catalogueId: "S05860",
         kind: "FLYBY",
+        // Leaving the solar system.
+        location: "heliocentric-orbit",
+        horizonsId: "-23",
         description:
           "Spin-stabilised probe with a 2.7 m dish antenna and four radioisotope generators, carrying a plaque for any finders.",
         powerSource: "RADIOISOTOPE",
@@ -1223,6 +1321,9 @@ export const missions: MissionSeed[] = [
         name: "Pioneer 11",
         catalogueId: "S06421",
         kind: "FLYBY",
+        // Leaving the solar system.
+        location: "heliocentric-orbit",
+        horizonsId: "-24",
         description:
           "Twin of Pioneer 10, with an added magnetometer for measuring strong magnetic fields.",
         powerSource: "RADIOISOTOPE",
@@ -1247,6 +1348,8 @@ export const missions: MissionSeed[] = [
         name: "Galileo orbiter",
         catalogueId: "S20298",
         kind: "ORBITER",
+        location: "jupiter",
+        horizonsId: "-77",
         description:
           "Spin-stabilised orbiter with a de-spun section for its cameras. Its main antenna failed to open, so all data came back through a small low-gain antenna.",
         status: "COMPLETED",
@@ -1259,6 +1362,7 @@ export const missions: MissionSeed[] = [
         name: "Galileo probe",
         catalogueId: "A04746",
         kind: "ATMOSPHERIC_PROBE",
+        location: "jupiter",
         description:
           "Entry probe that plunged into Jupiter's atmosphere at 47 km/s and returned data for 58 minutes on the way down.",
         status: "COMPLETED",
@@ -1286,6 +1390,9 @@ export const missions: MissionSeed[] = [
         name: "New Horizons",
         catalogueId: "S28928",
         kind: "FLYBY",
+        // Leaving the solar system through the Kuiper belt.
+        location: "heliocentric-orbit",
+        horizonsId: "-98",
         description:
           "Piano-sized probe with seven instruments and a radioisotope generator, launched on the fastest trajectory of any spacecraft leaving Earth.",
         powerSource: "RADIOISOTOPE",
@@ -1308,6 +1415,8 @@ export const missions: MissionSeed[] = [
         name: "Juno",
         catalogueId: "S37773",
         kind: "ORBITER",
+        location: "jupiter",
+        horizonsId: "-61",
         description:
           "Spinning orbiter with three 9 m solar wings and its electronics shielded inside a titanium vault against Jupiter's radiation.",
         powerSource: "SOLAR",
@@ -1330,6 +1439,9 @@ export const missions: MissionSeed[] = [
         name: "JUICE",
         catalogueId: "S56176",
         kind: "ORBITER",
+        // Orbits Jupiter first and moves to Ganymede later.
+        location: "jupiter",
+        horizonsId: "-28",
         description:
           "Orbiter with ten instruments and 85 square metres of solar panels to gather enough power in Jupiter's dim sunlight.",
         powerSource: "SOLAR",
@@ -1352,6 +1464,9 @@ export const missions: MissionSeed[] = [
         name: "Europa Clipper",
         catalogueId: "S61507",
         kind: "ORBITER",
+        // Orbits Jupiter and studies Europa on repeated flybys.
+        location: "jupiter",
+        horizonsId: "-159",
         description:
           "The largest spacecraft NASA has built for a planetary mission, more than 30 m across with its solar arrays open.",
         powerSource: "SOLAR",
@@ -1375,6 +1490,7 @@ export const missions: MissionSeed[] = [
         name: "Mariner 4",
         catalogueId: "S00938",
         kind: "FLYBY",
+        location: "heliocentric-orbit",
         description:
           "Probe with a television camera on a scan platform and a tape recorder that played the images back over several days.",
         powerSource: "SOLAR",
@@ -1398,6 +1514,7 @@ export const missions: MissionSeed[] = [
         name: "Mariner 9",
         catalogueId: "S05261",
         kind: "ORBITER",
+        location: "mars",
         description:
           "Orbiter that returned 7,329 images, covering the whole planet and its two moons.",
         powerSource: "SOLAR",
@@ -1422,6 +1539,7 @@ export const missions: MissionSeed[] = [
         name: "Mars 3 orbiter",
         catalogueId: "S05252",
         kind: "ORBITER",
+        location: "mars",
         description:
           "Orbiter that studied the Martian surface and atmosphere, though the dust storm raging at its arrival hid much of the planet.",
         status: "COMPLETED",
@@ -1433,6 +1551,7 @@ export const missions: MissionSeed[] = [
         name: "Mars 3 lander",
         catalogueId: "S05667",
         kind: "LANDER",
+        location: "mars",
         description:
           "Lander that reached the surface by aerobraking, parachute and retro-rockets. It carried a small tethered rover that was never deployed.",
         status: "FAILED",
@@ -1461,6 +1580,7 @@ export const missions: MissionSeed[] = [
         name: "Viking 1 orbiter",
         catalogueId: "S08108",
         kind: "ORBITER",
+        location: "mars",
         description:
           "Orbiter that carried the lander to Mars, surveyed landing sites and relayed the lander's data to Earth.",
         status: "COMPLETED",
@@ -1472,6 +1592,7 @@ export const missions: MissionSeed[] = [
         name: "Viking 1 lander",
         catalogueId: "S09024",
         kind: "LANDER",
+        location: "mars",
         description:
           "Lander with a robotic arm, a weather station and three biology experiments, which worked on Chryse Planitia for more than six years.",
         status: "COMPLETED",
@@ -1498,6 +1619,8 @@ export const missions: MissionSeed[] = [
         name: "Pathfinder lander",
         catalogueId: "S24667",
         kind: "LANDER",
+        location: "mars",
+        horizonsId: "-530",
         description:
           "Lander that opened like a flower after bouncing to rest, carrying a stereo camera and weather instruments.",
         status: "COMPLETED",
@@ -1510,6 +1633,7 @@ export const missions: MissionSeed[] = [
         name: "Sojourner",
         catalogueId: "A05947",
         kind: "ROVER",
+        location: "mars",
         description:
           "Microwave-oven-sized, six-wheeled rover that analysed rocks near the lander for 83 Martian days, far beyond its planned seven.",
         status: "COMPLETED",
@@ -1536,6 +1660,7 @@ export const missions: MissionSeed[] = [
         name: "Mars Global Surveyor",
         catalogueId: "S24648",
         kind: "ORBITER",
+        location: "mars",
         description:
           "Orbiter carrying a camera, a laser altimeter, a thermal spectrometer and a magnetometer, built largely from spares of the lost Mars Observer.",
         powerSource: "SOLAR",
@@ -1558,6 +1683,8 @@ export const missions: MissionSeed[] = [
         name: "2001 Mars Odyssey",
         catalogueId: "S26734",
         kind: "ORBITER",
+        location: "mars",
+        horizonsId: "-53",
         description:
           "Orbiter carrying a thermal imaging camera and a gamma-ray spectrometer on a 6 m boom.",
         powerSource: "SOLAR",
@@ -1581,6 +1708,8 @@ export const missions: MissionSeed[] = [
         name: "Mars Express",
         catalogueId: "S27816",
         kind: "ORBITER",
+        location: "mars",
+        horizonsId: "-41",
         description:
           "Orbiter with a stereo camera and a ground-penetrating radar that probes kilometres below the surface.",
         status: "ACTIVE",
@@ -1591,6 +1720,7 @@ export const missions: MissionSeed[] = [
         name: "Beagle 2",
         catalogueId: "A06833",
         kind: "LANDER",
+        location: "mars",
         description:
           "British-built lander that reached the surface but never made contact. Images taken eleven years later showed that its solar panels had only partly opened.",
         status: "FAILED",
@@ -1620,6 +1750,8 @@ export const missions: MissionSeed[] = [
         name: "Spirit",
         catalogueId: "S27827",
         kind: "ROVER",
+        location: "mars",
+        horizonsId: "-254",
         description:
           "Golf-cart-sized, six-wheeled rover with a panoramic camera and a robotic arm for studying rocks up close.",
         powerSource: "SOLAR",
@@ -1644,6 +1776,8 @@ export const missions: MissionSeed[] = [
         name: "Opportunity",
         catalogueId: "S27849",
         kind: "ROVER",
+        location: "mars",
+        horizonsId: "-253",
         description:
           "Twin of Spirit. It worked until a planet-wide dust storm cut off the sunlight to its solar panels.",
         powerSource: "SOLAR",
@@ -1666,6 +1800,8 @@ export const missions: MissionSeed[] = [
         name: "Mars Reconnaissance Orbiter",
         catalogueId: "S28788",
         kind: "ORBITER",
+        location: "mars",
+        horizonsId: "-74",
         description:
           "Orbiter with a 3 m dish antenna and a telescopic camera that can pick out features the size of a kitchen table.",
         powerSource: "SOLAR",
@@ -1690,6 +1826,8 @@ export const missions: MissionSeed[] = [
         name: "Phoenix",
         catalogueId: "S32003",
         kind: "LANDER",
+        location: "mars",
+        horizonsId: "-84",
         description:
           "Stationary lander with a 2.4 m robotic arm, ovens and a wet chemistry lab for analysing soil samples.",
         powerSource: "SOLAR",
@@ -1712,6 +1850,8 @@ export const missions: MissionSeed[] = [
         name: "Curiosity",
         catalogueId: "S37936",
         kind: "ROVER",
+        location: "mars",
+        horizonsId: "-76",
         description:
           "Car-sized rover with a rock-vaporising laser and an onboard chemistry lab, lowered to the surface by a rocket-powered sky crane.",
         powerSource: "RADIOISOTOPE",
@@ -1737,6 +1877,8 @@ export const missions: MissionSeed[] = [
         name: "Mars Orbiter Mission",
         catalogueId: "S39370",
         kind: "ORBITER",
+        location: "mars",
+        horizonsId: "-3",
         description:
           "Compact orbiter carrying five instruments, including a colour camera and a methane sensor.",
         powerSource: "SOLAR",
@@ -1760,6 +1902,8 @@ export const missions: MissionSeed[] = [
         name: "Trace Gas Orbiter",
         catalogueId: "S41388",
         kind: "ORBITER",
+        location: "mars",
+        horizonsId: "-143",
         description:
           "Orbiter that measures gases making up less than 1% of the atmosphere and relays data from rovers on the surface.",
         status: "ACTIVE",
@@ -1770,6 +1914,7 @@ export const missions: MissionSeed[] = [
         name: "Schiaparelli",
         catalogueId: "A08532",
         kind: "LANDER",
+        location: "mars",
         description:
           "Test lander that entered the atmosphere and deployed its parachute successfully, but cut its thrusters too early after a sensor fault and hit the surface at about 540 km/h.",
         status: "FAILED",
@@ -1799,6 +1944,8 @@ export const missions: MissionSeed[] = [
         name: "InSight",
         catalogueId: "S43457",
         kind: "LANDER",
+        location: "mars",
+        horizonsId: "-189",
         description:
           "Stationary lander that placed a French-built seismometer on the ground with its robotic arm. A German heat probe meant to burrow five metres down could not get past the surface soil.",
         powerSource: "SOLAR",
@@ -1822,6 +1969,8 @@ export const missions: MissionSeed[] = [
         name: "Hope",
         catalogueId: "S45918",
         kind: "ORBITER",
+        location: "mars",
+        horizonsId: "-62",
         description:
           "Orbiter with a camera and two spectrometers, built by the Mohammed bin Rashid Space Centre with the University of Colorado.",
         powerSource: "SOLAR",
@@ -1845,6 +1994,8 @@ export const missions: MissionSeed[] = [
         name: "Tianwen-1 orbiter",
         catalogueId: "S45935",
         kind: "ORBITER",
+        location: "mars",
+        horizonsId: "-9901491",
         description:
           "Orbiter that mapped the whole planet and relayed the rover's data.",
         status: "ACTIVE",
@@ -1855,6 +2006,7 @@ export const missions: MissionSeed[] = [
         name: "Zhurong",
         catalogueId: "A09604",
         kind: "ROVER",
+        location: "mars",
         description:
           "Six-wheeled rover that explored Utopia Planitia with ground-penetrating radar for a year before going into hibernation for the winter, from which it did not wake.",
         status: "COMPLETED",
@@ -1881,6 +2033,7 @@ export const missions: MissionSeed[] = [
         name: "Giotto",
         catalogueId: "S15875",
         kind: "FLYBY",
+        location: "heliocentric-orbit",
         description:
           "Spin-stabilised probe protected by a two-layer dust shield, which was battered but survived the encounter.",
         // GCAT's total at launch, including the solid motor that sent it
@@ -1907,6 +2060,8 @@ export const missions: MissionSeed[] = [
         name: "NEAR Shoemaker",
         catalogueId: "S23784",
         kind: "ORBITER",
+        location: "eros",
+        horizonsId: "-93",
         description:
           "Solar-powered orbiter with six instruments. It was not designed to land, yet kept working on the surface for two weeks.",
         powerSource: "SOLAR",
@@ -1931,6 +2086,8 @@ export const missions: MissionSeed[] = [
         name: "Stardust",
         catalogueId: "S25618",
         kind: "FLYBY",
+        location: "heliocentric-orbit",
+        horizonsId: "-29",
         description:
           "Probe with a tennis-racket-shaped aerogel collector and shields to protect it from comet dust.",
         // Includes the 46 kg sample return capsule, which GCAT lists
@@ -1959,6 +2116,9 @@ export const missions: MissionSeed[] = [
         name: "Hayabusa",
         catalogueId: "S27809",
         kind: "ORBITER",
+        // Burned up on re-entry in 2010 after releasing its sample capsule.
+        location: "low-earth-orbit",
+        horizonsId: "-130",
         description:
           "Ion-engine spacecraft that touched down briefly on Itokawa. Its small hopping rover, MINERVA, missed the asteroid when released.",
         // GCAT's total at launch, including the return capsule and rover.
@@ -1988,6 +2148,8 @@ export const missions: MissionSeed[] = [
         name: "Deep Impact flyby spacecraft",
         catalogueId: "S28517",
         kind: "FLYBY",
+        location: "heliocentric-orbit",
+        horizonsId: "-140",
         description:
           "Spacecraft that released the impactor and watched the collision with two telescopes from 500 km away.",
         status: "COMPLETED",
@@ -2000,6 +2162,8 @@ export const missions: MissionSeed[] = [
         name: "Deep Impact impactor",
         catalogueId: "A06946",
         kind: "IMPACTOR",
+        location: "tempel-1",
+        horizonsId: "-70",
         description:
           "Copper-fronted probe that steered itself into the comet's path and was hit at 10 km/s, filming until the end.",
         status: "COMPLETED",
@@ -2026,6 +2190,8 @@ export const missions: MissionSeed[] = [
         name: "Dawn",
         catalogueId: "S32249",
         kind: "ORBITER",
+        location: "ceres",
+        horizonsId: "-203",
         description:
           "Ion-engine orbiter with solar arrays nearly 20 m across, carrying a camera and two spectrometers.",
         powerSource: "SOLAR",
@@ -2048,6 +2214,10 @@ export const missions: MissionSeed[] = [
         name: "OSIRIS-REx",
         catalogueId: "S41757",
         kind: "ORBITER",
+        // Renamed OSIRIS-APEX and on its way to Apophis, which is not a destination
+        // here.
+        location: "heliocentric-orbit",
+        horizonsId: "-64",
         description:
           "Orbiter with a 3.4 m sampling arm that touched Bennu for a few seconds to grab loose material.",
         // GCAT's total at launch, including the sample return capsule.
@@ -2073,6 +2243,8 @@ export const missions: MissionSeed[] = [
         name: "DART",
         catalogueId: "S49497",
         kind: "IMPACTOR",
+        location: "dimorphos",
+        horizonsId: "-135",
         description:
           "Box-shaped spacecraft that steered itself into the asteroid at about 6 km/s using an onboard camera.",
         status: "COMPLETED",
@@ -2084,6 +2256,8 @@ export const missions: MissionSeed[] = [
         name: "LICIACube",
         catalogueId: "A10780",
         kind: "FLYBY",
+        location: "heliocentric-orbit",
+        horizonsId: "-210",
         description:
           "Italian cubesat that separated two weeks earlier and photographed the impact and its plume of debris.",
         status: "COMPLETED",
@@ -2109,6 +2283,8 @@ export const missions: MissionSeed[] = [
         name: "Lucy",
         catalogueId: "S49328",
         kind: "FLYBY",
+        location: "heliocentric-orbit",
+        horizonsId: "-49",
         description:
           "Probe with two round solar arrays more than 7 m across, built to operate farther from the Sun than any solar-powered spacecraft before it.",
         powerSource: "SOLAR",
@@ -2131,6 +2307,8 @@ export const missions: MissionSeed[] = [
         name: "Psyche",
         catalogueId: "S58049",
         kind: "ORBITER",
+        location: "psyche",
+        horizonsId: "-255",
         description:
           "Orbiter driven by Hall-effect thrusters, with five-panel solar arrays spanning nearly 25 m.",
         powerSource: "SOLAR",
@@ -2154,6 +2332,7 @@ export const missions: MissionSeed[] = [
         name: "Uhuru",
         catalogueId: "S04797",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
         description:
           "Small spinning satellite with two sets of X-ray detectors that swept the sky as it turned.",
         powerSource: "SOLAR",
@@ -2178,6 +2357,8 @@ export const missions: MissionSeed[] = [
         name: "IUE",
         catalogueId: "S10637",
         kind: "TELESCOPE",
+        location: "high-earth-orbit",
+        horizonsId: "-110637",
         description:
           "Telescope with a 45 cm mirror in a geosynchronous orbit, always in view of a ground station.",
         // GCAT's total at launch, including the motor that raised it to
@@ -2205,6 +2386,7 @@ export const missions: MissionSeed[] = [
         name: "IRAS",
         catalogueId: "S13777",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
         description:
           "Telescope with a 57 cm mirror cooled by liquid helium to about 2 kelvin.",
         powerSource: "SOLAR",
@@ -2228,6 +2410,7 @@ export const missions: MissionSeed[] = [
         name: "Hipparcos",
         catalogueId: "S20169",
         kind: "TELESCOPE",
+        location: "high-earth-orbit",
         description:
           "Spinning satellite with a 29 cm telescope that viewed two patches of sky at once to measure the angles between stars.",
         // GCAT's total at launch, including the apogee motor that failed.
@@ -2253,6 +2436,7 @@ export const missions: MissionSeed[] = [
         name: "COBE",
         catalogueId: "S20322",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
         description:
           "Satellite with three instruments behind a conical sunshade, two of them cooled by liquid helium.",
         powerSource: "SOLAR",
@@ -2277,6 +2461,7 @@ export const missions: MissionSeed[] = [
         name: "ROSAT",
         catalogueId: "S20638",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
         description:
           "Satellite carrying an X-ray telescope with an 84 cm mirror assembly and a smaller extreme-ultraviolet telescope.",
         powerSource: "SOLAR",
@@ -2301,6 +2486,7 @@ export const missions: MissionSeed[] = [
         name: "Compton Gamma Ray Observatory",
         catalogueId: "S21225",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
         description:
           "Observatory with four gamma-ray instruments, deployed from Space Shuttle Atlantis and deliberately brought down after a gyroscope failed.",
         powerSource: "SOLAR",
@@ -2326,6 +2512,8 @@ export const missions: MissionSeed[] = [
         name: "ISO",
         catalogueId: "S23715",
         kind: "TELESCOPE",
+        location: "high-earth-orbit",
+        horizonsId: "-640",
         description:
           "Telescope with a 60 cm mirror inside a tank of superfluid helium, which lasted eight months longer than planned.",
         powerSource: "SOLAR",
@@ -2348,6 +2536,8 @@ export const missions: MissionSeed[] = [
         name: "Chandra X-ray Observatory",
         catalogueId: "S25867",
         kind: "TELESCOPE",
+        location: "high-earth-orbit",
+        horizonsId: "-151",
         description:
           "Observatory with four pairs of nested mirrors, the smoothest ever made, in an orbit that reaches a third of the way to the Moon.",
         powerSource: "SOLAR",
@@ -2371,6 +2561,8 @@ export const missions: MissionSeed[] = [
         name: "XMM-Newton",
         catalogueId: "S25989",
         kind: "TELESCOPE",
+        location: "high-earth-orbit",
+        horizonsId: "-125989",
         description:
           "Ten-metre-long satellite carrying three X-ray telescopes, each with 58 nested mirror shells, and an optical monitor.",
         powerSource: "SOLAR",
@@ -2394,6 +2586,9 @@ export const missions: MissionSeed[] = [
         name: "WMAP",
         catalogueId: "S26859",
         kind: "TELESCOPE",
+        // Moved off L2 into an orbit around the Sun when it was retired in 2010.
+        location: "heliocentric-orbit",
+        horizonsId: "-165",
         description:
           "Spinning satellite with a pair of back-to-back telescopes that compared the temperature of two patches of sky at a time.",
         powerSource: "SOLAR",
@@ -2418,6 +2613,8 @@ export const missions: MissionSeed[] = [
         name: "INTEGRAL",
         catalogueId: "S27540",
         kind: "TELESCOPE",
+        location: "high-earth-orbit",
+        horizonsId: "-198",
         description:
           "Observatory with a gamma-ray imager and spectrometer, supported by X-ray and optical monitors.",
         powerSource: "SOLAR",
@@ -2442,6 +2639,8 @@ export const missions: MissionSeed[] = [
         name: "Spitzer Space Telescope",
         catalogueId: "S27871",
         kind: "TELESCOPE",
+        location: "heliocentric-orbit",
+        horizonsId: "-79",
         description:
           "Telescope with an 85 cm beryllium mirror, cooled at first by liquid helium and later by its shade alone.",
         powerSource: "SOLAR",
@@ -2464,6 +2663,8 @@ export const missions: MissionSeed[] = [
         name: "Neil Gehrels Swift Observatory",
         catalogueId: "S28485",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
+        horizonsId: "-128485",
         description:
           "Fast-slewing satellite with a wide-field burst detector and two narrow-field telescopes.",
         powerSource: "SOLAR",
@@ -2489,6 +2690,7 @@ export const missions: MissionSeed[] = [
         name: "CoRoT",
         catalogueId: "S29678",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
         description:
           "Satellite with a 27 cm telescope that stared at one field of stars for up to five months at a time.",
         powerSource: "SOLAR",
@@ -2511,6 +2713,7 @@ export const missions: MissionSeed[] = [
         name: "Fermi Gamma-ray Space Telescope",
         catalogueId: "S33053",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
         description:
           "Satellite carrying the Large Area Telescope and a burst monitor that watches the entire unblocked sky.",
         powerSource: "SOLAR",
@@ -2536,6 +2739,9 @@ export const missions: MissionSeed[] = [
         name: "Herschel Space Observatory",
         catalogueId: "S34937",
         kind: "TELESCOPE",
+        // Moved off L2 into an orbit around the Sun when it was retired in 2013.
+        location: "heliocentric-orbit",
+        horizonsId: "-486",
         description:
           "Telescope with a 3.5 m mirror, its instruments cooled by more than 2,300 litres of liquid helium.",
         powerSource: "SOLAR",
@@ -2561,6 +2767,9 @@ export const missions: MissionSeed[] = [
         name: "Planck",
         catalogueId: "S34938",
         kind: "TELESCOPE",
+        // Moved off L2 into an orbit around the Sun when it was retired in 2013.
+        location: "heliocentric-orbit",
+        horizonsId: "-489",
         description:
           "Spinning satellite with a 1.5 m telescope and detectors cooled to a tenth of a degree above absolute zero.",
         powerSource: "SOLAR",
@@ -2585,6 +2794,8 @@ export const missions: MissionSeed[] = [
         name: "WISE",
         catalogueId: "S36119",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
+        horizonsId: "-163",
         description:
           "Satellite with a 40 cm telescope and four infrared detectors, originally cooled by solid hydrogen.",
         powerSource: "SOLAR",
@@ -2607,6 +2818,8 @@ export const missions: MissionSeed[] = [
         name: "NuSTAR",
         catalogueId: "S38358",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
+        horizonsId: "-138358",
         description:
           "Small satellite whose two telescopes focus X-rays onto detectors at the end of a 10 m mast, unfolded after launch.",
         powerSource: "SOLAR",
@@ -2629,6 +2842,7 @@ export const missions: MissionSeed[] = [
         name: "Astrosat",
         catalogueId: "S40930",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
         description:
           "Satellite with twin ultraviolet telescopes and three X-ray instruments pointing in the same direction.",
         powerSource: "SOLAR",
@@ -2653,6 +2867,7 @@ export const missions: MissionSeed[] = [
         name: "Hitomi",
         catalogueId: "S41337",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
         description:
           "Observatory carrying an X-ray microcalorimeter cooled to a twentieth of a degree above absolute zero.",
         powerSource: "SOLAR",
@@ -2677,6 +2892,8 @@ export const missions: MissionSeed[] = [
         name: "TESS",
         catalogueId: "S43435",
         kind: "TELESCOPE",
+        location: "high-earth-orbit",
+        horizonsId: "-95",
         description:
           "Small satellite with four wide-field cameras, in a stretched orbit that takes it around the Earth twice for every orbit of the Moon.",
         powerSource: "SOLAR",
@@ -2700,6 +2917,7 @@ export const missions: MissionSeed[] = [
         name: "Spektr-RG",
         catalogueId: "S44432",
         kind: "TELESCOPE",
+        location: "sun-earth-l2",
         description:
           "Satellite carrying two X-ray telescopes, eROSITA and ART-XC, each with seven mirror modules.",
         powerSource: "SOLAR",
@@ -2723,6 +2941,8 @@ export const missions: MissionSeed[] = [
         name: "Euclid",
         catalogueId: "S57209",
         kind: "TELESCOPE",
+        location: "sun-earth-l2",
+        horizonsId: "-680",
         description:
           "Telescope with a 1.2 m mirror feeding a visible-light camera and a near-infrared instrument.",
         powerSource: "SOLAR",
@@ -2745,6 +2965,7 @@ export const missions: MissionSeed[] = [
         name: "XRISM",
         catalogueId: "S57800",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
         description:
           "Successor to the lost Hitomi, carrying a microcalorimeter spectrometer and a wide-field X-ray imager.",
         powerSource: "SOLAR",
@@ -2770,6 +2991,7 @@ export const missions: MissionSeed[] = [
         name: "Einstein Probe",
         catalogueId: "S58753",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
         description:
           "Satellite with a wide-field telescope of twelve lobster-eye modules and a follow-up X-ray telescope.",
         powerSource: "SOLAR",
@@ -2795,6 +3017,8 @@ export const missions: MissionSeed[] = [
         name: "SPHEREx",
         catalogueId: "S63182",
         kind: "TELESCOPE",
+        location: "low-earth-orbit",
+        horizonsId: "-163182",
         description:
           "Small telescope behind three nested, cone-shaped shields that keep it cold without any coolant.",
         powerSource: "SOLAR",
