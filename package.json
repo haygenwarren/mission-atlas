@@ -9,7 +9,8 @@
     "lint": "eslint",
     "postinstall": "prisma generate",
     "import:catalogue": "tsx scripts/import-catalogue.ts",
-    "import:positions": "tsx scripts/import-positions.ts"
+    "import:positions": "tsx scripts/import-positions.ts",
+    "check:positions": "tsx scripts/check-positions.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.7.0",
