@@ -1,13 +1,16 @@
 import type { Status } from "@/generated/prisma/enums";
 import {
+  MOONS,
   between,
   bodyPosition,
   daysSinceJ2000,
   distance,
+  moonPosition,
   placements,
   routePosition,
   type BodySlug,
   type Days,
+  type MoonSlug,
   type PositionsSnapshot,
   type RoutePoint,
   type Vec3,
@@ -31,19 +34,45 @@ export type MapCraft = {
 };
 
 // Where the map can put a craft at a given time: on its route, at the body it
-// sits at, or nowhere, because tracking ended (or never existed) while it
-// was out in space.
+// sits at (and the moon, if it is at one), or nowhere, because tracking ended
+// (or never existed) while it was out in space.
 export type Place =
   | { kind: "route"; position: Vec3 }
-  | { kind: "body"; body: BodySlug }
+  | { kind: "body"; body: BodySlug; moon: MoonSlug | null }
   | { kind: "unknown"; since: Days | null };
 
 export type Scene = {
   t: Days;
   earth: Vec3;
+  // Craft at a moon are listed with the moon, not its planet.
   bodies: { slug: BodySlug; position: Vec3; craft: MapCraft[] }[];
+  moons: {
+    slug: MoonSlug;
+    parent: BodySlug;
+    position: Vec3;
+    craft: MapCraft[];
+  }[];
   free: { craft: MapCraft; position: Vec3 }[];
   unknown: { craft: MapCraft; since: Days | null }[];
+};
+
+// The destinations that are moons the map draws.
+const MOON_DESTINATIONS: Partial<Record<string, MoonSlug>> = {
+  moon: "moon",
+  europa: "europa",
+  ganymede: "ganymede",
+  titan: "titan",
+};
+
+// Names of the moons that are not destinations in the archive.
+export const MOON_NAMES: Record<MoonSlug, string> = {
+  moon: "Moon",
+  io: "Io",
+  europa: "Europa",
+  ganymede: "Ganymede",
+  callisto: "Callisto",
+  titan: "Titan",
+  enceladus: "Enceladus",
 };
 
 export const PLANETS: BodySlug[] = [
@@ -71,7 +100,9 @@ export function placeCraft(
 
   const body = placements[craft.location];
 
-  if (body) return { kind: "body", body };
+  if (body) {
+    return { kind: "body", body, moon: MOON_DESTINATIONS[craft.location] ?? null };
+  }
 
   // Out in space with no position now: say since when.
   const routeEnd = route ? route[route.length - 1][0] : null;
@@ -92,6 +123,7 @@ export function buildScene(
   t: Days,
 ): Scene {
   const atBody = new Map<BodySlug, MapCraft[]>();
+  const atMoon = new Map<MoonSlug, MapCraft[]>();
   const free: Scene["free"] = [];
   const unknown: Scene["unknown"] = [];
 
@@ -100,6 +132,8 @@ export function buildScene(
 
     if (place.kind === "route") {
       free.push({ craft: one, position: place.position });
+    } else if (place.kind === "body" && place.moon) {
+      atMoon.set(place.moon, [...(atMoon.get(place.moon) ?? []), one]);
     } else if (place.kind === "body") {
       atBody.set(place.body, [...(atBody.get(place.body) ?? []), one]);
     } else {
@@ -113,10 +147,18 @@ export function buildScene(
     craft: atBody.get(slug) ?? [],
   }));
 
+  const moons = (Object.keys(MOONS) as MoonSlug[]).map((slug) => ({
+    slug,
+    parent: MOONS[slug],
+    position: moonPosition(snapshot, slug, t),
+    craft: atMoon.get(slug) ?? [],
+  }));
+
   return {
     t,
     earth: bodyPosition(snapshot, "earth", t),
     bodies,
+    moons,
     free,
     unknown,
   };
@@ -143,11 +185,13 @@ export function formatDistance(au: number) {
   return `${au < 10 ? au.toFixed(2) : Math.round(au).toLocaleString("en-GB")} AU`;
 }
 
-// How long a radio signal takes over that distance: "13 min", "23 h 47 min".
+// How long a radio signal takes over that distance: "1 s", "13 min",
+// "23 h 47 min".
 export function formatLightTime(au: number) {
-  const minutes = Math.round((au * LIGHT_SECONDS_PER_AU) / 60);
+  const seconds = au * LIGHT_SECONDS_PER_AU;
+  const minutes = Math.round(seconds / 60);
 
-  if (minutes < 1) return "under a minute";
+  if (seconds < 59.5) return `${Math.max(1, Math.round(seconds))} s`;
   if (minutes < 60) return `${minutes} min`;
 
   return `${Math.floor(minutes / 60)} h ${minutes % 60} min`;

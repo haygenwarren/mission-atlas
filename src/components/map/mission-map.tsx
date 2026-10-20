@@ -6,6 +6,7 @@ import StatusBadge from "@/components/status-badge";
 import type { DestinationKind, Status } from "@/generated/prisma/enums";
 import { statusLabels } from "@/lib/missions";
 import {
+  MOON_NAMES,
   PLANETS,
   buildScene,
   dayToDate,
@@ -21,8 +22,12 @@ import {
   bodyPosition,
   daysSinceJ2000,
   distance,
+  MOONS,
+  isMoon,
   orbitOutline,
   type BodySlug,
+  type MoonSlug,
+  type PlaceSlug,
   type Days,
   type PositionsSnapshot,
   type Vec3,
@@ -58,11 +63,12 @@ import MissionList, {
 
 type Selection =
   | { kind: "mission"; slug: string }
-  | { kind: "body"; slug: BodySlug };
+  | { kind: "body"; slug: PlaceSlug };
 
 type Data = {
   snapshot: PositionsSnapshot;
   orbits: { slug: BodySlug; points: Vec3[] }[];
+  moonOrbits: { slug: MoonSlug; points: Vec3[] }[];
 };
 
 type Props = {
@@ -122,6 +128,9 @@ type View = {
   dragged: boolean;
   // Whether the visitor has moved the view themselves.
   moved: boolean;
+  // The view before the map flew in to a selection, to fly back to when its
+  // card is closed.
+  returnTo: Camera | null;
   request: () => void;
 };
 
@@ -231,11 +240,31 @@ function missionTrails(
     .map(routeSamples);
 }
 
+// A view centred on (x, y) in `area` of the screen (the part not covered by
+// the list and the info card), showing `radius` AU around it.
+function viewAt(x: number, y: number, radius: number, size: Size, area: Box) {
+  const { scale } = fitRadius(
+    { width: area.right - area.left, height: area.bottom - area.top },
+    radius,
+  );
+
+  return {
+    x: x - ((area.left + area.right) / 2 - size.width / 2) / scale,
+    y: y + ((area.top + area.bottom) / 2 - size.height / 2) / scale,
+    scale,
+  };
+}
+
+// How close a planet's view comes in when it has no moons on the map: a
+// fiftieth of its distance from the Sun each way (Venus: 2 million km).
+const PLANET_VIEW = 0.02;
+
 // A view of where the selected mission's craft, or the selected body, are
-// now: centred in `area` of the screen (the part not covered by the list and
-// the info card) and showing their neighbourhood, a quarter of their distance
-// from the Sun across (at least 0.3 AU). Null when nothing selected has a
-// known position.
+// now. A planet (or asteroid or comet) is shown up close: out to its
+// outermost moon, or its near neighbourhood if it has none. A mission is
+// shown with its surroundings, a quarter of its distance from the Sun across
+// (at least 0.3 AU), or close enough to see a moon it is at apart from its
+// planet. Null when nothing selected has a known position.
 function focusOn(
   selection: Selection,
   craft: MapCraft[],
@@ -245,21 +274,38 @@ function focusOn(
   area: Box,
 ): Camera | null {
   const scene = buildScene(snapshot, craft, t);
-  const positions =
-    selection.kind === "body"
-      ? scene.bodies
-          .filter(({ slug }) => slug === selection.slug)
-          .map(({ position }) => position)
+
+  if (selection.kind === "body" && !isMoon(selection.slug)) {
+    const body = scene.bodies.find(({ slug }) => slug === selection.slug);
+
+    if (!body) return null;
+
+    const around = scene.moons.filter(({ parent }) => parent === body.slug);
+    const radius =
+      around.length > 0
+        ? Math.max(
+            ...around.map(({ position }) => distance(position, body.position)),
+          ) * 1.35
+        : fromSun(body.position) * PLANET_VIEW;
+
+    return viewAt(body.position[0], body.position[1], radius, size, area);
+  }
+
+  const holds = (here: MapCraft[]) =>
+    here.some(({ mission }) => mission.slug === selection.slug);
+  const moons = scene.moons.filter((moon) =>
+    selection.kind === "body" ? moon.slug === selection.slug : holds(moon.craft),
+  );
+  const positions = [
+    ...(selection.kind === "body"
+      ? scene.bodies.filter(({ slug }) => slug === selection.slug)
       : [
-          ...scene.free
-            .filter(({ craft: one }) => one.mission.slug === selection.slug)
-            .map(({ position }) => position),
-          ...scene.bodies
-            .filter(({ craft: here }) =>
-              here.some(({ mission }) => mission.slug === selection.slug),
-            )
-            .map(({ position }) => position),
-        ];
+          ...scene.free.filter(({ craft: one }) => one.mission.slug === selection.slug),
+          ...scene.bodies.filter(({ craft: here }) => holds(here)),
+        ]
+    ).map(({ position }) => position),
+    ...moons.map(({ position }) => position),
+  ];
 
   if (positions.length === 0) return null;
 
@@ -271,20 +317,25 @@ function focusOn(
     Math.max(...xs) - Math.min(...xs),
     Math.max(...ys) - Math.min(...ys),
   );
-  const radius = Math.max(
-    spread * 0.7,
-    Math.min(40, Math.max(0.3, Math.hypot(x, y) * 0.25)),
+  // A moon is shown close enough in to see it apart from its planet.
+  const moonReach = Math.max(
+    0,
+    ...moons.map(
+      ({ position, parent }) =>
+        distance(
+          position,
+          scene.bodies.find(({ slug }) => slug === parent)!.position,
+        ) * 1.4,
+    ),
   );
-  const { scale } = fitRadius(
-    { width: area.right - area.left, height: area.bottom - area.top },
-    radius,
-  );
-
-  return {
-    x: x - ((area.left + area.right) / 2 - size.width / 2) / scale,
-    y: y + ((area.top + area.bottom) / 2 - size.height / 2) / scale,
-    scale,
-  };
+  const radius =
+    moons.length > 0
+      ? Math.max(spread * 0.7, moonReach)
+      : Math.max(
+          spread * 0.7,
+          Math.min(40, Math.max(0.3, Math.hypot(x, y) * 0.25)),
+        );
+  return viewAt(x, y, radius, size, area);
 }
 
 // The part of the map not covered by the list or the info card, where a
@@ -384,14 +435,22 @@ function readSelection(
     return { kind: "mission", slug: mission };
   }
 
-  if (body && body in snapshot.bodies) {
-    return { kind: "body", slug: body as BodySlug };
+  if (body && (body in snapshot.bodies || isMoon(body))) {
+    return { kind: "body", slug: body as PlaceSlug };
   }
 
   return null;
 }
 
-export default function MissionMap({ craft, names, kinds }: Props) {
+export default function MissionMap({
+  craft,
+  names: placeNames,
+  kinds,
+}: Props) {
+  const names = useMemo(
+    () => ({ ...MOON_NAMES, ...placeNames }),
+    [placeNames],
+  );
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -497,6 +556,7 @@ export default function MissionMap({ craft, names, kinds }: Props) {
     downAt: null,
     dragged: false,
     moved: false,
+    returnTo: null,
     request: () => {},
   });
 
@@ -531,9 +591,15 @@ export default function MissionMap({ craft, names, kinds }: Props) {
 
         setData({
           snapshot,
+          // Fine enough that a planet sits on its orbit line even zoomed
+          // in close enough to see its moons.
           orbits: ORBITS.map((slug) => ({
             slug,
-            points: orbitOutline(snapshot.bodies[slug], today),
+            points: orbitOutline(snapshot.bodies[slug], today, 2048),
+          })),
+          moonOrbits: (Object.keys(MOONS) as MoonSlug[]).map((slug) => ({
+            slug,
+            points: orbitOutline(snapshot.moons[slug], today, 180),
           })),
         });
         setNow(today);
@@ -560,7 +626,10 @@ export default function MissionMap({ craft, names, kinds }: Props) {
               openArea(v, panelRef.current, wrapRef.current),
             );
 
-            if (target) fly(v, target);
+            if (target) {
+              v.returnTo ??= v.camera;
+              fly(v, target);
+            }
           }, 600);
         }
       })
@@ -669,6 +738,7 @@ export default function MissionMap({ craft, names, kinds }: Props) {
         palette: l.palette,
         names: l.names,
         orbits: l.data.orbits,
+        moonOrbits: l.data.moonOrbits,
         hovered: l.hovered,
         hoveredMission: l.hoveredMission,
         selectedMission:
@@ -916,11 +986,54 @@ export default function MissionMap({ craft, names, kinds }: Props) {
     }
   }
 
+  // Flies to what has just been selected, landing it in the open part of
+  // the map.
+  function flyTo(next: Selection) {
+    const v = view.current;
+
+    if (!data || !v.camera) return;
+
+    const target = focusOn(
+      next,
+      craft,
+      data.snapshot,
+      daysSinceJ2000(new Date()),
+      v.size,
+      openArea(v, panelRef.current, wrapRef.current),
+    );
+
+    if (target) {
+      v.returnTo ??= v.camera;
+      fly(v, target);
+    }
+  }
+
+  // Closing the card flies back to the view from before the map flew in to
+  // what was selected.
+  function closeCard() {
+    const v = view.current;
+
+    setSelection(null);
+
+    if (v.returnTo) {
+      fly(v, v.returnTo);
+      v.returnTo = null;
+    }
+  }
+
+  // Clicking a craft selects its mission. Clicking a planet, asteroid or
+  // comet selects it and flies in close, out to its moons if it has any; a
+  // moon is already close, so selecting one stays put.
   function select(hit: Hit | null) {
     if (!hit) {
       setSelection(null);
+      view.current.returnTo = null;
     } else if (hit.kind === "body") {
-      setSelection({ kind: "body", slug: hit.slug });
+      const next: Selection = { kind: "body", slug: hit.slug };
+
+      setSelection(next);
+
+      if (!isMoon(hit.slug)) flyTo(next);
     } else {
       const one = craft.find(({ slug }) => slug === hit.slug);
 
@@ -939,18 +1052,7 @@ export default function MissionMap({ craft, names, kinds }: Props) {
 
     if (v.size.width < 640) setPanel("auto");
 
-    if (data && v.camera) {
-      const target = focusOn(
-        next,
-        craft,
-        data.snapshot,
-        daysSinceJ2000(new Date()),
-        v.size,
-        openArea(v, panelRef.current, wrapRef.current),
-      );
-
-      if (target) fly(v, target);
-    }
+    flyTo(next);
   }
 
   function onPointerDown(event: React.PointerEvent<HTMLCanvasElement>) {
@@ -1053,7 +1155,7 @@ export default function MissionMap({ craft, names, kinds }: Props) {
 
     if (event.key === "+" || event.key === "=") zoomBy(1.5);
     else if (event.key === "-") zoomBy(1 / 1.5);
-    else if (event.key === "Escape") setSelection(null);
+    else if (event.key === "Escape") closeCard();
     else if (pans[event.key] && v.camera) {
       animateTo(panBy(v.animation?.to ?? v.camera, ...pans[event.key]), 200, easeOut);
     } else return;
@@ -1183,7 +1285,7 @@ export default function MissionMap({ craft, names, kinds }: Props) {
           names={names}
           kinds={kinds}
           snapshot={data!.snapshot}
-          onClose={() => setSelection(null)}
+          onClose={closeCard}
         />
       )}
 
@@ -1212,17 +1314,21 @@ function TooltipContent({
   names: Record<string, string>;
 }) {
   if (target.kind === "body") {
-    const body = scene.bodies.find(({ slug }) => slug === target.slug);
+    const body =
+      scene.bodies.find(({ slug }) => slug === target.slug) ??
+      scene.moons.find(({ slug }) => slug === target.slug);
 
     if (!body) return null;
 
-    const count = body.craft.length;
+    const count = new Set(body.craft.map(({ mission }) => mission.slug)).size;
 
     return (
       <>
         <p className="font-semibold">{names[body.slug]}</p>
         <p className="text-muted">
-          {count === 0 ? "No craft here" : `${count} craft here`}
+          {count === 0
+            ? "No missions here"
+            : `${count} mission${count === 1 ? "" : "s"} here`}
           {body.slug !== "earth" &&
             ` · ${formatDistance(distance(body.position, scene.earth))} from Earth`}
         </p>
@@ -1387,20 +1493,25 @@ function InfoCard({
     );
   }
 
-  const body = scene.bodies.find(({ slug }) => slug === selection.slug);
-  const here = body?.craft ?? [];
-  const title = names[selection.slug];
+  const place = selection.slug;
+  const body =
+    scene.bodies.find(({ slug }) => slug === place) ??
+    scene.moons.find(({ slug }) => slug === place);
   const fromEarth =
     body && body.slug !== "earth" ? distance(body.position, scene.earth) : null;
-  // One entry per mission, with its craft here listed beneath it.
-  const missions = [
-    ...new Map(here.map(({ mission }) => [mission.slug, mission])).values(),
-  ].sort(byActivity);
+  // A planet's card also lists the missions at each of its moons.
+  const moons = isMoon(place)
+    ? []
+    : scene.moons.filter(
+        ({ parent, craft: here }) => parent === place && here.length > 0,
+      );
 
   return (
     <Card
-      label={kindLabels[kinds[selection.slug]] ?? "Planet"}
-      title={title}
+      label={
+        isMoon(place) ? "Moon" : (kindLabels[kinds[place]] ?? "Planet")
+      }
+      title={names[place]}
       detail={
         fromEarth === null
           ? null
@@ -1409,65 +1520,92 @@ function InfoCard({
       onClose={onClose}
     >
       <p className="label-caps mt-5 text-muted">Craft here</p>
+      <MissionGroups here={body?.craft ?? []} title={names[place]} names={names} />
 
-      {missions.length === 0 && (
-        <p className="mt-2 text-sm text-muted">No spacecraft are here.</p>
-      )}
-
-      <ul className="mt-3 space-y-4">
-        {missions.map((mission) => {
-          const members = here
-            .filter((one) => one.mission.slug === mission.slug)
-            .sort(byActivity);
-          // A mission with one craft here, named like the mission, needs no
-          // list: only where it is, if that is more exact than the body.
-          const lone = members.length === 1 && members[0].name === mission.name;
-
-          return (
-            <li key={mission.slug}>
-              <div className="flex items-start justify-between gap-3">
-                <Link
-                  href={`/missions/${mission.slug}`}
-                  className="font-semibold hover:text-accent hover:underline"
-                >
-                  {mission.name}
-                </Link>
-                <StatusBadge status={mission.status} />
-              </div>
-
-              {lone ? (
-                names[members[0].location] !== title && (
-                  <p className="mt-1 text-sm text-muted">
-                    {names[members[0].location]}
-                  </p>
-                )
-              ) : (
-                <ul className="mt-1.5 space-y-1">
-                  {members.map((one) => (
-                    <li
-                      key={one.slug}
-                      className="flex items-center gap-2 text-sm text-muted"
-                    >
-                      <span
-                        aria-hidden
-                        className={`h-2 w-2 shrink-0 rounded-full ${statusDots[one.status]}`}
-                      />
-                      <span>
-                        <span className="text-foreground">{one.name}</span>
-                        {names[one.location] !== title &&
-                          ` · ${names[one.location]}`}
-                        <span className="sr-only">
-                          , {statusLabels[one.status]}
-                        </span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+      {moons.map((moon) => (
+        <div key={moon.slug}>
+          <p className="label-caps mt-6 text-muted">
+            At {moon.slug === "moon" ? "the Moon" : names[moon.slug]}
+          </p>
+          <MissionGroups here={moon.craft} title={names[moon.slug]} names={names} />
+        </div>
+      ))}
     </Card>
+  );
+}
+
+// The craft at a place, one entry per mission with its craft beneath it.
+function MissionGroups({
+  here,
+  title,
+  names,
+}: {
+  here: MapCraft[];
+  title: string;
+  names: Record<string, string>;
+}) {
+  const missions = [
+    ...new Map(here.map(({ mission }) => [mission.slug, mission])).values(),
+  ].sort(byActivity);
+
+  if (missions.length === 0) {
+    return <p className="mt-2 text-sm text-muted">No spacecraft are here.</p>;
+  }
+
+  return (
+    <ul className="mt-3 space-y-4">
+      {missions.map((mission) => {
+        const members = here
+          .filter((one) => one.mission.slug === mission.slug)
+          .sort(byActivity);
+        // A mission with one craft here, named like the mission, needs no
+        // list: only where it is, if that is more exact than the place.
+        const lone = members.length === 1 && members[0].name === mission.name;
+
+        return (
+          <li key={mission.slug}>
+            <div className="flex items-start justify-between gap-3">
+              <Link
+                href={`/missions/${mission.slug}`}
+                className="font-semibold hover:text-accent hover:underline"
+              >
+                {mission.name}
+              </Link>
+              <StatusBadge status={mission.status} />
+            </div>
+
+            {lone ? (
+              names[members[0].location] !== title && (
+                <p className="mt-1 text-sm text-muted">
+                  {names[members[0].location]}
+                </p>
+              )
+            ) : (
+              <ul className="mt-1.5 space-y-1">
+                {members.map((one) => (
+                  <li
+                    key={one.slug}
+                    className="flex items-center gap-2 text-sm text-muted"
+                  >
+                    <span
+                      aria-hidden
+                      className={`h-2 w-2 shrink-0 rounded-full ${statusDots[one.status]}`}
+                    />
+                    <span>
+                      <span className="text-foreground">{one.name}</span>
+                      {names[one.location] !== title &&
+                        ` · ${names[one.location]}`}
+                      <span className="sr-only">
+                        , {statusLabels[one.status]}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }

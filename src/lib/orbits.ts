@@ -51,8 +51,12 @@ export type PositionsSnapshot = {
   // "earth" holds the orbit of the Earth–Moon barycentre; bodyPosition adds
   // the Moon's pull to find Earth itself.
   bodies: Record<BodySlug, Elements[]>;
-  // The Moon's orbit around Earth.
-  moon: Elements[];
+  // Each moon's orbit around its planet. Accurate to within `nearKm` from
+  // `moonsFrom` to `moonsUntil`; outside that, rough (yearly orbits), except
+  // the Moon, which also places Earth and is kept to Earth's accuracy.
+  moons: Record<MoonSlug, Elements[]>;
+  moonsFrom: Days;
+  moonsUntil: Days;
   // Keyed by Horizons ID. A route ends where tracking ended, or where the
   // craft arrived at the body it stays at.
   routes: Record<string, RoutePoint[]>;
@@ -106,6 +110,26 @@ export const placements = {
 } as const satisfies Record<DestinationSlug, string | null>;
 
 export type BodySlug = NonNullable<(typeof placements)[DestinationSlug]>;
+
+// The moons the map draws, and the planet each circles.
+export const MOONS = {
+  moon: "earth",
+  io: "jupiter",
+  europa: "jupiter",
+  ganymede: "jupiter",
+  callisto: "jupiter",
+  titan: "saturn",
+  enceladus: "saturn",
+} as const satisfies Record<string, BodySlug>;
+
+export type MoonSlug = keyof typeof MOONS;
+
+// A planet, asteroid, comet or moon.
+export type PlaceSlug = BodySlug | MoonSlug;
+
+export function isMoon(slug: string): slug is MoonSlug {
+  return slug in MOONS;
+}
 
 // The Moon's share of the Earth–Moon mass. Earth sits this fraction of the
 // Earth–Moon distance from their barycentre, on the side away from the Moon:
@@ -224,7 +248,7 @@ export function orbitOutline(
 
 // Where a planet, asteroid or comet is at time t.
 export function bodyPosition(
-  snapshot: Pick<PositionsSnapshot, "bodies" | "moon">,
+  snapshot: Pick<PositionsSnapshot, "bodies" | "moons">,
   body: BodySlug,
   t: Days,
 ): Vec3 {
@@ -232,13 +256,36 @@ export function bodyPosition(
 
   if (body !== "earth") return position;
 
-  const moon = orbitPosition(snapshot.moon, t);
+  const moon = orbitPosition(snapshot.moons.moon, t);
 
   return [
     position[0] - MOON_SHARE * moon[0],
     position[1] - MOON_SHARE * moon[1],
     position[2] - MOON_SHARE * moon[2],
   ];
+}
+
+// Where a moon is at time t: its planet's position plus its own around it.
+export function moonPosition(
+  snapshot: Pick<PositionsSnapshot, "bodies" | "moons">,
+  moon: MoonSlug,
+  t: Days,
+): Vec3 {
+  const [px, py, pz] = bodyPosition(snapshot, MOONS[moon], t);
+  const [x, y, z] = orbitPosition(snapshot.moons[moon], t);
+
+  return [px + x, py + y, pz + z];
+}
+
+// Where a planet, asteroid, comet or moon is at time t.
+export function placePosition(
+  snapshot: Pick<PositionsSnapshot, "bodies" | "moons">,
+  place: PlaceSlug,
+  t: Days,
+): Vec3 {
+  return isMoon(place)
+    ? moonPosition(snapshot, place, t)
+    : bodyPosition(snapshot, place, t);
 }
 
 // Where a craft is at time t between two points on its route. A cubic curve

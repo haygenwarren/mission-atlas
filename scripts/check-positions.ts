@@ -2,7 +2,12 @@ import { execFileSync } from "node:child_process";
 import { appendFileSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { missions } from "../prisma/data/missions";
-import type { BodySlug, PositionsSnapshot } from "../src/lib/orbits";
+import {
+  MOONS,
+  type BodySlug,
+  type MoonSlug,
+  type PositionsSnapshot,
+} from "../src/lib/orbits";
 
 // Run after `npm run import:positions` and before committing the result. The
 // daily refresh commits to main without review, so this refuses a snapshot
@@ -38,7 +43,9 @@ function main() {
   const before = committed();
   const problems: string[] = [];
 
-  if (!next.moon?.length) problems.push("the Moon has no orbits");
+  for (const moon of Object.keys(MOONS) as MoonSlug[]) {
+    if (!next.moons?.[moon]?.length) problems.push(`${moon} has no orbits`);
+  }
 
   if (before) {
     const old: PositionsSnapshot = JSON.parse(before);

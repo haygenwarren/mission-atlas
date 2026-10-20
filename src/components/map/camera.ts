@@ -5,10 +5,11 @@ export type Camera = { x: number; y: number; scale: number };
 
 export type Size = { width: number; height: number };
 
-// From about 400 AU across the screen (past Voyager 1) down to 0.02 AU
-// (eight times the distance to the Moon).
+// From about 400 AU across the screen (past Voyager 1) down to 0.004 AU
+// (one and a half times the distance to the Moon), close enough to see the
+// Moon apart from Earth.
 const WIDEST_AU = 400;
-const NARROWEST_AU = 0.02;
+const NARROWEST_AU = 0.004;
 
 function clampScale(scale: number, size: Size) {
   const span = Math.min(size.width, size.height);
