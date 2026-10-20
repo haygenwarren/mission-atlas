@@ -34,10 +34,11 @@ const KM_PER_AU = 149_597_870.7;
 const SUN = "500@10";
 const EARTH = "500@399";
 
-// How closely the file follows Horizons. Near now, from 90 days ago to two
-// years ahead, every position is within NEAR_KM: closer than astronomy-engine
-// gets for any planet. Further back or ahead the positions only feed trails
-// and animations, where FAR_KM (a fifth of the way to the Moon) cannot show.
+// How closely the file follows Horizons. Near now, from 90 days before the
+// first of this month to two years after it, every position is within
+// NEAR_KM: closer than astronomy-engine gets for any planet. Further back or
+// ahead the positions only feed trails and animations, where FAR_KM (a fifth
+// of the way to the Moon) cannot show.
 const NEAR_KM = 1_000;
 const FAR_KM = 75_000;
 const NEAR_DAYS_BEFORE = 90;
@@ -664,13 +665,21 @@ function addDays(date: Date, days: number) {
 
 async function main() {
   const today = new Date();
-  const until = new Date(today);
+
+  // The spans are measured from the first of the month, not from today, so
+  // every run in a month asks Horizons for the same thing and writes the same
+  // file unless Horizons' data has changed. The daily refresh only commits
+  // when it has.
+  const month = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1),
+  );
+  const until = new Date(month);
 
   until.setUTCFullYear(until.getUTCFullYear() + YEARS_AHEAD);
 
   const stop = isoDay(until);
-  const nearStart = addDays(today, -NEAR_DAYS_BEFORE);
-  const nearStop = addDays(today, NEAR_DAYS_AFTER);
+  const nearStart = addDays(month, -NEAR_DAYS_BEFORE);
+  const nearStop = addDays(month, NEAR_DAYS_AFTER);
   const near = { start: isoDay(nearStart), stop: isoDay(nearStop) };
   const nearFrom = daysSinceJ2000(nearStart);
   const nearUntil = daysSinceJ2000(nearStop);

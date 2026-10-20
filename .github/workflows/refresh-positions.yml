@@ -1,0 +1,58 @@
+# Refreshes public/positions.json from JPL Horizons every day, and commits it
+# straight to main when Horizons' data has changed (a craft tracked further,
+# or a revised prediction after a manoeuvre). The push deploys the site. It
+# commits nothing when only the date has changed, and refuses a snapshot that
+# has lost a body or route the last one had; a refused or failed run is
+# emailed to the repository owner and the site keeps the last good file.
+name: Refresh positions
+
+on:
+  schedule:
+    # 06:23 UTC daily. Off the hour, when GitHub's scheduler is less busy.
+    - cron: "23 6 * * *"
+  # Lets the job be run by hand from the Actions tab.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Never two runs at once, so they cannot push over each other.
+concurrency:
+  group: refresh-positions
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      # `prisma generate` runs on install and reads this variable, but never
+      # connects, so a placeholder is enough.
+      DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Fetch positions from JPL Horizons
+        run: npm run import:positions
+
+      - name: Check the new snapshot
+        id: check
+        run: npm run check:positions
+
+      - name: Commit and push
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/positions.json
+          git commit -m "Refresh positions from JPL Horizons"
+          git pull --rebase
+          git push
