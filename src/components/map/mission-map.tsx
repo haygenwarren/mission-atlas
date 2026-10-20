@@ -55,14 +55,24 @@ type Props = {
 // Views the buttons jump to: everything within `radius` AU of the Sun.
 // "Everything" fits the farthest craft.
 const VIEWS = [
-  { label: "Inner planets", short: "Inner", radius: 1.8 },
-  { label: "To Jupiter", short: "Jupiter", radius: 6 },
-  { label: "Outer planets", short: "Outer", radius: 33 },
-  { label: "Everything", short: "All", radius: null },
+  { label: "Inner planets", radius: 1.8 },
+  { label: "To Jupiter", radius: 6 },
+  { label: "Outer planets", radius: 33 },
+  { label: "Everything", radius: null },
 ] as const;
 
-// Room left at the edges of the map for the buttons and caption over it.
-const INSETS = { top: 64, bottom: 34, side: 18 };
+// Room left at the edges of the map: the caption runs along the top.
+const INSETS = { top: 40, bottom: 16, side: 18 };
+
+// Wheel zoom speeds, per pixel of scroll. A trackpad pinch arrives as many
+// small steps with ctrlKey set (in Chrome, Edge and Firefox), so it needs a
+// faster rate than a mouse wheel's large steps.
+const PINCH_RATE = 0.012;
+const WHEEL_RATE = 0.002;
+const LINE_RATE = 0.05;
+
+// Safari reports a trackpad pinch as its own gesture events.
+type GestureEvent = UIEvent & { scale: number; clientX: number; clientY: number };
 
 const ORBITS: BodySlug[] = [...PLANETS, "pluto"];
 
@@ -141,6 +151,24 @@ function readPalette(): Palette {
   return palette;
 }
 
+// A mission's routes, ready to draw.
+function missionTrails(
+  craft: MapCraft[],
+  snapshot: PositionsSnapshot,
+  mission: string,
+): Trail[] {
+  const ids = new Set(
+    craft
+      .filter((one) => one.mission.slug === mission && one.horizonsId)
+      .map((one) => one.horizonsId!),
+  );
+
+  return [...ids]
+    .map((id) => snapshot.routes[id])
+    .filter((route) => route && route.length > 1)
+    .map(routeSamples);
+}
+
 function readSelection(
   craft: MapCraft[],
   snapshot: PositionsSnapshot,
@@ -164,6 +192,8 @@ export default function MissionMap({ craft, names }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
+  const controlsRef = useRef<HTMLDivElement>(null);
+  const captionRef = useRef<HTMLParagraphElement>(null);
 
   const [data, setData] = useState<Data | null>(null);
   const [failed, setFailed] = useState(false);
@@ -171,21 +201,28 @@ export default function MissionMap({ craft, names }: Props) {
   const [hovered, setHovered] = useState<Target | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
 
-  // The selected mission's routes, ready to draw.
-  const trails = useMemo<Trail[]>(() => {
-    if (!data || selection?.kind !== "mission") return [];
+  const selectedMission = selection?.kind === "mission" ? selection.slug : null;
+  const hoveredMission =
+    hovered?.kind === "craft"
+      ? (craft.find(({ slug }) => slug === hovered.slug)?.mission.slug ?? null)
+      : null;
 
-    const ids = new Set(
-      craft
-        .filter((one) => one.mission.slug === selection.slug && one.horizonsId)
-        .map((one) => one.horizonsId!),
-    );
-
-    return [...ids]
-      .map((id) => data.snapshot.routes[id])
-      .filter((route) => route && route.length > 1)
-      .map(routeSamples);
-  }, [craft, data, selection]);
+  // The selected mission's routes, drawn in full, and the hovered mission's,
+  // drawn faintly.
+  const trails = useMemo(
+    () =>
+      data && selectedMission
+        ? missionTrails(craft, data.snapshot, selectedMission)
+        : [],
+    [craft, data, selectedMission],
+  );
+  const hoverTrails = useMemo(
+    () =>
+      data && hoveredMission && hoveredMission !== selectedMission
+        ? missionTrails(craft, data.snapshot, hoveredMission)
+        : [],
+    [craft, data, hoveredMission, selectedMission],
+  );
 
   const scene = useMemo(
     () => (data && now !== null ? buildScene(data.snapshot, craft, now) : null),
@@ -200,6 +237,7 @@ export default function MissionMap({ craft, names }: Props) {
     hovered,
     selection,
     trails,
+    hoverTrails,
     palette: null as Palette | null,
   });
 
@@ -216,7 +254,16 @@ export default function MissionMap({ craft, names }: Props) {
   });
 
   useEffect(() => {
-    latest.current = { ...latest.current, craft, names, data, hovered, selection, trails };
+    latest.current = {
+      ...latest.current,
+      craft,
+      names,
+      data,
+      hovered,
+      selection,
+      trails,
+      hoverTrails,
+    };
     view.current.request();
   });
 
@@ -332,7 +379,23 @@ export default function MissionMap({ craft, names }: Props) {
           l.selection?.kind === "mission" ? l.selection.slug : null,
         selectedBody: l.selection?.kind === "body" ? l.selection.slug : null,
         trails: l.trails,
+        hoverTrails: l.hoverTrails,
         insets: INSETS,
+        covered: [controlsRef.current, captionRef.current].flatMap((element) => {
+          const box = element?.getBoundingClientRect();
+          const origin = wrap.getBoundingClientRect();
+
+          return box && box.width > 0
+            ? [
+                {
+                  left: box.left - origin.left - 4,
+                  top: box.top - origin.top - 4,
+                  right: box.right - origin.left + 4,
+                  bottom: box.bottom - origin.top + 4,
+                },
+              ]
+            : [];
+        }),
       });
 
       // Keep the tooltip beside whatever it describes.
@@ -345,9 +408,15 @@ export default function MissionMap({ craft, names }: Props) {
 
       if (tip) {
         if (hit) {
+          // Below and to the right of the target, unless that would run off
+          // the map.
           const left = hit.x + 260 > width ? hit.x - 254 : hit.x + 14;
+          const top =
+            hit.y + 14 + tip.offsetHeight > height
+              ? hit.y - 14 - tip.offsetHeight
+              : hit.y + 14;
 
-          tip.style.transform = `translate(${left}px, ${hit.y + 14}px)`;
+          tip.style.transform = `translate(${left}px, ${top}px)`;
           tip.style.visibility = "visible";
         } else {
           tip.style.visibility = "hidden";
@@ -399,9 +468,12 @@ export default function MissionMap({ craft, names }: Props) {
 
       const rect = canvas.getBoundingClientRect();
       const base = v.animation?.to ?? v.camera;
-      const factor = Math.exp(
-        -event.deltaY * (event.deltaMode === 1 ? 0.05 : 0.0015),
-      );
+      const rate = event.ctrlKey
+        ? PINCH_RATE
+        : event.deltaMode === 1
+          ? LINE_RATE
+          : WHEEL_RATE;
+      const factor = Math.exp(-event.deltaY * rate);
 
       animate(
         v,
@@ -417,7 +489,40 @@ export default function MissionMap({ craft, names }: Props) {
       );
     }
 
+    // Safari's pinch: `scale` is how far the fingers have spread since the
+    // gesture began, so each change zooms by the step since the last one.
+    let lastScale = 1;
+
+    function onGestureStart(event: Event) {
+      event.preventDefault();
+      lastScale = 1;
+    }
+
+    function onGestureChange(event: Event) {
+      const gesture = event as GestureEvent;
+
+      event.preventDefault();
+
+      if (!v.camera) return;
+
+      const rect = canvas.getBoundingClientRect();
+
+      v.animation = null;
+      v.camera = zoomAround(
+        v.camera,
+        v.size,
+        gesture.scale / lastScale,
+        gesture.clientX - rect.left,
+        gesture.clientY - rect.top,
+      );
+      lastScale = gesture.scale;
+      request();
+    }
+
     canvas.addEventListener("wheel", onWheel, { passive: false });
+    canvas.addEventListener("gesturestart", onGestureStart);
+    canvas.addEventListener("gesturechange", onGestureChange);
+    canvas.addEventListener("gestureend", onGestureStart);
 
     return () => {
       cancelAnimationFrame(frame);
@@ -425,6 +530,9 @@ export default function MissionMap({ craft, names }: Props) {
       theme.disconnect();
       clearInterval(tick);
       canvas.removeEventListener("wheel", onWheel);
+      canvas.removeEventListener("gesturestart", onGestureStart);
+      canvas.removeEventListener("gesturechange", onGestureChange);
+      canvas.removeEventListener("gestureend", onGestureStart);
       v.request = () => {};
     };
   }, []);
@@ -476,13 +584,24 @@ export default function MissionMap({ craft, names }: Props) {
   }
 
   // The nearest target to (x, y), allowing `slack` extra pixels for a
-  // finger.
+  // finger. A label counts when the point is inside its box.
   function hitAt(x: number, y: number, slack = 0) {
     let best: Hit | null = null;
     let bestMiss = Infinity;
 
     for (const hit of view.current.hits) {
-      const miss = Math.hypot(hit.x - x, hit.y - y) - hit.radius - slack;
+      const box = hit.box;
+      const inBox =
+        box &&
+        x >= box.left - slack &&
+        x <= box.right + slack &&
+        y >= box.top - slack &&
+        y <= box.bottom + slack;
+      const miss = box
+        ? inBox
+          ? -0.5
+          : Infinity
+        : Math.hypot(hit.x - x, hit.y - y) - hit.radius - slack;
 
       if (miss <= 0 && miss < bestMiss) {
         best = hit;
@@ -585,7 +704,16 @@ export default function MissionMap({ craft, names }: Props) {
     if (v.pointers.size > 0) return;
 
     if (!v.dragged) {
-      select(hitAt(point.x, point.y, event.pointerType === "mouse" ? 0 : 14));
+      const hit = hitAt(point.x, point.y, event.pointerType === "mouse" ? 0 : 14);
+
+      // A marker for something out of view zooms out until it is in view;
+      // for a craft, it also selects the mission.
+      if (hit?.reach !== undefined) {
+        animateTo(fitRadius(v.size, hit.reach * 1.12), 900);
+        if (hit.kind === "craft") select(hit);
+      } else {
+        select(hit);
+      }
     }
 
     v.downAt = null;
@@ -661,36 +789,37 @@ export default function MissionMap({ craft, names }: Props) {
         )}
       </div>
 
-      <div className="absolute left-4 top-4 flex gap-2">
+      <div
+        ref={controlsRef}
+        className={`absolute bottom-4 right-4 w-36 rounded-lg border border-border-strong bg-background/85 p-2 backdrop-blur ${selection ? "hidden sm:block" : ""}`}
+      >
+        <p className="label-caps px-1.5 pb-1 text-muted">View</p>
         {VIEWS.map((preset) => (
           <button
             key={preset.label}
             type="button"
             onClick={() => showView(preset.radius)}
-            className="label-caps rounded-lg border border-border-strong bg-background/80 px-2.5 py-2 text-muted backdrop-blur transition-colors hover:border-accent hover:text-foreground sm:px-3"
+            className="block w-full rounded px-1.5 py-1 text-left text-xs text-muted transition-colors hover:bg-surface hover:text-foreground"
           >
-            <span className="sm:hidden">{preset.short}</span>
-            <span className="hidden sm:inline">{preset.label}</span>
+            {preset.label}
           </button>
         ))}
-      </div>
-
-      {/* Phones zoom with a pinch. */}
-      <div className="absolute bottom-4 right-4 hidden flex-col gap-2 sm:flex">
-        {[
-          { label: "Zoom in", text: "+", factor: 1.6 },
-          { label: "Zoom out", text: "−", factor: 1 / 1.6 },
-        ].map((button) => (
-          <button
-            key={button.label}
-            type="button"
-            aria-label={button.label}
-            onClick={() => zoomBy(button.factor)}
-            className="h-10 w-10 rounded-lg border border-border-strong bg-background/80 text-xl text-muted backdrop-blur transition-colors hover:border-accent hover:text-foreground"
-          >
-            {button.text}
-          </button>
-        ))}
+        <div className="mt-2 flex gap-2 border-t border-border pt-2">
+          {[
+            { label: "Zoom out", text: "−", factor: 1 / 1.6 },
+            { label: "Zoom in", text: "+", factor: 1.6 },
+          ].map((button) => (
+            <button
+              key={button.label}
+              type="button"
+              aria-label={button.label}
+              onClick={() => zoomBy(button.factor)}
+              className="h-8 flex-1 rounded border border-border-strong text-lg leading-none text-muted transition-colors hover:border-accent hover:text-foreground"
+            >
+              {button.text}
+            </button>
+          ))}
+        </div>
       </div>
 
       {scene && selection && (
@@ -706,10 +835,11 @@ export default function MissionMap({ craft, names }: Props) {
 
       {scene && (
         <p
-          className={`pointer-events-none absolute bottom-3 left-4 right-4 text-xs text-muted sm:right-20 ${selection ? "hidden sm:block" : ""}`}
+          ref={captionRef}
+          className="pointer-events-none absolute left-4 top-3 max-w-[calc(100%-2rem)] text-xs text-muted sm:max-w-md"
         >
           Positions for {timeFormat.format(dayToDate(scene.t))} UTC, from JPL
-          Horizons. Planets and craft are not drawn to scale.
+          Horizons. Not to scale.
         </p>
       )}
     </div>
@@ -838,7 +968,7 @@ function InfoCard({
     body && body.slug !== "earth" ? distance(body.position, scene.earth) : null;
 
   return (
-    <aside className="absolute inset-x-0 bottom-0 max-h-[55%] overflow-y-auto rounded-t-xl border border-border bg-surface p-5 shadow-xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-16 sm:max-h-[calc(100%-6rem)] sm:w-96 sm:rounded-xl">
+    <aside className="absolute inset-x-0 bottom-0 max-h-[55%] overflow-y-auto rounded-t-xl border border-border bg-surface p-5 shadow-xl sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-4 sm:max-h-[calc(100%-15rem)] sm:w-96 sm:rounded-xl">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="label-caps text-muted">
@@ -870,7 +1000,16 @@ function InfoCard({
         {ordered.map((one) => (
           <li key={one.slug}>
             <div className="flex items-start justify-between gap-3">
-              <p className="font-semibold">{one.name}</p>
+              {selection.kind === "body" ? (
+                <Link
+                  href={`/missions/${one.mission.slug}`}
+                  className="font-semibold hover:text-accent hover:underline"
+                >
+                  {one.name}
+                </Link>
+              ) : (
+                <p className="font-semibold">{one.name}</p>
+              )}
               <StatusBadge status={one.status} />
             </div>
             {selection.kind === "body" && one.mission.name !== one.name && (
@@ -884,14 +1023,6 @@ function InfoCard({
               names[one.location] !== title && (
                 <p className="mt-1 text-sm">{names[one.location]}</p>
               )
-            )}
-            {selection.kind === "body" && (
-              <Link
-                href={`/missions/${one.mission.slug}`}
-                className="mt-1 inline-block text-sm text-accent hover:underline"
-              >
-                Mission page →
-              </Link>
             )}
           </li>
         ))}

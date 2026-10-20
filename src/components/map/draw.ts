@@ -30,8 +30,18 @@ export type Target =
   | { kind: "craft"; slug: string }
   | { kind: "body"; slug: BodySlug };
 
-// Where a target was drawn, for finding what is under the pointer.
-export type Hit = Target & { x: number; y: number; radius: number };
+export type Box = { left: number; top: number; right: number; bottom: number };
+
+// Where a target was drawn, for finding what is under the pointer: a circle
+// around a dot, or the box of its label. Markers at the edge of the screen
+// also carry `reach`, how far out (AU) the view must go to show the thing.
+export type Hit = Target & {
+  x: number;
+  y: number;
+  radius: number;
+  box?: Box;
+  reach?: number;
+};
 
 // A route sampled finely enough to draw as a smooth curve: [t, x, y].
 export type Trail = [t: number, x: number, y: number][];
@@ -47,23 +57,45 @@ export type Frame = {
   hovered: Target | null;
   selectedMission: string | null;
   selectedBody: BodySlug | null;
+  // The selected mission's routes, drawn in full, and the hovered one's,
+  // drawn faintly.
   trails: Trail[];
-  // Room to leave at the edges for the controls laid over the map.
+  hoverTrails: Trail[];
+  // Room to leave at the edges, and areas covered by controls laid over the
+  // map, which labels keep clear of.
   insets: { top: number; bottom: number; side: number };
+  covered: Box[];
 };
 
 // Small bodies are left out until the map is zoomed in this far (pixels per
 // AU), unless craft are there or one is selected.
 const SMALL_BODY_SCALE = 90;
-// Craft whose missions have ended are only named from this zoom on, since
-// several retired telescopes crowd around Earth's orbit.
+// Craft near Earth's orbit whose missions have ended are only named from
+// this zoom on, since several retired telescopes crowd around it.
 const ENDED_LABEL_SCALE = 200;
+const CROWDED_AU = 2;
 
-type Box = { left: number; top: number; right: number; bottom: number };
+// Sizes in CSS pixels. Nothing is to scale: at the scale of the map, even
+// Jupiter would be far smaller than a pixel.
+const SUN_RADIUS = 7;
+const PLANET_RADIUS: Partial<Record<BodySlug, number>> = {
+  mercury: 4.5,
+  venus: 6,
+  earth: 6,
+  mars: 5,
+  jupiter: 9,
+  saturn: 8.5,
+  uranus: 7,
+  neptune: 7,
+};
+const DWARF_RADIUS = 4;
+const SMALL_BODY_RADIUS = 3;
+const CRAFT_RADIUS = 6;
 
 // A label beside something drawn at (x, y). It goes `right` pixels to the
 // right of x if there is room, otherwise `left` pixels to the left; a label
-// with only one of the two stays on that side.
+// with only one of the two stays on that side. A label with a target can be
+// clicked like the thing it names.
 type Label = {
   text: string;
   x: number;
@@ -73,6 +105,8 @@ type Label = {
   font: string;
   color: string;
   priority: number;
+  target?: Target;
+  reach?: number;
 };
 
 function statusColour(palette: Palette, status: Status) {
@@ -99,17 +133,22 @@ function edgePoint(
   const dy = y - cy;
   const t = Math.min(
     dx === 0 ? Infinity : (cx - insets.side) / Math.abs(dx),
-    dy < 0 ? (cy - insets.top) / -dy : dy > 0 ? (size.height - insets.bottom - cy) / dy : Infinity,
+    dy < 0
+      ? (cy - insets.top) / -dy
+      : dy > 0
+        ? (size.height - insets.bottom - cy) / dy
+        : Infinity,
   );
 
   return { x: cx + dx * t, y: cy + dy * t, angle: Math.atan2(dy, dx) };
 }
 
 // A label for an edge marker sits on the side away from the edge.
-function edgeLabel(edge: { x: number; angle: number }, size: Size) {
-  const x = edge.x - Math.cos(edge.angle) * 12;
+function edgeLabel(edge: { x: number; y: number; angle: number }, size: Size) {
+  const x = edge.x - Math.cos(edge.angle) * 14;
+  const y = edge.y - Math.sin(edge.angle) * 14;
 
-  return edge.x > size.width / 2 ? { x, left: 0 } : { x, right: 0 };
+  return edge.x > size.width / 2 ? { x, y, left: 0 } : { x, y, right: 0 };
 }
 
 function onScreen(size: Size, x: number, y: number, margin = 0) {
@@ -150,13 +189,49 @@ function ring(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {
   ctx.stroke();
 }
 
+// A route, solid where the craft has been and dashed where it is still to
+// go, meeting at where it is now.
+function drawTrail(
+  ctx: CanvasRenderingContext2D,
+  trail: Trail,
+  t: number,
+  screen: (x: number, y: number) => readonly [number, number],
+) {
+  const past = trail.filter(([time]) => time <= t);
+  const ahead = trail.filter(([time]) => time > t);
+
+  if (past.length > 0 && ahead.length > 0) {
+    const [t1, x1, y1] = past[past.length - 1];
+    const [t2, x2, y2] = ahead[0];
+    const k = (t - t1) / (t2 - t1);
+    const now: Trail[number] = [t, x1 + (x2 - x1) * k, y1 + (y2 - y1) * k];
+
+    past.push(now);
+    ahead.unshift(now);
+  }
+
+  ctx.lineWidth = 2;
+  ctx.setLineDash([]);
+  polyline(
+    ctx,
+    past.map(([, x, y]) => screen(x, y)),
+  );
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 6]);
+  polyline(
+    ctx,
+    ahead.map(([, x, y]) => screen(x, y)),
+  );
+  ctx.setLineDash([]);
+}
+
 export function drawMap(frame: Frame): Hit[] {
   const { ctx, size, camera, scene, palette, names } = frame;
   const { hovered, selectedMission, selectedBody, insets } = frame;
   const hits: Hit[] = [];
   const labels: Label[] = [];
-  // Dots and badges, which labels must not cover.
-  const taken: Box[] = [];
+  // Dots, badges and controls, which labels must not cover.
+  const taken: Box[] = [...frame.covered];
   const around = (x: number, y: number, r: number) =>
     taken.push({ left: x - r, top: y - r, right: x + r, bottom: y + r });
   const screen = (x: number, y: number) => toScreen(camera, size, x, y);
@@ -165,70 +240,45 @@ export function drawMap(frame: Frame): Hit[] {
   ctx.fillRect(0, 0, size.width, size.height);
 
   // Orbits of the planets and Pluto, skipped when too small to see.
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = palette.borderStrong;
+  ctx.globalAlpha = 0.85;
   for (const { slug, points } of frame.orbits) {
     const reach = Math.max(...points.map(([x, y]) => Math.hypot(x, y)));
 
-    if (reach * camera.scale < 4) continue;
+    if (reach * camera.scale < 6) continue;
 
-    ctx.strokeStyle = palette.border;
-    ctx.setLineDash(slug === "pluto" ? [3, 4] : []);
+    ctx.setLineDash(slug === "pluto" ? [4, 5] : []);
     polyline(
       ctx,
       points.map(([x, y]) => screen(x, y)),
     );
   }
   ctx.setLineDash([]);
+  ctx.globalAlpha = 1;
 
   // The Sun.
   const [sunX, sunY] = screen(0, 0);
-  const glow = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 16);
+  const glow = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 30);
 
   glow.addColorStop(0, palette.foreground);
   glow.addColorStop(1, "transparent");
   ctx.fillStyle = glow;
-  ctx.globalAlpha = 0.35;
-  ctx.fillRect(sunX - 16, sunY - 16, 32, 32);
+  ctx.globalAlpha = 0.4;
+  ctx.fillRect(sunX - 30, sunY - 30, 60, 60);
   ctx.globalAlpha = 1;
   ctx.fillStyle = palette.foreground;
   ctx.beginPath();
-  ctx.arc(sunX, sunY, 4, 0, 2 * Math.PI);
+  ctx.arc(sunX, sunY, SUN_RADIUS, 0, 2 * Math.PI);
   ctx.fill();
+  around(sunX, sunY, SUN_RADIUS + 2);
 
-  // The selected mission's routes: solid where the craft has been, dashed
-  // where it is still to go.
+  // Routes: the hovered mission's faintly, the selected mission's in full.
   ctx.strokeStyle = palette.accent;
-  for (const trail of frame.trails) {
-    const past = trail.filter(([t]) => t <= scene.t);
-    const ahead = trail.filter(([t]) => t > scene.t);
-
-    // Both halves meet at the craft's position now.
-    if (past.length > 0 && ahead.length > 0) {
-      const [t1, x1, y1] = past[past.length - 1];
-      const [t2, x2, y2] = ahead[0];
-      const k = (scene.t - t1) / (t2 - t1);
-      const now: Trail[number] = [scene.t, x1 + (x2 - x1) * k, y1 + (y2 - y1) * k];
-
-      past.push(now);
-      ahead.unshift(now);
-    }
-
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([]);
-    polyline(
-      ctx,
-      past.map(([, x, y]) => screen(x, y)),
-    );
-    ctx.lineWidth = 1.25;
-    ctx.setLineDash([5, 5]);
-    ctx.globalAlpha = 0.7;
-    polyline(
-      ctx,
-      ahead.map(([, x, y]) => screen(x, y)),
-    );
-    ctx.globalAlpha = 1;
-  }
-  ctx.setLineDash([]);
+  ctx.globalAlpha = 0.4;
+  for (const trail of frame.hoverTrails) drawTrail(ctx, trail, scene.t, screen);
+  ctx.globalAlpha = 1;
+  for (const trail of frame.trails) drawTrail(ctx, trail, scene.t, screen);
 
   // Planets, dwarf planets, asteroids and comets, with a count of the craft
   // at each.
@@ -237,21 +287,25 @@ export function drawMap(frame: Frame): Hit[] {
     const dwarf = DWARF_PLANETS.includes(body.slug);
     const highlighted =
       same(hovered, "body", body.slug) || selectedBody === body.slug;
+    const target: Target = { kind: "body", slug: body.slug };
     const [x, y] = screen(body.position[0], body.position[1]);
 
     if (!onScreen(size, x, y, 40)) {
       if (planet || body.slug === "pluto") {
         const edge = edgePoint(size, insets, x, y);
+        const reach = Math.hypot(body.position[0], body.position[1]);
 
+        drawEdgeArrow(ctx, edge, highlighted ? palette.accent : palette.muted);
+        hits.push({ ...target, x: edge.x, y: edge.y, radius: 14, reach });
         labels.push({
           text: `${names[body.slug]} · ${formatDistance(fromSun(body.position))}`,
           ...edgeLabel(edge, size),
-          y: edge.y - Math.sin(edge.angle) * 12,
-          font: `10px ${palette.mono}`,
-          color: palette.muted,
-          priority: 20,
+          font: `11px ${palette.mono}`,
+          color: highlighted ? palette.foreground : palette.muted,
+          priority: highlighted ? 90 : 20,
+          target,
+          reach,
         });
-        drawEdgeArrow(ctx, edge, palette.muted);
       }
       continue;
     }
@@ -266,7 +320,8 @@ export function drawMap(frame: Frame): Hit[] {
       continue;
     }
 
-    const radius = planet ? (["jupiter", "saturn"].includes(body.slug) ? 6 : 4.5) : dwarf ? 3 : 2;
+    const radius =
+      PLANET_RADIUS[body.slug] ?? (dwarf ? DWARF_RADIUS : SMALL_BODY_RADIUS);
 
     ctx.fillStyle = planet || dwarf ? palette.foreground : palette.muted;
     ctx.beginPath();
@@ -276,53 +331,56 @@ export function drawMap(frame: Frame): Hit[] {
 
     if (highlighted) {
       ctx.strokeStyle = palette.accent;
-      ctx.lineWidth = 1.5;
-      ring(ctx, x, y, radius + 4);
+      ctx.lineWidth = 2;
+      ring(ctx, x, y, radius + 5);
     }
 
-    let right = radius + 5;
+    let right = radius + 6;
 
     if (body.craft.length > 0) {
       const text = String(body.craft.length);
 
-      ctx.font = `500 10px ${palette.mono}`;
+      ctx.font = `500 11px ${palette.mono}`;
 
-      const width = ctx.measureText(text).width + 10;
-      const left = x + radius + 5;
+      const width = ctx.measureText(text).width + 12;
+      const left = x + radius + 6;
       const anyActive = body.craft.some(({ status }) => status === "ACTIVE");
 
       ctx.fillStyle = palette.surface;
       ctx.strokeStyle = anyActive ? palette.active : palette.borderStrong;
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.roundRect(left, y - 8, width, 16, 8);
+      ctx.roundRect(left, y - 9, width, 18, 9);
       ctx.fill();
       ctx.stroke();
       ctx.fillStyle = palette.foreground;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(text, left + width / 2, y + 0.5);
-      taken.push({ left, top: y - 8, right: left + width, bottom: y + 8 });
-      hits.push({
-        kind: "body",
-        slug: body.slug,
-        x: left + width / 2,
-        y,
-        radius: 12,
-      });
-      right = left + width + 5 - x;
+      taken.push({ left, top: y - 9, right: left + width, bottom: y + 9 });
+      hits.push({ ...target, x: left + width / 2, y, radius: 13 });
+      right = left + width + 6 - x;
     }
 
-    hits.push({ kind: "body", slug: body.slug, x, y, radius: radius + 9 });
+    hits.push({ ...target, x, y, radius: radius + 10 });
     labels.push({
       text: names[body.slug],
       x,
       y,
       right,
-      left: radius + 5,
-      font: `${planet ? 12 : 11}px ${palette.sans}`,
+      left: radius + 6,
+      font: `${planet ? 13 : 12}px ${palette.sans}`,
       color: planet || dwarf ? palette.foreground : palette.muted,
-      priority: highlighted ? 95 : planet ? 80 : body.craft.length > 0 ? 70 : dwarf ? 50 : 30,
+      priority: highlighted
+        ? 95
+        : planet
+          ? 80
+          : body.craft.length > 0
+            ? 70
+            : dwarf
+              ? 50
+              : 30,
+      target,
     });
   }
 
@@ -333,67 +391,72 @@ export function drawMap(frame: Frame): Hit[] {
     const highlighted = selected || same(hovered, "craft", craft.slug);
     const ended = craft.status !== "ACTIVE";
     const colour = statusColour(palette, craft.status);
+    const target: Target = { kind: "craft", slug: craft.slug };
 
-    if (!onScreen(size, x, y, 6)) {
+    if (!onScreen(size, x, y, 8)) {
       const edge = edgePoint(size, insets, x, y);
+      const reach = Math.hypot(position[0], position[1]);
 
       ctx.globalAlpha = ended && !highlighted ? 0.55 : 1;
       drawEdgeArrow(ctx, edge, colour);
       ctx.globalAlpha = 1;
-      hits.push({
-        kind: "craft",
-        slug: craft.slug,
-        x: edge.x,
-        y: edge.y,
-        radius: 12,
-      });
+      hits.push({ ...target, x: edge.x, y: edge.y, radius: 14, reach });
       labels.push({
         text: `${craft.name} · ${formatDistance(fromSun(position))}`,
         ...edgeLabel(edge, size),
-        y: edge.y - Math.sin(edge.angle) * 12,
-        font: `10px ${palette.mono}`,
+        font: `11px ${palette.mono}`,
         color: highlighted ? palette.foreground : palette.muted,
         priority: highlighted ? 90 : ended ? 15 : 25,
+        target,
+        reach,
       });
       continue;
     }
 
     ctx.globalAlpha = ended && !highlighted ? 0.55 : 1;
     ctx.fillStyle = colour;
-    diamond(ctx, x, y, highlighted ? 5.5 : 4.5);
+    diamond(ctx, x, y, highlighted ? CRAFT_RADIUS + 1.5 : CRAFT_RADIUS);
     ctx.fill();
     ctx.globalAlpha = 1;
-    around(x, y, 5);
+    around(x, y, CRAFT_RADIUS + 1);
 
     if (highlighted) {
       ctx.strokeStyle = palette.accent;
-      ctx.lineWidth = 1.5;
-      ring(ctx, x, y, 9);
+      ctx.lineWidth = 2;
+      ring(ctx, x, y, CRAFT_RADIUS + 6);
     }
 
-    hits.push({ kind: "craft", slug: craft.slug, x, y, radius: 11 });
+    hits.push({ ...target, x, y, radius: CRAFT_RADIUS + 8 });
 
-    if (ended && !highlighted && camera.scale < ENDED_LABEL_SCALE) continue;
+    if (
+      ended &&
+      !highlighted &&
+      fromSun(position) < CROWDED_AU &&
+      camera.scale < ENDED_LABEL_SCALE
+    ) {
+      continue;
+    }
 
     labels.push({
       text: craft.name,
       x,
       y,
-      right: 9,
-      left: 9,
-      font: `11px ${palette.sans}`,
+      right: CRAFT_RADIUS + 6,
+      left: CRAFT_RADIUS + 6,
+      font: `12px ${palette.sans}`,
       color: ended && !highlighted ? palette.muted : palette.foreground,
       priority: highlighted ? 100 : ended ? 40 : 60,
+      target,
     });
   }
 
-  drawLabels(ctx, labels, taken);
+  hits.push(...drawLabels(ctx, size, labels, taken));
 
   return hits;
 }
 
-// A small triangle at the edge of the screen pointing towards something out
-// of view.
+// A triangle at the edge of the screen pointing towards something out of
+// view.
 function drawEdgeArrow(
   ctx: CanvasRenderingContext2D,
   edge: { x: number; y: number; angle: number },
@@ -404,24 +467,31 @@ function drawEdgeArrow(
   ctx.rotate(edge.angle);
   ctx.fillStyle = colour;
   ctx.beginPath();
-  ctx.moveTo(6, 0);
-  ctx.lineTo(-4, -4.5);
-  ctx.lineTo(-4, 4.5);
+  ctx.moveTo(8, 0);
+  ctx.lineTo(-5, -6);
+  ctx.lineTo(-5, 6);
   ctx.closePath();
   ctx.fill();
   ctx.restore();
 }
 
 // Draws labels from most to least important. Each goes on its preferred
-// side if that is clear of dots, badges and earlier labels, else on the other
-// side, else not at all.
+// side if that is on screen and clear of dots, badges, controls and earlier
+// labels, else on the other side, else not at all. Returns the drawn labels
+// that can be clicked.
 function drawLabels(
   ctx: CanvasRenderingContext2D,
+  size: Size,
   labels: Label[],
   taken: Box[],
 ) {
   const placed = [...taken];
+  const hits: Hit[] = [];
   const clear = (box: Box) =>
+    box.left >= 0 &&
+    box.right <= size.width &&
+    box.top >= 0 &&
+    box.bottom <= size.height &&
     !placed.some(
       (other) =>
         box.left < other.right &&
@@ -445,9 +515,9 @@ function drawLabels(
     for (const start of options) {
       const box = {
         left: start - 2,
-        top: label.y - 7,
+        top: label.y - 8,
         right: start + width + 2,
-        bottom: label.y + 7,
+        bottom: label.y + 8,
       };
 
       if (!clear(box)) continue;
@@ -455,7 +525,20 @@ function drawLabels(
       placed.push(box);
       ctx.fillStyle = label.color;
       ctx.fillText(label.text, start, label.y);
+
+      if (label.target) {
+        hits.push({
+          ...label.target,
+          x: (box.left + box.right) / 2,
+          y: label.y,
+          radius: 0,
+          box,
+          reach: label.reach,
+        });
+      }
       break;
     }
   }
+
+  return hits;
 }

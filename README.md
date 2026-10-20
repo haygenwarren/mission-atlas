@@ -11,7 +11,7 @@ Mission Atlas is an archive of robotic planetary science and astrophysics missio
 
 ## Features
 
-- **Map:** where every spacecraft is right now, on a true-scale map of the solar system. Drag, scroll or pinch to move around. Hover over a craft for its distance from the Sun and from Earth, and click it to see its mission's route so far and the path still ahead. Craft at the same planet are counted on a badge, and clicking the badge lists them.
+- **Map:** where every spacecraft is right now, on a true-scale map of the solar system. Drag, scroll or pinch to move around. Hover over a craft for its distance from the Sun and from Earth and a faint outline of its route; click it to show the route in full, solid so far and dashed ahead. Craft at the same planet are counted on a badge, and clicking the badge lists them. Markers at the edge point to things out of view; clicking one zooms out to it.
 - **Archive:** search across missions, spacecraft, agencies and destinations, and filter by status, agency, destination, spacecraft type and builder. Results sort by launch date or name and come in pages of 24.
 - **Mission pages:** launch time to the second, last contact, end declared, duration and destinations, then a tile for each spacecraft with its mass, size, power source, builder and its own status.
 - **Linked facts:** every agency, destination, spacecraft type and builder links to the archive filtered by it.
@@ -21,7 +21,7 @@ Mission Atlas is an archive of robotic planetary science and astrophysics missio
 | --- | --- |
 | ![Cassini-Huygens mission page](docs/screenshots/mission.png) | ![Archive filtered to Mars missions](docs/screenshots/archive.png) |
 
-![The map, out to Jupiter, with the pointer over Lucy](docs/screenshots/map.png)
+![The map, out to Jupiter](docs/screenshots/map.png)
 
 ## How it works
 
