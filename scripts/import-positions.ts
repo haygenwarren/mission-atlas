@@ -12,6 +12,7 @@ import {
   placements,
   type BodySlug,
   type Days,
+  type MoonSlug,
   type Elements,
   type PositionsSnapshot,
   type RoutePoint,
@@ -43,6 +44,12 @@ const NEAR_KM = 1_000;
 const FAR_KM = 75_000;
 const NEAR_DAYS_BEFORE = 90;
 const NEAR_DAYS_AFTER = 730;
+
+// Moons are drawn only as they are now, so their orbits are fitted closely
+// for a shorter span: from a month back to six months ahead. The daily
+// refresh keeps it current.
+const MOON_DAYS_BEFORE = 31;
+const MOON_DAYS_AFTER = 183;
 
 // Fits are checked at the times Horizons gave positions for, but the map
 // needs positions in between too, so they aim this far inside the targets.
@@ -103,6 +110,17 @@ const HORIZONS_BODIES: Record<BodySlug, string> = {
   "67p-churyumov-gerasimenko": "DES=67P;CAP;NOFRAG",
   "wild-2": "DES=81P;CAP;NOFRAG",
   "hartley-2": "DES=103P;CAP;NOFRAG",
+};
+
+// Each moon in Horizons, and the centre of the planet it circles.
+const HORIZONS_MOONS: Record<MoonSlug, [command: string, center: string]> = {
+  moon: ["301", EARTH],
+  io: ["501", "500@599"],
+  europa: ["502", "500@599"],
+  ganymede: ["503", "500@599"],
+  callisto: ["504", "500@599"],
+  titan: ["606", "500@699"],
+  enceladus: ["602", "500@699"],
 };
 
 const MONTHS = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
@@ -387,6 +405,48 @@ async function fitBody(
   return result.series;
 }
 
+// Fits a moon's orbits around its planet: closely through the moon span,
+// from orbits a day apart checked every six hours (Io goes round Jupiter in
+// under two days), and elsewhere from orbits `step` apart, with any further
+// checks given.
+async function fitMoon(
+  name: string,
+  window: { first: string; stop: string },
+  moonSpan: { start: string; stop: string },
+  tolerance: Tolerance,
+  step = "365d",
+  extraChecks: Check[] = [],
+) {
+  const [command, center] = HORIZONS_MOONS[name as MoonSlug];
+  const candidates = uniqueByTime(
+    [
+      ...(await candidateOrbits(command, center, window.first, window.stop, step)),
+      ...(await candidateOrbits(
+        command,
+        center,
+        moonSpan.start,
+        moonSpan.stop,
+        "1d",
+      )),
+    ].sort(byTime),
+  );
+  const checked = [
+    ...extraChecks,
+    ...(await checks(command, center, moonSpan.start, moonSpan.stop, "6h")),
+  ].sort(byTime);
+  const { series, rough } = fit(candidates, checked, tolerance);
+
+  for (const { km, at } of rough) {
+    const date = isoDay(new Date((at + 10_957.5) * 86_400_000));
+
+    console.warn(
+      `${name}: within ${km.toLocaleString("en-GB")} km at best around ${date}`,
+    );
+  }
+
+  return series;
+}
+
 function uniqueByTime<T extends Timed>(items: T[]) {
   return items.filter((item, i) => i === 0 || item[0] !== items[i - 1][0]);
 }
@@ -646,7 +706,9 @@ function serialise(snapshot: PositionsSnapshot) {
     `  "until": ${snapshot.until},`,
     `  "accuracy": ${JSON.stringify(snapshot.accuracy)},`,
     `  "bodies": {\n${block(snapshot.bodies)}\n  },`,
-    `  "moon": ${JSON.stringify(snapshot.moon)},`,
+    `  "moonsFrom": ${snapshot.moonsFrom},`,
+    `  "moonsUntil": ${snapshot.moonsUntil},`,
+    `  "moons": {\n${block(snapshot.moons)}\n  },`,
     `  "routes": {\n${block(snapshot.routes)}\n  }`,
     "}",
     "",
@@ -688,20 +750,34 @@ async function main() {
   const aim: Tolerance = (t) => MARGIN * tolerance(t);
 
   const window = { first: FIRST_DAY, stop, near };
+  const moonStart = addDays(month, -MOON_DAYS_BEFORE);
+  const moonStop = addDays(month, MOON_DAYS_AFTER);
+  const moonSpan = { start: isoDay(moonStart), stop: isoDay(moonStop) };
+  const moonsFrom = daysSinceJ2000(moonStart);
+  const moonsUntil = daysSinceJ2000(moonStop);
+  const inMoonSpan = (t: Days) => t >= moonsFrom && t <= moonsUntil;
 
-  // The Moon first, since Earth's position depends on it. A miss in the
-  // Moon's position moves Earth by only MOON_SHARE of it, so the Moon may be
-  // that much further off, with half of Earth's tolerance to spend.
-  const moon = await fitBody(
+  // The Moon first, since Earth's position depends on it. It is drawn to
+  // the usual accuracy through the moon span. Elsewhere it only has to place
+  // Earth, and a miss in the Moon's position moves Earth by only MOON_SHARE
+  // of it, so it may be that much further off, with half of Earth's
+  // tolerance to spend.
+  const moons = {} as Record<MoonSlug, Elements[]>;
+
+  moons.moon = await fitMoon(
     "moon",
-    "301",
-    EARTH,
-    "301",
     window,
-    (t) => aim(t) / (2 * MOON_SHARE),
+    moonSpan,
+    (t) => (inMoonSpan(t) ? aim(t) : aim(t) / (2 * MOON_SHARE)),
+    "2d",
+    [
+      ...(await checks("301", EARTH, FIRST_DAY, stop, "5d")),
+      ...(await checks("301", EARTH, near.start, near.stop, "1d")),
+    ],
   );
+  console.log(`moon: ${moons.moon.length} orbits`);
 
-  console.log(`moon: ${moon.length} orbits`);
+  const moon = moons.moon;
 
   const bodies = {} as Record<BodySlug, Elements[]>;
 
@@ -728,6 +804,16 @@ async function main() {
       earth ? earthWith : orbitPosition,
     );
     console.log(`${slug}: ${bodies[body].length} orbits`);
+  }
+
+  // The other moons only matter as they are now: rough elsewhere.
+  for (const slug of Object.keys(HORIZONS_MOONS) as MoonSlug[]) {
+    if (slug === "moon") continue;
+
+    moons[slug] = await fitMoon(slug, window, moonSpan, (t) =>
+      inMoonSpan(t) ? aim(t) : Infinity,
+    );
+    console.log(`${slug}: ${moons[slug].length} orbits`);
   }
 
   // Craft that share a Horizons entry (a lander listed under its carrier)
@@ -784,7 +870,7 @@ async function main() {
       ? untilArrival(
           daily,
           ([t, x, y, z]) =>
-            distance([x, y, z], bodyPosition({ bodies, moon }, body, t)) <=
+            distance([x, y, z], bodyPosition({ bodies, moons }, body, t)) <=
             reach,
         )
       : daily;
@@ -848,14 +934,16 @@ async function main() {
       farKm: FAR_KM,
     },
     bodies,
-    moon,
+    moonsFrom: round(moonsFrom, 1),
+    moonsUntil: round(moonsUntil, 1),
+    moons,
     routes,
   });
 
   await writeFile(OUTPUT, text);
 
   console.log(
-    `Saved ${Object.keys(bodies).length} bodies, the Moon and ${Object.keys(routes).length} routes to public/positions.json (${Math.round(text.length / 1024)} KB).`,
+    `Saved ${Object.keys(bodies).length} bodies, ${Object.keys(moons).length} moons and ${Object.keys(routes).length} routes to public/positions.json (${Math.round(text.length / 1024)} KB).`,
   );
 }
 

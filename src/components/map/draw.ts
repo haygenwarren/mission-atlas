@@ -4,9 +4,10 @@ import {
   PLANETS,
   formatDistance,
   fromSun,
+  type MapCraft,
   type Scene,
 } from "@/lib/map-scene";
-import type { BodySlug, Vec3 } from "@/lib/orbits";
+import type { BodySlug, MoonSlug, PlaceSlug, Vec3 } from "@/lib/orbits";
 import { toScreen, type Camera, type Size } from "./camera";
 
 // Theme colours and fonts, read from the page's CSS so the map follows the
@@ -28,7 +29,7 @@ export type Palette = {
 
 export type Target =
   | { kind: "craft"; slug: string }
-  | { kind: "body"; slug: BodySlug };
+  | { kind: "body"; slug: PlaceSlug };
 
 export type Box = { left: number; top: number; right: number; bottom: number };
 
@@ -54,11 +55,13 @@ export type Frame = {
   palette: Palette;
   names: Record<string, string>;
   orbits: { slug: BodySlug; points: Vec3[] }[];
+  // Each moon's orbit, around its planet.
+  moonOrbits: { slug: MoonSlug; points: Vec3[] }[];
   hovered: Target | null;
   // A mission hovered in the list, highlighted like a hovered craft.
   hoveredMission: string | null;
   selectedMission: string | null;
-  selectedBody: BodySlug | null;
+  selectedBody: PlaceSlug | null;
   // The selected mission's routes, drawn in full, and the hovered one's,
   // drawn faintly.
   trails: Trail[];
@@ -94,23 +97,31 @@ const PLANET_RADIUS: Partial<Record<BodySlug, number>> = {
   neptune: 7,
 };
 const DWARF_RADIUS = 4;
+const MOON_RADIUS = 3.5;
+
+// A moon is drawn apart from its planet once it would be this many pixels
+// away; closer than that, its missions are counted in the planet's badge.
+const SPLIT_PX = 36;
 const SMALL_BODY_RADIUS = 3;
 const CRAFT_RADIUS = 6;
 
 // How each kind of label is set, as on a printed map: planets in wide
 // capitals, asteroids and comets in italics, spacecraft plainly, and the
 // markers at the edge in monospace.
-type LabelStyle = "planet" | "small-body" | "craft" | "edge";
+type LabelStyle = "planet" | "moon" | "small-body" | "craft" | "edge";
 
 function setLabelFont(
   ctx: CanvasRenderingContext2D,
   style: LabelStyle,
   palette: Palette,
 ) {
-  ctx.letterSpacing = style === "planet" ? "1.5px" : "0px";
-  ctx.fontStretch = style === "planet" ? "expanded" : "normal";
+  const caps = style === "planet" || style === "moon";
+
+  ctx.letterSpacing = style === "planet" ? "1.5px" : caps ? "1px" : "0px";
+  ctx.fontStretch = caps ? "expanded" : "normal";
   ctx.font = {
     planet: `600 13px ${palette.sans}`,
+    moon: `600 11px ${palette.sans}`,
     "small-body": `italic 12px ${palette.sans}`,
     craft: `12px ${palette.sans}`,
     edge: `11px ${palette.mono}`,
@@ -266,6 +277,72 @@ export function drawMap(frame: Frame): Hit[] {
     taken.push({ left: x - r, top: y - r, right: x + r, bottom: y + r });
   const screen = (x: number, y: number) => toScreen(camera, size, x, y);
 
+  // A count of the missions at a place, starting at `left`; it pulses if any
+  // of them is active. Returns where the badge ends.
+  const badge = (target: Target, left: number, y: number, here: MapCraft[]) => {
+    const text = String(new Set(here.map(({ mission }) => mission.slug)).size);
+
+    ctx.letterSpacing = "0px";
+    ctx.fontStretch = "normal";
+    ctx.font = `500 11px ${palette.mono}`;
+
+    const width = ctx.measureText(text).width + 12;
+    const anyActive = here.some(({ status }) => status === "ACTIVE");
+
+    if (anyActive && frame.pulse !== null) {
+      const grow = frame.pulse * 7;
+
+      ctx.strokeStyle = palette.active;
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.45 * (1 - frame.pulse);
+      ctx.beginPath();
+      ctx.roundRect(
+        left - grow,
+        y - 9 - grow,
+        width + 2 * grow,
+        18 + 2 * grow,
+        9 + grow,
+      );
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    ctx.fillStyle = palette.surface;
+    ctx.strokeStyle = anyActive ? palette.active : palette.borderStrong;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(left, y - 9, width, 18, 9);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = palette.foreground;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, left + width / 2, y + 0.5);
+    taken.push({ left, top: y - 9, right: left + width, bottom: y + 9 });
+    hits.push({ ...target, x: left + width / 2, y, radius: 13 });
+
+    return left + width;
+  };
+
+  // Moons far enough from their planet on screen are drawn on their own;
+  // the craft at the rest are counted with their planet.
+  const planetAt = new Map(scene.bodies.map((body) => [body.slug, body]));
+  const apart = new Set<MoonSlug>();
+  const merged = new Map<BodySlug, MapCraft[]>();
+
+  for (const moon of scene.moons) {
+    const parent = planetAt.get(moon.parent)!.position;
+    const gap =
+      Math.hypot(moon.position[0] - parent[0], moon.position[1] - parent[1]) *
+      camera.scale;
+
+    if (gap >= SPLIT_PX) {
+      apart.add(moon.slug);
+    } else {
+      merged.set(moon.parent, [...(merged.get(moon.parent) ?? []), ...moon.craft]);
+    }
+  }
+
   ctx.fillStyle = palette.background;
   ctx.fillRect(0, 0, size.width, size.height);
 
@@ -285,6 +362,21 @@ export function drawMap(frame: Frame): Hit[] {
     );
   }
   ctx.setLineDash([]);
+
+  // Orbits of the moons drawn apart, around their planets.
+  ctx.lineWidth = 1;
+  ctx.globalAlpha = 0.6;
+  for (const { slug, points } of frame.moonOrbits) {
+    if (!apart.has(slug)) continue;
+
+    const [px, py] = planetAt.get(scene.moons.find((m) => m.slug === slug)!.parent)!
+      .position;
+
+    polyline(
+      ctx,
+      points.map(([x, y]) => screen(px + x, py + y)),
+    );
+  }
   ctx.globalAlpha = 1;
 
   // The Sun.
@@ -333,9 +425,9 @@ export function drawMap(frame: Frame): Hit[] {
   for (const body of scene.bodies) {
     const planet = PLANETS.includes(body.slug);
     const dwarf = DWARF_PLANETS.includes(body.slug);
+    const here = [...body.craft, ...(merged.get(body.slug) ?? [])];
     const holds = (mission: string | null) =>
-      mission !== null &&
-      body.craft.some((craft) => craft.mission.slug === mission);
+      mission !== null && here.some((craft) => craft.mission.slug === mission);
     const highlighted =
       same(hovered, "body", body.slug) ||
       selectedBody === body.slug ||
@@ -367,7 +459,7 @@ export function drawMap(frame: Frame): Hit[] {
     if (
       !planet &&
       !dwarf &&
-      body.craft.length === 0 &&
+      here.length === 0 &&
       !highlighted &&
       camera.scale < SMALL_BODY_SCALE
     ) {
@@ -391,51 +483,8 @@ export function drawMap(frame: Frame): Hit[] {
 
     let right = radius + 6;
 
-    if (body.craft.length > 0) {
-      const missions = new Set(body.craft.map(({ mission }) => mission.slug));
-      const text = String(missions.size);
-
-      ctx.letterSpacing = "0px";
-      ctx.fontStretch = "normal";
-      ctx.font = `500 11px ${palette.mono}`;
-
-      const width = ctx.measureText(text).width + 12;
-      const left = x + radius + 6;
-      const anyActive = body.craft.some(({ status }) => status === "ACTIVE");
-
-      // The badge of a body with an active mission pulses too.
-      if (anyActive && frame.pulse !== null) {
-        const grow = frame.pulse * 7;
-
-        ctx.strokeStyle = palette.active;
-        ctx.lineWidth = 1.5;
-        ctx.globalAlpha = 0.45 * (1 - frame.pulse);
-        ctx.beginPath();
-        ctx.roundRect(
-          left - grow,
-          y - 9 - grow,
-          width + 2 * grow,
-          18 + 2 * grow,
-          9 + grow,
-        );
-        ctx.stroke();
-        ctx.globalAlpha = 1;
-      }
-
-      ctx.fillStyle = palette.surface;
-      ctx.strokeStyle = anyActive ? palette.active : palette.borderStrong;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.roundRect(left, y - 9, width, 18, 9);
-      ctx.fill();
-      ctx.stroke();
-      ctx.fillStyle = palette.foreground;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(text, left + width / 2, y + 0.5);
-      taken.push({ left, top: y - 9, right: left + width, bottom: y + 9 });
-      hits.push({ ...target, x: left + width / 2, y, radius: 13 });
-      right = left + width + 6 - x;
+    if (here.length > 0) {
+      right = badge(target, x + radius + 6, y, here) + 6 - x;
     }
 
     hits.push({ ...target, x, y, radius: radius + 10 });
@@ -451,11 +500,64 @@ export function drawMap(frame: Frame): Hit[] {
         ? 95
         : planet
           ? 80
-          : body.craft.length > 0
+          : here.length > 0
             ? 70
             : dwarf
               ? 50
               : 30,
+      target,
+    });
+  }
+
+  // Moons with room to be drawn apart from their planet, each with a count of
+  // the missions at it.
+  for (const moon of scene.moons) {
+    if (!apart.has(moon.slug)) continue;
+
+    const [x, y] = screen(moon.position[0], moon.position[1]);
+
+    if (!onScreen(size, x, y, 40)) continue;
+
+    const holds = (mission: string | null) =>
+      mission !== null &&
+      moon.craft.some((craft) => craft.mission.slug === mission);
+    const highlighted =
+      same(hovered, "body", moon.slug) ||
+      selectedBody === moon.slug ||
+      holds(selectedMission) ||
+      holds(hoveredMission);
+    const target: Target = { kind: "body", slug: moon.slug };
+
+    ctx.fillStyle = palette.foreground;
+    ctx.globalAlpha = 0.85;
+    ctx.beginPath();
+    ctx.arc(x, y, MOON_RADIUS, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    around(x, y, MOON_RADIUS + 1);
+
+    if (highlighted) {
+      ctx.strokeStyle = palette.accent;
+      ctx.lineWidth = 2;
+      ring(ctx, x, y, MOON_RADIUS + 5);
+    }
+
+    let right = MOON_RADIUS + 6;
+
+    if (moon.craft.length > 0) {
+      right = badge(target, x + MOON_RADIUS + 6, y, moon.craft) + 6 - x;
+    }
+
+    hits.push({ ...target, x, y, radius: MOON_RADIUS + 10 });
+    labels.push({
+      text: names[moon.slug].toUpperCase(),
+      x,
+      y,
+      right,
+      left: MOON_RADIUS + 6,
+      style: "moon",
+      color: palette.foreground,
+      priority: highlighted ? 95 : moon.craft.length > 0 ? 72 : 45,
       target,
     });
   }

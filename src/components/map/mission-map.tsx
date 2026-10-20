@@ -6,6 +6,7 @@ import StatusBadge from "@/components/status-badge";
 import type { DestinationKind, Status } from "@/generated/prisma/enums";
 import { statusLabels } from "@/lib/missions";
 import {
+  MOON_NAMES,
   PLANETS,
   buildScene,
   dayToDate,
@@ -21,8 +22,13 @@ import {
   bodyPosition,
   daysSinceJ2000,
   distance,
+  MOONS,
+  isMoon,
+  moonPosition,
   orbitOutline,
   type BodySlug,
+  type MoonSlug,
+  type PlaceSlug,
   type Days,
   type PositionsSnapshot,
   type Vec3,
@@ -58,11 +64,12 @@ import MissionList, {
 
 type Selection =
   | { kind: "mission"; slug: string }
-  | { kind: "body"; slug: BodySlug };
+  | { kind: "body"; slug: PlaceSlug };
 
 type Data = {
   snapshot: PositionsSnapshot;
   orbits: { slug: BodySlug; points: Vec3[] }[];
+  moonOrbits: { slug: MoonSlug; points: Vec3[] }[];
 };
 
 type Props = {
@@ -245,21 +252,21 @@ function focusOn(
   area: Box,
 ): Camera | null {
   const scene = buildScene(snapshot, craft, t);
-  const positions =
-    selection.kind === "body"
-      ? scene.bodies
-          .filter(({ slug }) => slug === selection.slug)
-          .map(({ position }) => position)
+  const holds = (here: MapCraft[]) =>
+    here.some(({ mission }) => mission.slug === selection.slug);
+  const moons = scene.moons.filter((moon) =>
+    selection.kind === "body" ? moon.slug === selection.slug : holds(moon.craft),
+  );
+  const positions = [
+    ...(selection.kind === "body"
+      ? scene.bodies.filter(({ slug }) => slug === selection.slug)
       : [
-          ...scene.free
-            .filter(({ craft: one }) => one.mission.slug === selection.slug)
-            .map(({ position }) => position),
-          ...scene.bodies
-            .filter(({ craft: here }) =>
-              here.some(({ mission }) => mission.slug === selection.slug),
-            )
-            .map(({ position }) => position),
-        ];
+          ...scene.free.filter(({ craft: one }) => one.mission.slug === selection.slug),
+          ...scene.bodies.filter(({ craft: here }) => holds(here)),
+        ]
+    ).map(({ position }) => position),
+    ...moons.map(({ position }) => position),
+  ];
 
   if (positions.length === 0) return null;
 
@@ -271,10 +278,24 @@ function focusOn(
     Math.max(...xs) - Math.min(...xs),
     Math.max(...ys) - Math.min(...ys),
   );
-  const radius = Math.max(
-    spread * 0.7,
-    Math.min(40, Math.max(0.3, Math.hypot(x, y) * 0.25)),
+  // A moon is shown close enough in to see it apart from its planet.
+  const moonReach = Math.max(
+    0,
+    ...moons.map(
+      ({ position, parent }) =>
+        distance(
+          position,
+          scene.bodies.find(({ slug }) => slug === parent)!.position,
+        ) * 1.4,
+    ),
   );
+  const radius =
+    moons.length > 0
+      ? Math.max(spread * 0.7, moonReach)
+      : Math.max(
+          spread * 0.7,
+          Math.min(40, Math.max(0.3, Math.hypot(x, y) * 0.25)),
+        );
   const { scale } = fitRadius(
     { width: area.right - area.left, height: area.bottom - area.top },
     radius,
@@ -384,14 +405,22 @@ function readSelection(
     return { kind: "mission", slug: mission };
   }
 
-  if (body && body in snapshot.bodies) {
-    return { kind: "body", slug: body as BodySlug };
+  if (body && (body in snapshot.bodies || isMoon(body))) {
+    return { kind: "body", slug: body as PlaceSlug };
   }
 
   return null;
 }
 
-export default function MissionMap({ craft, names, kinds }: Props) {
+export default function MissionMap({
+  craft,
+  names: placeNames,
+  kinds,
+}: Props) {
+  const names = useMemo(
+    () => ({ ...MOON_NAMES, ...placeNames }),
+    [placeNames],
+  );
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
@@ -531,9 +560,15 @@ export default function MissionMap({ craft, names, kinds }: Props) {
 
         setData({
           snapshot,
+          // Fine enough that a planet sits on its orbit line even zoomed
+          // in close enough to see its moons.
           orbits: ORBITS.map((slug) => ({
             slug,
-            points: orbitOutline(snapshot.bodies[slug], today),
+            points: orbitOutline(snapshot.bodies[slug], today, 2048),
+          })),
+          moonOrbits: (Object.keys(MOONS) as MoonSlug[]).map((slug) => ({
+            slug,
+            points: orbitOutline(snapshot.moons[slug], today, 180),
           })),
         });
         setNow(today);
@@ -669,6 +704,7 @@ export default function MissionMap({ craft, names, kinds }: Props) {
         palette: l.palette,
         names: l.names,
         orbits: l.data.orbits,
+        moonOrbits: l.data.moonOrbits,
         hovered: l.hovered,
         hoveredMission: l.hoveredMission,
         selectedMission:
@@ -928,6 +964,32 @@ export default function MissionMap({ craft, names, kinds }: Props) {
     }
   }
 
+  // Flies in until a planet's moons are spread out around it.
+  function zoomIntoMoons(planet: BodySlug) {
+    const v = view.current;
+
+    if (!data || !v.camera) return;
+
+    const t = daysSinceJ2000(new Date());
+    const centre = bodyPosition(data.snapshot, planet, t);
+    const reach = Math.max(
+      ...(Object.keys(MOONS) as MoonSlug[])
+        .filter((moon) => MOONS[moon] === planet)
+        .map((moon) => distance(moonPosition(data.snapshot, moon, t), centre)),
+    );
+    const area = openArea(v, panelRef.current, wrapRef.current);
+    const { scale } = fitRadius(
+      { width: area.right - area.left, height: area.bottom - area.top },
+      reach * 1.35,
+    );
+
+    fly(v, {
+      x: centre[0] - ((area.left + area.right) / 2 - v.size.width / 2) / scale,
+      y: centre[1] + ((area.top + area.bottom) / 2 - v.size.height / 2) / scale,
+      scale,
+    });
+  }
+
   // Choosing a mission in the list selects it and flies to it. On phones the
   // list, which covers the map, folds away first.
   function selectFromList(slug: string) {
@@ -1183,6 +1245,7 @@ export default function MissionMap({ craft, names, kinds }: Props) {
           names={names}
           kinds={kinds}
           snapshot={data!.snapshot}
+          onZoomMoons={zoomIntoMoons}
           onClose={() => setSelection(null)}
         />
       )}
@@ -1212,17 +1275,21 @@ function TooltipContent({
   names: Record<string, string>;
 }) {
   if (target.kind === "body") {
-    const body = scene.bodies.find(({ slug }) => slug === target.slug);
+    const body =
+      scene.bodies.find(({ slug }) => slug === target.slug) ??
+      scene.moons.find(({ slug }) => slug === target.slug);
 
     if (!body) return null;
 
-    const count = body.craft.length;
+    const count = new Set(body.craft.map(({ mission }) => mission.slug)).size;
 
     return (
       <>
         <p className="font-semibold">{names[body.slug]}</p>
         <p className="text-muted">
-          {count === 0 ? "No craft here" : `${count} craft here`}
+          {count === 0
+            ? "No missions here"
+            : `${count} mission${count === 1 ? "" : "s"} here`}
           {body.slug !== "earth" &&
             ` · ${formatDistance(distance(body.position, scene.earth))} from Earth`}
         </p>
@@ -1348,6 +1415,7 @@ function InfoCard({
   kinds,
   snapshot,
   onClose,
+  onZoomMoons,
 }: {
   selection: Selection;
   scene: Scene;
@@ -1356,6 +1424,7 @@ function InfoCard({
   kinds: Record<string, DestinationKind>;
   snapshot: PositionsSnapshot;
   onClose: () => void;
+  onZoomMoons: (planet: BodySlug) => void;
 }) {
   if (selection.kind === "mission") {
     const members = craft
@@ -1387,20 +1456,26 @@ function InfoCard({
     );
   }
 
-  const body = scene.bodies.find(({ slug }) => slug === selection.slug);
-  const here = body?.craft ?? [];
-  const title = names[selection.slug];
+  const place = selection.slug;
+  const body =
+    scene.bodies.find(({ slug }) => slug === place) ??
+    scene.moons.find(({ slug }) => slug === place);
   const fromEarth =
     body && body.slug !== "earth" ? distance(body.position, scene.earth) : null;
-  // One entry per mission, with its craft here listed beneath it.
-  const missions = [
-    ...new Map(here.map(({ mission }) => [mission.slug, mission])).values(),
-  ].sort(byActivity);
+  // A planet's card also lists the missions at each of its moons.
+  const moons = isMoon(place)
+    ? []
+    : scene.moons.filter(
+        ({ parent, craft: here }) => parent === place && here.length > 0,
+      );
+  const hasMoons = !isMoon(place) && Object.values(MOONS).includes(place as never);
 
   return (
     <Card
-      label={kindLabels[kinds[selection.slug]] ?? "Planet"}
-      title={title}
+      label={
+        isMoon(place) ? "Moon" : (kindLabels[kinds[place]] ?? "Planet")
+      }
+      title={names[place]}
       detail={
         fromEarth === null
           ? null
@@ -1408,66 +1483,103 @@ function InfoCard({
       }
       onClose={onClose}
     >
-      <p className="label-caps mt-5 text-muted">Craft here</p>
-
-      {missions.length === 0 && (
-        <p className="mt-2 text-sm text-muted">No spacecraft are here.</p>
+      {hasMoons && (
+        <button
+          type="button"
+          onClick={() => onZoomMoons(place as BodySlug)}
+          className="mt-3 rounded-lg border border-border-strong px-3 py-1.5 text-sm text-muted transition-colors hover:border-accent hover:text-foreground"
+        >
+          Zoom into its moons
+        </button>
       )}
 
-      <ul className="mt-3 space-y-4">
-        {missions.map((mission) => {
-          const members = here
-            .filter((one) => one.mission.slug === mission.slug)
-            .sort(byActivity);
-          // A mission with one craft here, named like the mission, needs no
-          // list: only where it is, if that is more exact than the body.
-          const lone = members.length === 1 && members[0].name === mission.name;
+      <p className="label-caps mt-5 text-muted">Craft here</p>
+      <MissionGroups here={body?.craft ?? []} title={names[place]} names={names} />
 
-          return (
-            <li key={mission.slug}>
-              <div className="flex items-start justify-between gap-3">
-                <Link
-                  href={`/missions/${mission.slug}`}
-                  className="font-semibold hover:text-accent hover:underline"
-                >
-                  {mission.name}
-                </Link>
-                <StatusBadge status={mission.status} />
-              </div>
-
-              {lone ? (
-                names[members[0].location] !== title && (
-                  <p className="mt-1 text-sm text-muted">
-                    {names[members[0].location]}
-                  </p>
-                )
-              ) : (
-                <ul className="mt-1.5 space-y-1">
-                  {members.map((one) => (
-                    <li
-                      key={one.slug}
-                      className="flex items-center gap-2 text-sm text-muted"
-                    >
-                      <span
-                        aria-hidden
-                        className={`h-2 w-2 shrink-0 rounded-full ${statusDots[one.status]}`}
-                      />
-                      <span>
-                        <span className="text-foreground">{one.name}</span>
-                        {names[one.location] !== title &&
-                          ` · ${names[one.location]}`}
-                        <span className="sr-only">
-                          , {statusLabels[one.status]}
-                        </span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+      {moons.map((moon) => (
+        <div key={moon.slug}>
+          <p className="label-caps mt-6 text-muted">
+            At {moon.slug === "moon" ? "the Moon" : names[moon.slug]}
+          </p>
+          <MissionGroups here={moon.craft} title={names[moon.slug]} names={names} />
+        </div>
+      ))}
     </Card>
+  );
+}
+
+// The craft at a place, one entry per mission with its craft beneath it.
+function MissionGroups({
+  here,
+  title,
+  names,
+}: {
+  here: MapCraft[];
+  title: string;
+  names: Record<string, string>;
+}) {
+  const missions = [
+    ...new Map(here.map(({ mission }) => [mission.slug, mission])).values(),
+  ].sort(byActivity);
+
+  if (missions.length === 0) {
+    return <p className="mt-2 text-sm text-muted">No spacecraft are here.</p>;
+  }
+
+  return (
+    <ul className="mt-3 space-y-4">
+      {missions.map((mission) => {
+        const members = here
+          .filter((one) => one.mission.slug === mission.slug)
+          .sort(byActivity);
+        // A mission with one craft here, named like the mission, needs no
+        // list: only where it is, if that is more exact than the place.
+        const lone = members.length === 1 && members[0].name === mission.name;
+
+        return (
+          <li key={mission.slug}>
+            <div className="flex items-start justify-between gap-3">
+              <Link
+                href={`/missions/${mission.slug}`}
+                className="font-semibold hover:text-accent hover:underline"
+              >
+                {mission.name}
+              </Link>
+              <StatusBadge status={mission.status} />
+            </div>
+
+            {lone ? (
+              names[members[0].location] !== title && (
+                <p className="mt-1 text-sm text-muted">
+                  {names[members[0].location]}
+                </p>
+              )
+            ) : (
+              <ul className="mt-1.5 space-y-1">
+                {members.map((one) => (
+                  <li
+                    key={one.slug}
+                    className="flex items-center gap-2 text-sm text-muted"
+                  >
+                    <span
+                      aria-hidden
+                      className={`h-2 w-2 shrink-0 rounded-full ${statusDots[one.status]}`}
+                    />
+                    <span>
+                      <span className="text-foreground">{one.name}</span>
+                      {names[one.location] !== title &&
+                        ` · ${names[one.location]}`}
+                      <span className="sr-only">
+                        , {statusLabels[one.status]}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
