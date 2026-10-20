@@ -24,7 +24,17 @@ export default async function MapPage() {
         horizonsId: true,
         lastContact: true,
         location: { select: { slug: true } },
-        mission: { select: { slug: true, name: true, status: true } },
+        mission: {
+          select: {
+            slug: true,
+            name: true,
+            status: true,
+            agencies: {
+              select: { abbreviation: true, name: true },
+              orderBy: { abbreviation: "asc" },
+            },
+          },
+        },
       },
       orderBy: { name: "asc" },
     }),

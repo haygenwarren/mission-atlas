@@ -38,7 +38,23 @@ import {
   type Camera,
   type Size,
 } from "./camera";
-import { drawMap, type Hit, type Palette, type Target, type Trail } from "./draw";
+import {
+  drawMap,
+  type Box,
+  type Hit,
+  type Palette,
+  type Target,
+  type Trail,
+} from "./draw";
+import MissionList, {
+  NO_FILTERS,
+  matches,
+  plain,
+  statusDots,
+  type Filters,
+  type ListMission,
+  type Where,
+} from "./mission-list";
 
 type Selection =
   | { kind: "mission"; slug: string }
@@ -66,7 +82,7 @@ const VIEWS = [
 ] as const;
 
 // Room left at the edges of the map. The bottom grows to clear the caption.
-const INSETS = { top: 18, bottom: 18, side: 18 };
+const INSETS = { top: 18, bottom: 18, left: 18, right: 18 };
 
 // Wheel zoom speeds, per pixel of scroll. A trackpad pinch arrives as many
 // small steps with ctrlKey set (in Chrome, Edge and Firefox), so it needs a
@@ -216,16 +232,17 @@ function missionTrails(
 }
 
 // A view of where the selected mission's craft, or the selected body, are
-// now: centred on them and showing their neighbourhood, a quarter of their
-// distance from the Sun across (at least 0.3 AU). They sit beside the info
-// card rather than under it: left of it on wide screens, above it on phones.
-// Null when nothing selected has a known position.
+// now: centred in `area` of the screen (the part not covered by the list and
+// the info card) and showing their neighbourhood, a quarter of their distance
+// from the Sun across (at least 0.3 AU). Null when nothing selected has a
+// known position.
 function focusOn(
   selection: Selection,
   craft: MapCraft[],
   snapshot: PositionsSnapshot,
   t: Days,
   size: Size,
+  area: Box,
 ): Camera | null {
   const scene = buildScene(snapshot, craft, t);
   const positions =
@@ -258,17 +275,101 @@ function focusOn(
     spread * 0.7,
     Math.min(40, Math.max(0.3, Math.hypot(x, y) * 0.25)),
   );
-  const view = fitRadius(size, radius, x, y);
-  const wide = size.width >= 640;
-  // Where on screen, from the centre, the target should end up.
-  const dx = wide ? -200 : 0;
-  const dy = wide ? 0 : -size.height * 0.275;
+  const { scale } = fitRadius(
+    { width: area.right - area.left, height: area.bottom - area.top },
+    radius,
+  );
 
   return {
-    ...view,
-    x: view.x - dx / view.scale,
-    y: view.y + dy / view.scale,
+    x: x - ((area.left + area.right) / 2 - size.width / 2) / scale,
+    y: y + ((area.top + area.bottom) / 2 - size.height / 2) / scale,
+    scale,
   };
+}
+
+// The part of the map not covered by the list or the info card, where a
+// flight should land its target. On phones the card covers the bottom half.
+function openArea(
+  v: View,
+  list: HTMLElement | null,
+  wrap: HTMLElement | null,
+): Box {
+  const { width, height } = v.size;
+
+  if (width < 640) {
+    return { left: 0, top: 0, right: width, bottom: height * 0.45 };
+  }
+
+  const box = list?.getBoundingClientRect();
+  const origin = wrap?.getBoundingClientRect();
+  const left = box && origin && box.width > 0 ? box.right - origin.left : 0;
+
+  return { left, top: 0, right: width - 416, bottom: height };
+}
+
+// The list rows: every mission, with where its craft are now, active first.
+function listMissions(
+  craft: MapCraft[],
+  snapshot: PositionsSnapshot,
+  t: Days,
+  names: Record<string, string>,
+): ListMission[] {
+  const missions = new Map<string, MapCraft[]>();
+
+  for (const one of craft) {
+    missions.set(one.mission.slug, [
+      ...(missions.get(one.mission.slug) ?? []),
+      one,
+    ]);
+  }
+
+  return [...missions.values()]
+    .map((members) => {
+      const mission = members[0].mission;
+      const places = new Set<Where>();
+      const where = new Set<string>();
+
+      for (const one of [...members].sort(byActivity)) {
+        const place = placeCraft(one, snapshot, t);
+
+        if (place.kind === "route") {
+          places.add("flight");
+          where.add(
+            `In flight · ${formatDistance(fromSun(place.position))} from the Sun`,
+          );
+        } else if (place.kind === "body") {
+          places.add(place.body === "earth" ? "earth" : "body");
+          where.add(names[one.location] ?? names[place.body]);
+        } else {
+          places.add("unknown");
+          where.add(
+            one.status === "ACTIVE"
+              ? "Waiting for tracking data"
+              : "Position unknown",
+          );
+        }
+      }
+
+      return {
+        slug: mission.slug,
+        name: mission.name,
+        status: mission.status,
+        agencies: mission.agencies.map(({ abbreviation }) => abbreviation),
+        where: [...where].join(", "),
+        places: [...places],
+        text: plain(
+          [
+            mission.name,
+            ...members.map(({ name }) => name),
+            ...mission.agencies.flatMap(({ abbreviation, name }) => [
+              abbreviation,
+              name,
+            ]),
+          ].join(" "),
+        ),
+      };
+    })
+    .sort(byActivity);
 }
 
 function readSelection(
@@ -302,12 +403,54 @@ export default function MissionMap({ craft, names, kinds }: Props) {
   const [now, setNow] = useState<Days | null>(null);
   const [hovered, setHovered] = useState<Target | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
+  const [filters, setFilters] = useState<Filters>(NO_FILTERS);
+  // A mission hovered in the list.
+  const [listHover, setListHover] = useState<string | null>(null);
+  // The list starts open on wide screens and folded on narrower ones, until
+  // the visitor opens or hides it.
+  const [panel, setPanel] = useState<"auto" | "open" | "closed">("auto");
+  const panelRef = useRef<HTMLElement>(null);
 
   const selectedMission = selection?.kind === "mission" ? selection.slug : null;
   const hoveredMission =
     hovered?.kind === "craft"
       ? (craft.find(({ slug }) => slug === hovered.slug)?.mission.slug ?? null)
-      : null;
+      : listHover;
+
+  // Every mission, where it is now, and the ones the filters let through.
+  const allRows = useMemo(
+    () =>
+      data && now !== null ? listMissions(craft, data.snapshot, now, names) : [],
+    [craft, data, now, names],
+  );
+  const rows = useMemo(
+    () => allRows.filter((row) => matches(row, filters)),
+    [allRows, filters],
+  );
+
+  // The map shows only the missions the filters let through, and always the
+  // selected one.
+  const shown = useMemo(() => {
+    if (!data) return craft;
+
+    const slugs = new Set(rows.map(({ slug }) => slug));
+
+    return craft.filter(
+      ({ mission }) => slugs.has(mission.slug) || mission.slug === selectedMission,
+    );
+  }, [craft, data, rows, selectedMission]);
+
+  const agencies = useMemo(
+    () =>
+      [
+        ...new Map(
+          craft.flatMap(({ mission }) =>
+            mission.agencies.map((agency) => [agency.abbreviation, agency]),
+          ),
+        ).values(),
+      ].sort((a, b) => a.abbreviation.localeCompare(b.abbreviation)),
+    [craft],
+  );
 
   // The selected mission's routes, drawn in full, and the hovered mission's,
   // drawn faintly.
@@ -327,16 +470,17 @@ export default function MissionMap({ craft, names, kinds }: Props) {
   );
 
   const scene = useMemo(
-    () => (data && now !== null ? buildScene(data.snapshot, craft, now) : null),
-    [craft, data, now],
+    () => (data && now !== null ? buildScene(data.snapshot, shown, now) : null),
+    [shown, data, now],
   );
 
   // Everything the drawing loop reads, refreshed after every render.
   const latest = useRef({
-    craft,
+    craft: shown,
     names,
     data,
     hovered,
+    hoveredMission,
     selection,
     trails,
     hoverTrails,
@@ -359,10 +503,11 @@ export default function MissionMap({ craft, names, kinds }: Props) {
   useEffect(() => {
     latest.current = {
       ...latest.current,
-      craft,
+      craft: shown,
       names,
       data,
       hovered,
+      hoveredMission,
       selection,
       trails,
       hoverTrails,
@@ -406,7 +551,14 @@ export default function MissionMap({ craft, names, kinds }: Props) {
 
             if (cancelled || v.moved || !v.camera) return;
 
-            const target = focusOn(selected, craft, snapshot, today, v.size);
+            const target = focusOn(
+              selected,
+              craft,
+              snapshot,
+              today,
+              v.size,
+              openArea(v, panelRef.current, wrapRef.current),
+            );
 
             if (target) fly(v, target);
           }, 600);
@@ -506,6 +658,7 @@ export default function MissionMap({ craft, names, kinds }: Props) {
       };
       const controls = overlay(controlsRef.current);
       const caption = overlay(captionRef.current);
+      const list = overlay(panelRef.current);
 
       v.scene = scene;
       v.hits = drawMap({
@@ -517,6 +670,7 @@ export default function MissionMap({ craft, names, kinds }: Props) {
         names: l.names,
         orbits: l.data.orbits,
         hovered: l.hovered,
+        hoveredMission: l.hoveredMission,
         selectedMission:
           l.selection?.kind === "mission" ? l.selection.slug : null,
         selectedBody: l.selection?.kind === "body" ? l.selection.slug : null,
@@ -526,10 +680,13 @@ export default function MissionMap({ craft, names, kinds }: Props) {
         // lines it wraps to.
         insets: {
           ...INSETS,
-          bottom: caption ? Math.max(INSETS.bottom, height - caption.top + 6) : INSETS.bottom,
+          bottom: caption
+            ? Math.max(INSETS.bottom, height - caption.top + 6)
+            : INSETS.bottom,
+          left: list ? list.right + 14 : INSETS.left,
         },
         pulse: reducedMotion.matches ? null : (time % PULSE_MS) / PULSE_MS,
-        covered: [controls, caption].filter((box) => box !== null),
+        covered: [controls, caption, list].filter((box) => box !== null),
       });
 
       // Keep the tooltip beside whatever it describes.
@@ -771,6 +928,31 @@ export default function MissionMap({ craft, names, kinds }: Props) {
     }
   }
 
+  // Choosing a mission in the list selects it and flies to it. On phones the
+  // list, which covers the map, folds away first.
+  function selectFromList(slug: string) {
+    const v = view.current;
+    const next: Selection = { kind: "mission", slug };
+
+    setSelection(next);
+    setListHover(null);
+
+    if (v.size.width < 640) setPanel("auto");
+
+    if (data && v.camera) {
+      const target = focusOn(
+        next,
+        craft,
+        data.snapshot,
+        daysSinceJ2000(new Date()),
+        v.size,
+        openArea(v, panelRef.current, wrapRef.current),
+      );
+
+      if (target) fly(v, target);
+    }
+  }
+
   function onPointerDown(event: React.PointerEvent<HTMLCanvasElement>) {
     const v = view.current;
     const point = position(event);
@@ -909,6 +1091,38 @@ export default function MissionMap({ craft, names, kinds }: Props) {
         <p className="absolute inset-0 grid place-items-center text-muted">
           {failed ? "The positions could not be loaded." : "Loading positions…"}
         </p>
+      )}
+
+      {data && (
+        <>
+          <MissionList
+            rows={rows}
+            total={allRows.length}
+            filters={filters}
+            onFilters={setFilters}
+            agencies={agencies}
+            selected={selectedMission}
+            onHover={setListHover}
+            onSelect={selectFromList}
+            onHide={() => {
+              setPanel("closed");
+              setListHover(null);
+            }}
+            panelRef={panelRef}
+            className={`inset-4 sm:right-auto sm:bottom-12 sm:w-80 ${
+              { auto: "hidden lg:flex", open: "flex", closed: "hidden" }[panel]
+            }`}
+          />
+          <button
+            type="button"
+            onClick={() => setPanel("open")}
+            className={`label-caps absolute left-4 top-4 rounded-lg border border-border-strong bg-background/85 px-3 py-2 text-muted backdrop-blur transition-colors hover:border-accent hover:text-foreground ${
+              { auto: "lg:hidden", open: "hidden", closed: "" }[panel]
+            }`}
+          >
+            Missions
+          </button>
+        </>
       )}
 
       <div
@@ -1079,12 +1293,6 @@ const kindLabels: Partial<Record<DestinationKind, string>> = {
   MOON: "Moon",
   ASTEROID: "Asteroid",
   COMET: "Comet",
-};
-
-const statusDots: Record<Status, string> = {
-  ACTIVE: "bg-status-active",
-  COMPLETED: "bg-status-completed",
-  FAILED: "bg-status-failed",
 };
 
 // Active first, then by name.
