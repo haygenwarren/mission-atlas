@@ -86,7 +86,7 @@ npm run dev                  # http://localhost:3000
 
 ## Adding or changing a mission
 
-1. Add the mission to `prisma/data/missions.ts`. Give each spacecraft its GCAT catalogue ID (for example `S25008` for Cassini; carried craft such as landers have IDs starting with `A`).
+1. Add the mission to `prisma/data/missions.ts`. Give each spacecraft its GCAT catalogue ID (for example `S25008` for Cassini; carried craft such as landers have IDs starting with `A`), its location, and its [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) ID if Horizons tracks it (`-82` for Cassini).
 2. Run `npm run import:catalogue` to fetch its launch time, masses, size and builders.
 3. Add any new agency, destination or builder to `agencies.ts`, `destinations.ts` or `builders.ts`. Type-checking flags one that is used but not listed, and the seed refuses to run.
 4. Run `npx prisma db seed` against your development database and check the page.
@@ -98,6 +98,8 @@ The conventions the data follows:
 - `endDeclared` is the day the operating agency announced the end. Leave a date out when it cannot be confirmed.
 - A mission's only spacecraft shares the mission's status and dates. When a mission has several spacecraft, each must state its own status, and the seed enforces this.
 - Destinations are the places a mission studied or landed on, not gravity-assist flybys.
+- A spacecraft's `location` is where it is now: where it is headed if it is still on its way, or where it ended up if its mission is over. It is one of the destinations, but not necessarily one of its mission's (Gaia worked at L2 and was retired into an orbit around the Sun).
+- `horizonsId` is the craft's own entry in Horizons, found by designator or by a name Horizons lists. A carried craft without its own entry has none.
 - Catalogue values that need correcting are overridden in `missions.ts` with a comment giving the reason; companies with several GCAT codes are merged in `builderAliases`.
 
 ## Deploys and environments

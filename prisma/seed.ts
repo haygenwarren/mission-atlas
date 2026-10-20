@@ -74,12 +74,15 @@ async function main() {
         });
       }
 
+      const destinationIds = new Map<string, number>();
+
       for (const destination of destinations) {
-        await tx.destination.upsert({
+        const saved = await tx.destination.upsert({
           where: { slug: destination.slug },
           update: destination,
           create: destination,
         });
+        destinationIds.set(saved.slug, saved.id);
       }
 
       for (const builder of builders) {
@@ -172,6 +175,8 @@ async function main() {
             powerSource: craft.powerSource ?? null,
             imageUrl: craft.imageUrl ?? null,
             imageCredit: craft.imageCredit ?? null,
+            locationId: destinationIds.get(craft.location)!,
+            horizonsId: craft.horizonsId ?? null,
             missionId: saved.id,
           };
 
