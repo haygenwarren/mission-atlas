@@ -24,7 +24,6 @@ import {
   distance,
   MOONS,
   isMoon,
-  moonPosition,
   orbitOutline,
   type BodySlug,
   type MoonSlug,
@@ -238,11 +237,31 @@ function missionTrails(
     .map(routeSamples);
 }
 
+// A view centred on (x, y) in `area` of the screen (the part not covered by
+// the list and the info card), showing `radius` AU around it.
+function viewAt(x: number, y: number, radius: number, size: Size, area: Box) {
+  const { scale } = fitRadius(
+    { width: area.right - area.left, height: area.bottom - area.top },
+    radius,
+  );
+
+  return {
+    x: x - ((area.left + area.right) / 2 - size.width / 2) / scale,
+    y: y + ((area.top + area.bottom) / 2 - size.height / 2) / scale,
+    scale,
+  };
+}
+
+// How close a planet's view comes in when it has no moons on the map: a
+// fiftieth of its distance from the Sun each way (Venus: 2 million km).
+const PLANET_VIEW = 0.02;
+
 // A view of where the selected mission's craft, or the selected body, are
-// now: centred in `area` of the screen (the part not covered by the list and
-// the info card) and showing their neighbourhood, a quarter of their distance
-// from the Sun across (at least 0.3 AU). Null when nothing selected has a
-// known position.
+// now. A planet (or asteroid or comet) is shown up close: out to its
+// outermost moon, or its near neighbourhood if it has none. A mission is
+// shown with its surroundings, a quarter of its distance from the Sun across
+// (at least 0.3 AU), or close enough to see a moon it is at apart from its
+// planet. Null when nothing selected has a known position.
 function focusOn(
   selection: Selection,
   craft: MapCraft[],
@@ -252,6 +271,23 @@ function focusOn(
   area: Box,
 ): Camera | null {
   const scene = buildScene(snapshot, craft, t);
+
+  if (selection.kind === "body" && !isMoon(selection.slug)) {
+    const body = scene.bodies.find(({ slug }) => slug === selection.slug);
+
+    if (!body) return null;
+
+    const around = scene.moons.filter(({ parent }) => parent === body.slug);
+    const radius =
+      around.length > 0
+        ? Math.max(
+            ...around.map(({ position }) => distance(position, body.position)),
+          ) * 1.35
+        : fromSun(body.position) * PLANET_VIEW;
+
+    return viewAt(body.position[0], body.position[1], radius, size, area);
+  }
+
   const holds = (here: MapCraft[]) =>
     here.some(({ mission }) => mission.slug === selection.slug);
   const moons = scene.moons.filter((moon) =>
@@ -296,16 +332,7 @@ function focusOn(
           spread * 0.7,
           Math.min(40, Math.max(0.3, Math.hypot(x, y) * 0.25)),
         );
-  const { scale } = fitRadius(
-    { width: area.right - area.left, height: area.bottom - area.top },
-    radius,
-  );
-
-  return {
-    x: x - ((area.left + area.right) / 2 - size.width / 2) / scale,
-    y: y + ((area.top + area.bottom) / 2 - size.height / 2) / scale,
-    scale,
-  };
+  return viewAt(x, y, radius, size, area);
 }
 
 // The part of the map not covered by the list or the info card, where a
@@ -952,42 +979,42 @@ export default function MissionMap({
     }
   }
 
+  // Flies to what has just been selected, landing it in the open part of
+  // the map.
+  function flyTo(next: Selection) {
+    const v = view.current;
+
+    if (!data || !v.camera) return;
+
+    const target = focusOn(
+      next,
+      craft,
+      data.snapshot,
+      daysSinceJ2000(new Date()),
+      v.size,
+      openArea(v, panelRef.current, wrapRef.current),
+    );
+
+    if (target) fly(v, target);
+  }
+
+  // Clicking a craft selects its mission. Clicking a planet, asteroid or
+  // comet selects it and flies in close, out to its moons if it has any; a
+  // moon is already close, so selecting one stays put.
   function select(hit: Hit | null) {
     if (!hit) {
       setSelection(null);
     } else if (hit.kind === "body") {
-      setSelection({ kind: "body", slug: hit.slug });
+      const next: Selection = { kind: "body", slug: hit.slug };
+
+      setSelection(next);
+
+      if (!isMoon(hit.slug)) flyTo(next);
     } else {
       const one = craft.find(({ slug }) => slug === hit.slug);
 
       if (one) setSelection({ kind: "mission", slug: one.mission.slug });
     }
-  }
-
-  // Flies in until a planet's moons are spread out around it.
-  function zoomIntoMoons(planet: BodySlug) {
-    const v = view.current;
-
-    if (!data || !v.camera) return;
-
-    const t = daysSinceJ2000(new Date());
-    const centre = bodyPosition(data.snapshot, planet, t);
-    const reach = Math.max(
-      ...(Object.keys(MOONS) as MoonSlug[])
-        .filter((moon) => MOONS[moon] === planet)
-        .map((moon) => distance(moonPosition(data.snapshot, moon, t), centre)),
-    );
-    const area = openArea(v, panelRef.current, wrapRef.current);
-    const { scale } = fitRadius(
-      { width: area.right - area.left, height: area.bottom - area.top },
-      reach * 1.35,
-    );
-
-    fly(v, {
-      x: centre[0] - ((area.left + area.right) / 2 - v.size.width / 2) / scale,
-      y: centre[1] + ((area.top + area.bottom) / 2 - v.size.height / 2) / scale,
-      scale,
-    });
   }
 
   // Choosing a mission in the list selects it and flies to it. On phones the
@@ -1001,18 +1028,7 @@ export default function MissionMap({
 
     if (v.size.width < 640) setPanel("auto");
 
-    if (data && v.camera) {
-      const target = focusOn(
-        next,
-        craft,
-        data.snapshot,
-        daysSinceJ2000(new Date()),
-        v.size,
-        openArea(v, panelRef.current, wrapRef.current),
-      );
-
-      if (target) fly(v, target);
-    }
+    flyTo(next);
   }
 
   function onPointerDown(event: React.PointerEvent<HTMLCanvasElement>) {
@@ -1245,7 +1261,6 @@ export default function MissionMap({
           names={names}
           kinds={kinds}
           snapshot={data!.snapshot}
-          onZoomMoons={zoomIntoMoons}
           onClose={() => setSelection(null)}
         />
       )}
@@ -1415,7 +1430,6 @@ function InfoCard({
   kinds,
   snapshot,
   onClose,
-  onZoomMoons,
 }: {
   selection: Selection;
   scene: Scene;
@@ -1424,7 +1438,6 @@ function InfoCard({
   kinds: Record<string, DestinationKind>;
   snapshot: PositionsSnapshot;
   onClose: () => void;
-  onZoomMoons: (planet: BodySlug) => void;
 }) {
   if (selection.kind === "mission") {
     const members = craft
@@ -1468,7 +1481,6 @@ function InfoCard({
     : scene.moons.filter(
         ({ parent, craft: here }) => parent === place && here.length > 0,
       );
-  const hasMoons = !isMoon(place) && Object.values(MOONS).includes(place as never);
 
   return (
     <Card
@@ -1483,16 +1495,6 @@ function InfoCard({
       }
       onClose={onClose}
     >
-      {hasMoons && (
-        <button
-          type="button"
-          onClick={() => onZoomMoons(place as BodySlug)}
-          className="mt-3 rounded-lg border border-border-strong px-3 py-1.5 text-sm text-muted transition-colors hover:border-accent hover:text-foreground"
-        >
-          Zoom into its moons
-        </button>
-      )}
-
       <p className="label-caps mt-5 text-muted">Craft here</p>
       <MissionGroups here={body?.craft ?? []} title={names[place]} names={names} />
 
