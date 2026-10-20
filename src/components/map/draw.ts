@@ -55,6 +55,8 @@ export type Frame = {
   names: Record<string, string>;
   orbits: { slug: BodySlug; points: Vec3[] }[];
   hovered: Target | null;
+  // A mission hovered in the list, highlighted like a hovered craft.
+  hoveredMission: string | null;
   selectedMission: string | null;
   selectedBody: BodySlug | null;
   // The selected mission's routes, drawn in full, and the hovered one's,
@@ -63,7 +65,7 @@ export type Frame = {
   hoverTrails: Trail[];
   // Room to leave at the edges, and areas covered by controls laid over the
   // map, which labels keep clear of.
-  insets: { top: number; bottom: number; side: number };
+  insets: { top: number; bottom: number; left: number; right: number };
   covered: Box[];
   // Where the pulse around active missions is in its cycle, from 0 to 1, or
   // null for no pulse (for visitors who ask for reduced motion).
@@ -150,12 +152,16 @@ function edgePoint(
   x: number,
   y: number,
 ) {
-  const cx = size.width / 2;
+  const cx = (insets.left + size.width - insets.right) / 2;
   const cy = (insets.top + size.height - insets.bottom) / 2;
   const dx = x - cx;
   const dy = y - cy;
   const t = Math.min(
-    dx === 0 ? Infinity : (cx - insets.side) / Math.abs(dx),
+    dx < 0
+      ? (cx - insets.left) / -dx
+      : dx > 0
+        ? (size.width - insets.right - cx) / dx
+        : Infinity,
     dy < 0
       ? (cy - insets.top) / -dy
       : dy > 0
@@ -167,11 +173,11 @@ function edgePoint(
 }
 
 // A label for an edge marker sits on the side away from the edge.
-function edgeLabel(edge: { x: number; y: number; angle: number }, size: Size) {
+function edgeLabel(edge: { x: number; y: number; angle: number }) {
   const x = edge.x - Math.cos(edge.angle) * 14;
   const y = edge.y - Math.sin(edge.angle) * 14;
 
-  return edge.x > size.width / 2 ? { x, y, left: 0 } : { x, y, right: 0 };
+  return Math.cos(edge.angle) > 0 ? { x, y, left: 0 } : { x, y, right: 0 };
 }
 
 function onScreen(size: Size, x: number, y: number, margin = 0) {
@@ -250,7 +256,8 @@ function drawTrail(
 
 export function drawMap(frame: Frame): Hit[] {
   const { ctx, size, camera, scene, palette, names } = frame;
-  const { hovered, selectedMission, selectedBody, insets } = frame;
+  const { hovered, hoveredMission, selectedMission, selectedBody, insets } =
+    frame;
   const hits: Hit[] = [];
   const labels: Label[] = [];
   // Dots, badges and controls, which labels must not cover.
@@ -326,13 +333,14 @@ export function drawMap(frame: Frame): Hit[] {
   for (const body of scene.bodies) {
     const planet = PLANETS.includes(body.slug);
     const dwarf = DWARF_PLANETS.includes(body.slug);
-    const holdsSelected =
-      selectedMission !== null &&
-      body.craft.some(({ mission }) => mission.slug === selectedMission);
+    const holds = (mission: string | null) =>
+      mission !== null &&
+      body.craft.some((craft) => craft.mission.slug === mission);
     const highlighted =
       same(hovered, "body", body.slug) ||
       selectedBody === body.slug ||
-      holdsSelected;
+      holds(selectedMission) ||
+      holds(hoveredMission);
     const target: Target = { kind: "body", slug: body.slug };
     const [x, y] = screen(body.position[0], body.position[1]);
 
@@ -345,7 +353,7 @@ export function drawMap(frame: Frame): Hit[] {
         hits.push({ ...target, x: edge.x, y: edge.y, radius: 14, reach });
         labels.push({
           text: `${names[body.slug]} · ${formatDistance(fromSun(body.position))}`,
-          ...edgeLabel(edge, size),
+          ...edgeLabel(edge),
           style: "edge",
           color: highlighted ? palette.foreground : palette.muted,
           priority: highlighted ? 90 : 20,
@@ -455,8 +463,10 @@ export function drawMap(frame: Frame): Hit[] {
   // Craft flying free, drawn from their routes.
   for (const { craft, position } of scene.free) {
     const [x, y] = screen(position[0], position[1]);
-    const selected = craft.mission.slug === selectedMission;
-    const highlighted = selected || same(hovered, "craft", craft.slug);
+    const highlighted =
+      craft.mission.slug === selectedMission ||
+      craft.mission.slug === hoveredMission ||
+      same(hovered, "craft", craft.slug);
     const ended = craft.status !== "ACTIVE";
     const colour = statusColour(palette, craft.status);
     const target: Target = { kind: "craft", slug: craft.slug };
@@ -471,7 +481,7 @@ export function drawMap(frame: Frame): Hit[] {
       hits.push({ ...target, x: edge.x, y: edge.y, radius: 14, reach });
       labels.push({
         text: `${craft.name} · ${formatDistance(fromSun(position))}`,
-        ...edgeLabel(edge, size),
+        ...edgeLabel(edge),
         style: "edge",
         color: highlighted ? palette.foreground : palette.muted,
         priority: highlighted ? 90 : ended ? 15 : 25,

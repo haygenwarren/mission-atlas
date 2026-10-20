@@ -22,7 +22,12 @@ export type MapCraft = {
   location: keyof typeof placements;
   // ISO date or time, when known.
   lastContact: string | null;
-  mission: { slug: string; name: string; status: Status };
+  mission: {
+    slug: string;
+    name: string;
+    status: Status;
+    agencies: { abbreviation: string; name: string }[];
+  };
 };
 
 // Where the map can put a craft at a given time: on its route, at the body it
