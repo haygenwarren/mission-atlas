@@ -136,9 +136,16 @@ function eccentricAnomaly(meanAnomaly: number, e: number) {
 
 // Where one set of elements puts the body at time t.
 function positionFromElements(elements: Elements, t: Days): Vec3 {
-  const [epoch, a, e, inclination, node, perihelion, M0, n] = elements;
+  const [epoch, , e, , , , M0, n] = elements;
   const M = ((((M0 + n * (t - epoch)) % 360) + 540) % 360) - 180;
-  const E = eccentricAnomaly(M * RADIANS, e);
+
+  return pointOnOrbit(elements, eccentricAnomaly(M * RADIANS, e));
+}
+
+// The point of an orbit at eccentric anomaly E (0 at perihelion, pi at
+// aphelion).
+function pointOnOrbit(elements: Elements, E: number): Vec3 {
+  const [, a, e, inclination, node, perihelion] = elements;
 
   // In the plane of the orbit, with x pointing to the perihelion.
   const px = a * (Math.cos(E) - e);
@@ -199,6 +206,20 @@ export function orbitPosition(series: Elements[], t: Days): Vec3 {
     p[1] + (q[1] - p[1]) * weight,
     p[2] + (q[2] - p[2]) * weight,
   ];
+}
+
+// The whole orbit a body is on at time t, as `points` points spaced evenly
+// in eccentric anomaly, which puts more of them where the orbit bends most.
+export function orbitOutline(
+  series: Elements[],
+  t: Days,
+  points = 360,
+): Vec3[] {
+  const elements = series[Math.max(0, lastAtOrBefore(series, t))];
+
+  return Array.from({ length: points + 1 }, (_, i) =>
+    pointOnOrbit(elements, (i / points) * 2 * Math.PI),
+  );
 }
 
 // Where a planet, asteroid or comet is at time t.

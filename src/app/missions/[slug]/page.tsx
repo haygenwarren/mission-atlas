@@ -120,6 +120,13 @@ export default async function MissionDetailPage({ params }: PageProps) {
             </Fragment>
           ))}
         </p>
+
+        <Link
+          href={`/map?mission=${mission.slug}`}
+          className="mt-5 inline-block rounded-lg bg-button px-5 py-2 font-medium text-button-text transition-opacity hover:opacity-90"
+        >
+          See where it is now →
+        </Link>
       </header>
 
       <dl className="mt-8 grid grid-cols-[repeat(auto-fit,minmax(11rem,1fr))] gap-4">

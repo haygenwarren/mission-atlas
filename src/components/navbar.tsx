@@ -39,9 +39,12 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-6 text-sm font-medium text-muted">
+        <div className="flex items-center gap-4 text-sm font-medium text-muted sm:gap-6">
           <Link href="/" className="transition-colors hover:text-foreground">
             Home
+          </Link>
+          <Link href="/map" className="transition-colors hover:text-foreground">
+            Map
           </Link>
           <Link
             href="/missions"
