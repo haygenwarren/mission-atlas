@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache, Fragment } from "react";
+import MissionImage, { ImageCredit } from "@/components/mission-image";
 import SpacecraftTile from "@/components/spacecraft-tile";
 import StatusBadge from "@/components/status-badge";
 import { prisma } from "@/lib/prisma";
@@ -128,6 +129,21 @@ export default async function MissionDetailPage({ params }: PageProps) {
           See where it is now →
         </Link>
       </header>
+
+      {mission.imageUrl && (
+        <figure className="mt-8">
+          <MissionImage
+            src={mission.imageUrl}
+            alt={mission.name}
+            sizes="(min-width: 1024px) 976px, 100vw"
+            preload
+            className="aspect-[16/9] rounded-xl border border-border sm:aspect-[2/1]"
+          />
+          <figcaption>
+            <ImageCredit mission={mission} className="mt-2" />
+          </figcaption>
+        </figure>
+      )}
 
       <dl className="mt-8 grid grid-cols-[repeat(auto-fit,minmax(11rem,1fr))] gap-4">
         <Fact label="Launched">

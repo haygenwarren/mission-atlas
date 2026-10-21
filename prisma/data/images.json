@@ -1,0 +1,786 @@
+{
+  "jwst": {
+    "file": "JWST spacecraft model 3.png",
+    "url": "/images/missions/jwst.ee845b0e.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:JWST_spacecraft_model_3.png"
+  },
+  "voyager-1": {
+    "file": "Voyager spacecraft model.png",
+    "url": "/images/missions/voyager-1.f02c5347.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Voyager_spacecraft_model.png"
+  },
+  "voyager-2": {
+    "file": "Voyager spacecraft.jpg",
+    "url": "/images/missions/voyager-2.5700d3a5.webp",
+    "author": "NASA/JPL",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Voyager_spacecraft.jpg"
+  },
+  "hubble": {
+    "file": "Hubble 2009 close-up 2.jpg",
+    "url": "/images/missions/hubble.361984ef.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Hubble_2009_close-up_2.jpg"
+  },
+  "cassini-huygens": {
+    "file": "Cassini Saturn Orbit Insertion.jpg",
+    "url": "/images/missions/cassini-huygens.0e3301d8.webp",
+    "author": "NASA/JPL",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Cassini_Saturn_Orbit_Insertion.jpg"
+  },
+  "mars-2020": {
+    "file": "Mars 2020 selfie containing both perseverance rover and ingenuity.gif",
+    "url": "/images/missions/mars-2020.cf7ae65e.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Mars_2020_selfie_containing_both_perseverance_rover_and_ingenuity.gif"
+  },
+  "rosetta": {
+    "file": "Rosetta spacecraft model.png",
+    "url": "/images/missions/rosetta.bfe4472c.webp",
+    "author": "ESA/ATG medialab",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Rosetta_spacecraft_model.png"
+  },
+  "change-4": {
+    "file": "ChangE-4 - PCAM.png",
+    "url": "/images/missions/change-4.c47914c8.webp",
+    "author": "CSNA/Siyu Zhang/ Kevin M. Gill",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:ChangE-4_-_PCAM.png"
+  },
+  "chandrayaan-3": {
+    "file": "Chandrayaan-3 lander in clean-room 05.webp",
+    "url": "/images/missions/chandrayaan-3.cd3f9103.webp",
+    "author": "Indian Space Research Organisation",
+    "license": "GODL-India",
+    "licenseUrl": "https://data.gov.in/sites/default/files/Gazette_Notification_OGDL.pdf",
+    "source": "https://commons.wikimedia.org/wiki/File:Chandrayaan-3_lander_in_clean-room_05.webp"
+  },
+  "venera-7": {
+    "file": "Venera-7 spuskaemiy apparat.jpg",
+    "url": "/images/missions/venera-7.d74cc195.webp",
+    "author": "Emerezhko",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Venera-7_spuskaemiy_apparat.jpg"
+  },
+  "hayabusa2": {
+    "file": "Hayabusa2 Ion thruster.jpg",
+    "url": "/images/missions/hayabusa2.931300a8.webp",
+    "author": "DLR German Aerospace Center",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Hayabusa2_Ion_thruster.jpg"
+  },
+  "mars-climate-orbiter": {
+    "file": "Mars Climate Orbiter 2.jpg",
+    "url": "/images/missions/mars-climate-orbiter.3ef2423b.webp",
+    "author": "NASA/JPL/Corby Waste",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Mars_Climate_Orbiter_2.jpg"
+  },
+  "kepler": {
+    "file": "Kepler Space Telescope spacecraft model 2.png",
+    "url": "/images/missions/kepler.589e4a51.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Kepler_Space_Telescope_spacecraft_model_2.png"
+  },
+  "gaia": {
+    "file": "Gaia spacecraft.jpeg",
+    "url": "/images/missions/gaia.fdf9a1ad.webp",
+    "author": "Spacecraft: ESA/ATG medialab; Milky Way: ESA/Gaia/DPAC. Acknowledgement: A. Moitinho.",
+    "license": "CC BY-SA 3.0 igo",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/igo/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Gaia_spacecraft.jpeg"
+  },
+  "luna-2": {
+    "file": "Luna 1 - 2 Spacecraft.png",
+    "url": "/images/missions/luna-2.0760dcf3.webp",
+    "author": "NASA/NSSDCA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Luna_1_-_2_Spacecraft.png"
+  },
+  "luna-3": {
+    "file": "Луна-3 (14562265547).jpg",
+    "url": "/images/missions/luna-3.5afeb4b9.webp",
+    "author": "Memorial Museum of Cosmonautics, Moscow",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:%D0%9B%D1%83%D0%BD%D0%B0-3_(14562265547).jpg"
+  },
+  "luna-9": {
+    "file": "Luna 9 Musee du Bourget P1010505.JPG",
+    "url": "/images/missions/luna-9.47ea35d8.webp",
+    "author": "Pline",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Luna_9_Musee_du_Bourget_P1010505.JPG"
+  },
+  "surveyor-1": {
+    "file": "Surveyor NASA lunar lander.jpg",
+    "url": "/images/missions/surveyor-1.003f5065.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Surveyor_NASA_lunar_lander.jpg"
+  },
+  "luna-16": {
+    "file": "Luna 16.jpg",
+    "url": "/images/missions/luna-16.23a1cc8e.webp",
+    "author": "Bembmv",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Luna_16.jpg"
+  },
+  "luna-17": {
+    "file": "Soviet moonrover.JPG",
+    "url": "/images/missions/luna-17.eaf0a5f5.webp",
+    "author": "Petar Milošević",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Soviet_moonrover.JPG"
+  },
+  "smart-1": {
+    "file": "Artist's impression of the SMART-1 mission ESA199399.jpg",
+    "url": "/images/missions/smart-1.e451d833.webp",
+    "author": "ESA",
+    "license": "CC BY-SA 3.0 igo",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/igo/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Artist%27s_impression_of_the_SMART-1_mission_ESA199399.jpg"
+  },
+  "kaguya": {
+    "file": "月周回衛星「かぐや（SELENE)」の模型.JPG",
+    "url": "/images/missions/kaguya.ff03d441.webp",
+    "author": "Hajitaro- at Japanese Wikipedia",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:%E6%9C%88%E5%91%A8%E5%9B%9E%E8%A1%9B%E6%98%9F%E3%80%8C%E3%81%8B%E3%81%90%E3%82%84%EF%BC%88SELENE)%E3%80%8D%E3%81%AE%E6%A8%A1%E5%9E%8B.JPG"
+  },
+  "chandrayaan-1": {
+    "file": "Chandrayaan-1-01.jpg",
+    "url": "/images/missions/chandrayaan-1.65618571.webp",
+    "author": "Indian Space Research Organisation",
+    "license": "GODL-India",
+    "licenseUrl": "https://data.gov.in/sites/default/files/Gazette_Notification_OGDL.pdf",
+    "source": "https://commons.wikimedia.org/wiki/File:Chandrayaan-1-01.jpg"
+  },
+  "lunar-reconnaissance-orbiter": {
+    "file": "Lunar Reconnaissance Orbiter 001.jpg",
+    "url": "/images/missions/lunar-reconnaissance-orbiter.b5c5202e.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Lunar_Reconnaissance_Orbiter_001.jpg"
+  },
+  "change-3": {
+    "file": "Yutu rover.jpg",
+    "url": "/images/missions/change-3.7c5d65cc.webp",
+    "author": "Institute of High Energy Physics, Chinese Academy of Sciences",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Yutu_rover.jpg"
+  },
+  "change-5": {
+    "file": "Chang-e-5-assembly-CG-1-Cropped.jpg",
+    "url": "/images/missions/change-5.12598c7e.webp",
+    "author": "China News Service",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Chang-e-5-assembly-CG-1-Cropped.jpg"
+  },
+  "slim": {
+    "file": "SLIM half scale model (close cropped).png",
+    "url": "/images/missions/slim.79b0d4af.webp",
+    "author": "Hms1103",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:SLIM_half_scale_model_(close_cropped).png"
+  },
+  "beresheet": {
+    "file": "Beresheet model on Habima Square 20190222 01.jpg",
+    "url": "/images/missions/beresheet.dcbc5cb0.webp",
+    "author": "TaBaZzz",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Beresheet_model_on_Habima_Square_20190222_01.jpg"
+  },
+  "mariner-10": {
+    "file": "NASM-A19830006000-NASM2019-01579.jpg",
+    "url": "/images/missions/mariner-10.589cb460.webp",
+    "author": "National Air and Space Museum",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:NASM-A19830006000-NASM2019-01579.jpg"
+  },
+  "messenger": {
+    "file": "MESSENGER - spacecraft at mercury - atmercury lg.jpg",
+    "url": "/images/missions/messenger.929986b5.webp",
+    "author": "NASA / JHU/APL",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:MESSENGER_-_spacecraft_at_mercury_-_atmercury_lg.jpg"
+  },
+  "bepicolombo": {
+    "file": "BepiColombo stack cropped.jpg",
+    "url": "/images/missions/bepicolombo.7c09e04b.webp",
+    "author": "ESA–C. Carreau",
+    "license": "CC BY-SA 3.0 igo",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/igo/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:BepiColombo_stack_cropped.jpg"
+  },
+  "mariner-2": {
+    "file": "Mariner 2 Engineering Model.jpg",
+    "url": "/images/missions/mariner-2.88f56240.webp",
+    "author": "Eric Long/Smithsonian",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Mariner_2_Engineering_Model.jpg"
+  },
+  "venera-9": {
+    "file": "Venera 9 Space Probe 01.jpg",
+    "url": "/images/missions/venera-9.7caccd9b.webp",
+    "author": "Stolbovsky",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Venera_9_Space_Probe_01.jpg"
+  },
+  "vega-1": {
+    "file": "Vega model - Udvar-Hazy Center.JPG",
+    "url": "/images/missions/vega-1.a047eec1.webp",
+    "author": "Daderot",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Vega_model_-_Udvar-Hazy_Center.JPG"
+  },
+  "magellan": {
+    "file": "Magellan at Kennedy Space Center.jpg",
+    "url": "/images/missions/magellan.c266d4a5.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Magellan_at_Kennedy_Space_Center.jpg"
+  },
+  "venus-express": {
+    "file": "Venus Express in orbit (crop).jpg",
+    "url": "/images/missions/venus-express.2e7925b7.webp",
+    "author": "Andrzej Mirecki",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Venus_Express_in_orbit_(crop).jpg"
+  },
+  "akatsuki": {
+    "file": "Akatsuki-1.jpg",
+    "url": "/images/missions/akatsuki.960d7a42.webp",
+    "author": "江戸村のとくぞう",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Akatsuki-1.jpg"
+  },
+  "pioneer-10": {
+    "file": "Pioneer 10 (18427352949).jpg",
+    "url": "/images/missions/pioneer-10.3136478f.webp",
+    "author": "NASA",
+    "license": "No restrictions",
+    "licenseUrl": "https://www.flickr.com/commons/usage/",
+    "source": "https://commons.wikimedia.org/wiki/File:Pioneer_10_(18427352949).jpg"
+  },
+  "pioneer-11": {
+    "file": "An artist's impression of a Pioneer spacecraft on its way to interstellar space.jpg",
+    "url": "/images/missions/pioneer-11.84c4f1db.webp",
+    "author": "NASA/Don Davis",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:An_artist%27s_impression_of_a_Pioneer_spacecraft_on_its_way_to_interstellar_space.jpg"
+  },
+  "galileo": {
+    "file": "Artwork Galileo-Io-Jupiter.JPG",
+    "url": "/images/missions/galileo.a8406be5.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Artwork_Galileo-Io-Jupiter.JPG"
+  },
+  "new-horizons": {
+    "file": "New Horizons spacecraft model 1.png",
+    "url": "/images/missions/new-horizons.0002375a.webp",
+    "author": "NASA, Applied Physics Laboratory",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:New_Horizons_spacecraft_model_1.png"
+  },
+  "juno": {
+    "file": "Juno spacecraft model 1.png",
+    "url": "/images/missions/juno.ec9f033f.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Juno_spacecraft_model_1.png"
+  },
+  "juice": {
+    "file": "Juice launch kit cover close-up.png",
+    "url": "/images/missions/juice.505ee78c.webp",
+    "author": "ESA",
+    "license": "CC BY-SA 3.0 igo",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/igo/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Juice_launch_kit_cover_close-up.png"
+  },
+  "europa-clipper": {
+    "file": "Europa Clipper spacecraft model.png",
+    "url": "/images/missions/europa-clipper.3ea71ead.webp",
+    "author": "NASA · Jet Propulsion Laboratory",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Europa_Clipper_spacecraft_model.png"
+  },
+  "mariner-4": {
+    "file": "Mariner 4 1304 1964novembemariner4.jpg",
+    "url": "/images/missions/mariner-4.65a4a9ef.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Mariner_4_1304_1964novembemariner4.jpg"
+  },
+  "mariner-9": {
+    "file": "Mariner09.jpg",
+    "url": "/images/missions/mariner-9.7d4ab268.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Mariner09.jpg"
+  },
+  "mars-3": {
+    "file": "Mars 3 Space Probe 2.jpg",
+    "url": "/images/missions/mars-3.46d22d1b.webp",
+    "author": "Stolbovsky",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Mars_3_Space_Probe_2.jpg"
+  },
+  "viking-1": {
+    "file": "Viking spacecraft.jpg",
+    "url": "/images/missions/viking-1.cd52d99c.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Viking_spacecraft.jpg"
+  },
+  "mars-pathfinder": {
+    "file": "Mars Pathfinder Lander preparations.jpg",
+    "url": "/images/missions/mars-pathfinder.6365ed36.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Mars_Pathfinder_Lander_preparations.jpg"
+  },
+  "mars-global-surveyor": {
+    "file": "Mars global surveyor.jpg",
+    "url": "/images/missions/mars-global-surveyor.d37a42a2.webp",
+    "author": "NASA/JPL-Caltech/Corby Waste",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Mars_global_surveyor.jpg"
+  },
+  "mars-odyssey": {
+    "file": "Mars Odyssey spacecraft model.png",
+    "url": "/images/missions/mars-odyssey.c5625aea.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Mars_Odyssey_spacecraft_model.png"
+  },
+  "mars-express": {
+    "file": "Mars-express-volcanoes-sm.jpg",
+    "url": "/images/missions/mars-express.33690ff4.webp",
+    "author": "NASA/JPL/Corby Waste",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Mars-express-volcanoes-sm.jpg"
+  },
+  "spirit": {
+    "file": "KSC-03PD-0786.jpg",
+    "url": "/images/missions/spirit.6cbb9372.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:KSC-03PD-0786.jpg"
+  },
+  "opportunity": {
+    "file": "NASA Mars Rover.jpg",
+    "url": "/images/missions/opportunity.8268ab7b.webp",
+    "author": "NASA/JPL/Cornell University, Maas Digital LLC",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:NASA_Mars_Rover.jpg"
+  },
+  "mars-reconnaissance-orbiter": {
+    "file": "Mars Reconnaissance Orbiter, front view, artist's concept (PIA07245).jpg",
+    "url": "/images/missions/mars-reconnaissance-orbiter.460d8091.webp",
+    "author": "NASA/JPL/Corby Waste",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Mars_Reconnaissance_Orbiter,_front_view,_artist%27s_concept_(PIA07245).jpg"
+  },
+  "phoenix": {
+    "file": "Phoenix landing.jpg",
+    "url": "/images/missions/phoenix.9f84d7f4.webp",
+    "author": "NASA/JPL/Corby Waste",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Phoenix_landing.jpg"
+  },
+  "mars-science-laboratory": {
+    "file": "MSL cruise stage configuration (PIA14831).png",
+    "url": "/images/missions/mars-science-laboratory.f56fb1af.webp",
+    "author": "NASA/JPL-Caltech",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:MSL_cruise_stage_configuration_(PIA14831).png"
+  },
+  "mars-orbiter-mission": {
+    "file": "Mars Orbiter Mission Over Mars (15237158879).jpg",
+    "url": "/images/missions/mars-orbiter-mission.d06eca69.webp",
+    "author": "Kevin Gill from Nashua, NH, United States",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Mars_Orbiter_Mission_Over_Mars_(15237158879).jpg"
+  },
+  "exomars-trace-gas-orbiter": {
+    "file": "Maquette Exomars Orbiter Salon du Bourget 2015 DSC 0045.jpg",
+    "url": "/images/missions/exomars-trace-gas-orbiter.c3f2683d.webp",
+    "author": "Pline",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Maquette_Exomars_Orbiter_Salon_du_Bourget_2015_DSC_0045.jpg"
+  },
+  "insight": {
+    "file": "InSight lander (PIA17358).jpg",
+    "url": "/images/missions/insight.dd380692.webp",
+    "author": "NASA/JPL-Caltech",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:InSight_lander_(PIA17358).jpg"
+  },
+  "hope": {
+    "file": "Emirates Mars Mission mockup at IAC 2021 01 (cropped).jpg",
+    "url": "/images/missions/hope.8d3ca0b1.webp",
+    "author": "BugWarp",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Emirates_Mars_Mission_mockup_at_IAC_2021_01_(cropped).jpg"
+  },
+  "tianwen-1": {
+    "file": "Tianwen-1 in Mars orbit.jpg",
+    "url": "/images/missions/tianwen-1.94222b21.webp",
+    "author": "Ling Xin/CNSA",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Tianwen-1_in_Mars_orbit.jpg"
+  },
+  "giotto": {
+    "file": "Giotto Whipple shield ESA239195.jpg",
+    "url": "/images/missions/giotto.46c614b2.webp",
+    "author": "ESA",
+    "license": "CC BY-SA 3.0 igo",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/igo/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Giotto_Whipple_shield_ESA239195.jpg"
+  },
+  "near-shoemaker": {
+    "file": "NEAR at launch preparations.jpg",
+    "url": "/images/missions/near-shoemaker.d57cbf43.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:NEAR_at_launch_preparations.jpg"
+  },
+  "stardust": {
+    "file": "Stardust - Concepcao artistica.jpg",
+    "url": "/images/missions/stardust.b2fad54c.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Stardust_-_Concepcao_artistica.jpg"
+  },
+  "hayabusa": {
+    "file": "Hayabusa hover.jpg",
+    "url": "/images/missions/hayabusa.959df9bc.webp",
+    "author": "J. R. C. Garry",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Hayabusa_hover.jpg"
+  },
+  "deep-impact": {
+    "file": "Deep Impact.jpg",
+    "url": "/images/missions/deep-impact.c74413d9.webp",
+    "author": "NASA/JPL",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Deep_Impact.jpg"
+  },
+  "dawn": {
+    "file": "Dawn Flight Configuration 2.jpg",
+    "url": "/images/missions/dawn.410630fe.webp",
+    "author": "NASA/JPL",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Dawn_Flight_Configuration_2.jpg"
+  },
+  "osiris-rex": {
+    "file": "OSIRIS-REx spacecraft model.png",
+    "url": "/images/missions/osiris-rex.dc29d850.webp",
+    "author": "NASA / Goddard Space Flight Center (GSFC) / University of Arizona / Lockheed Martin",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:OSIRIS-REx_spacecraft_model.png"
+  },
+  "dart": {
+    "file": "Artist's illustration of NASA's Double Asteroid Redirection Test Mission.jpg",
+    "url": "/images/missions/dart.30d7b43e.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Artist%27s_illustration_of_NASA%27s_Double_Asteroid_Redirection_Test_Mission.jpg"
+  },
+  "lucy": {
+    "file": "Lucy-PatroclusMenoetius-art.png",
+    "url": "/images/missions/lucy.301909e3.webp",
+    "author": "NASA’s Goddard Space Flight Center/Conceptual Image Lab/Adriana Gutierrez",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Lucy-PatroclusMenoetius-art.png"
+  },
+  "psyche": {
+    "file": "PIA21499 - Artist's Concept of Psyche Spacecraft with Five-Panel Array.jpg",
+    "url": "/images/missions/psyche.10d75633.webp",
+    "author": "NASA/JPL-Caltech/Arizona State Univ./Space Systems Loral/Peter Rubin",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:PIA21499_-_Artist%27s_Concept_of_Psyche_Spacecraft_with_Five-Panel_Array.jpg"
+  },
+  "uhuru": {
+    "file": "X-Ray Explorer Satellite.jpg",
+    "url": "/images/missions/uhuru.dd885608.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:X-Ray_Explorer_Satellite.jpg"
+  },
+  "iue": {
+    "file": "NASA's International Ultraviolet Explorer (1993-04-93).jpg",
+    "url": "/images/missions/iue.7e92568a.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:NASA%27s_International_Ultraviolet_Explorer_(1993-04-93).jpg"
+  },
+  "iras": {
+    "file": "IRAS testing.jpg",
+    "url": "/images/missions/iras.bf8c536f.webp",
+    "author": "NASA/JPL-Caltech",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:IRAS_testing.jpg"
+  },
+  "hipparcos": {
+    "file": "Hipparcos-testing-estec.jpg",
+    "url": "/images/missions/hipparcos.6cb99979.webp",
+    "author": "Michael Perryman",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Hipparcos-testing-estec.jpg"
+  },
+  "cobe": {
+    "file": "Cosmic Background Explorer spacecraft model.png",
+    "url": "/images/missions/cobe.a5626c4b.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Cosmic_Background_Explorer_spacecraft_model.png"
+  },
+  "compton-gamma-ray-observatory": {
+    "file": "CGRO s37-96-010.jpg",
+    "url": "/images/missions/compton-gamma-ray-observatory.9e13a0a7.webp",
+    "author": "NASA/Ken Cameron",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:CGRO_s37-96-010.jpg"
+  },
+  "chandra": {
+    "file": "Chandra artist illustration.jpg",
+    "url": "/images/missions/chandra.950629e1.webp",
+    "author": "NASA/CXC/NGST",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Chandra_artist_illustration.jpg"
+  },
+  "xmm-newton": {
+    "file": "XMM-Newton spacecraft model 1.png",
+    "url": "/images/missions/xmm-newton.af0003ce.webp",
+    "author": "ESA/XMM-Newton",
+    "license": "CC BY-SA 3.0 igo",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/igo/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:XMM-Newton_spacecraft_model_1.png"
+  },
+  "wmap": {
+    "file": "WMAP spacecraft.jpg",
+    "url": "/images/missions/wmap.40d3ed20.webp",
+    "author": "NASA / WMAP Science Team",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:WMAP_spacecraft.jpg"
+  },
+  "integral": {
+    "file": "INTEGRAL spacecraft model.png",
+    "url": "/images/missions/integral.81c6bf45.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:INTEGRAL_spacecraft_model.png"
+  },
+  "spitzer": {
+    "file": "Spitzer space telescope.jpg",
+    "url": "/images/missions/spitzer.5e9d7183.webp",
+    "author": "NASA/JPL-Caltech",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Spitzer_space_telescope.jpg"
+  },
+  "swift": {
+    "file": "Swift Observatory spacecraft model.png",
+    "url": "/images/missions/swift.b35d91e5.webp",
+    "author": "NASA E/PO, Sonoma State University/Aurore Simonnet",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Swift_Observatory_spacecraft_model.png"
+  },
+  "corot": {
+    "file": "COROT integration.jpg",
+    "url": "/images/missions/corot.ddbdf1ae.webp",
+    "author": "Blue straggler",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:COROT_integration.jpg"
+  },
+  "fermi": {
+    "file": "Fermi Gamma-ray Space Telescope spacecraft model.png",
+    "url": "/images/missions/fermi.a38604da.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Fermi_Gamma-ray_Space_Telescope_spacecraft_model.png"
+  },
+  "herschel": {
+    "file": "Herschel Space Observatory at ESTEC.JPG",
+    "url": "/images/missions/herschel.82722583.webp",
+    "author": "Apoc2400",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Herschel_Space_Observatory_at_ESTEC.JPG"
+  },
+  "planck": {
+    "file": "Model of the Planck Satellite.jpg",
+    "url": "/images/missions/planck.6b5e94e2.webp",
+    "author": "Mike Peel",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Model_of_the_Planck_Satellite.jpg"
+  },
+  "wise": {
+    "file": "WISE artist concept (PIA17254, crop).jpg",
+    "url": "/images/missions/wise.1bf59f61.webp",
+    "author": "NASA/JPL-Caltech",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:WISE_artist_concept_(PIA17254,_crop).jpg"
+  },
+  "nustar": {
+    "file": "NuSTAR spacecraft model.png",
+    "url": "/images/missions/nustar.239c6b27.webp",
+    "author": "NASA/JPL-Caltech",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:NuSTAR_spacecraft_model.png"
+  },
+  "astrosat": {
+    "file": "Astrosat-1 in deployed configuration 001.png",
+    "url": "/images/missions/astrosat.a4b63c99.webp",
+    "author": "Indian Space Research Organisation",
+    "license": "GODL-India",
+    "licenseUrl": "https://data.gov.in/sites/default/files/Gazette_Notification_OGDL.pdf",
+    "source": "https://commons.wikimedia.org/wiki/File:Astrosat-1_in_deployed_configuration_001.png"
+  },
+  "hitomi": {
+    "file": "Hitomi.png",
+    "url": "/images/missions/hitomi.eba596cf.webp",
+    "author": "NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:Hitomi.png"
+  },
+  "tess": {
+    "file": "TESS alone high res.jpg",
+    "url": "/images/missions/tess.ea776ef6.webp",
+    "author": "Orbital ATK / NASA",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:TESS_alone_high_res.jpg"
+  },
+  "spektr-rg": {
+    "file": "SPEKTR RG.png",
+    "url": "/images/missions/spektr-rg.38199769.webp",
+    "author": "DLR",
+    "license": "CC BY 3.0 de",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/de/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:SPEKTR_RG.png"
+  },
+  "euclid": {
+    "file": "Euclid looking into the Universe ESA24697255.jpeg",
+    "url": "/images/missions/euclid.c3580653.webp",
+    "author": "ESA",
+    "license": "CC BY-SA 3.0 igo",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/igo/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:Euclid_looking_into_the_Universe_ESA24697255.jpeg"
+  },
+  "xrism": {
+    "file": "XRISM in a nutshell (cropped).png",
+    "url": "/images/missions/xrism.eb678d6d.webp",
+    "author": "ESA",
+    "license": "CC BY-SA 3.0 igo",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/igo/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File:XRISM_in_a_nutshell_(cropped).png"
+  },
+  "einstein-probe": {
+    "file": "Einstein Probe illustration.png",
+    "url": "/images/missions/einstein-probe.c05f4cef.webp",
+    "author": "China News Service",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Einstein_Probe_illustration.png"
+  },
+  "spherex": {
+    "file": "SPHEREx Spacecraft on Work Stand in Astrotech (KSC-20250116-PH-BMF01 0002).jpg",
+    "url": "/images/missions/spherex.5fcc7106.webp",
+    "author": "NASA Kennedy Space Center / BAE Systems/Benjamin Fry",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File:SPHEREx_Spacecraft_on_Work_Stand_in_Astrotech_(KSC-20250116-PH-BMF01_0002).jpg"
+  }
+}

@@ -29,6 +29,11 @@ export default async function MapPage() {
             slug: true,
             name: true,
             status: true,
+            imageUrl: true,
+            imageCredit: true,
+            imageLicense: true,
+            imageLicenseUrl: true,
+            imageSourceUrl: true,
             agencies: {
               select: { abbreviation: true, name: true },
               orderBy: { abbreviation: "asc" },

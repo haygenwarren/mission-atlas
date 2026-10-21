@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import MissionImage, { ImageCredit } from "@/components/mission-image";
 import StatusBadge from "@/components/status-badge";
 import type { DestinationKind, Status } from "@/generated/prisma/enums";
 import { statusLabels } from "@/lib/missions";
@@ -1467,9 +1468,22 @@ function InfoCard({
     const members = craft
       .filter((one) => one.mission.slug === selection.slug)
       .sort(byActivity);
+    const mission = members[0]?.mission;
 
     return (
-      <Card label="Mission" title={members[0]?.mission.name} onClose={onClose}>
+      <Card label="Mission" title={mission?.name} onClose={onClose}>
+        {mission?.imageUrl && (
+          <figure className="mt-4">
+            <MissionImage
+              src={mission.imageUrl}
+              sizes="(min-width: 640px) 344px, 100vw"
+              className="aspect-[2/1] rounded-lg"
+            />
+            <figcaption>
+              <ImageCredit mission={mission} className="mt-1.5" />
+            </figcaption>
+          </figure>
+        )}
         <ul className="mt-4 space-y-4">
           {members.map((one) => (
             <li key={one.slug}>

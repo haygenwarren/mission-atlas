@@ -61,8 +61,12 @@ model Mission {
   lastContactTimeKnown Boolean       @default(false)
   endDeclared          DateTime?     @db.Date
   description          String
+  // A picture of the spacecraft, credited as its licence asks.
   imageUrl             String?
   imageCredit          String?
+  imageLicense         String?
+  imageLicenseUrl      String?
+  imageSourceUrl       String?
   sourceUrl            String?
   agencies             Agency[]
   destinations         Destination[]

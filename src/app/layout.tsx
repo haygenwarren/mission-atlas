@@ -57,15 +57,27 @@ export default function RootLayout({
       <body>
         <Navbar />
         {children}
-        <footer className="mx-auto max-w-5xl px-6 py-8 text-sm text-muted">
-          Launch and spacecraft data from{" "}
-          <a
-            href="https://planet4589.org/space/gcat"
-            className="text-accent underline"
-          >
-            GCAT
-          </a>{" "}
-          (J. McDowell, planet4589.org/space/gcat), used under CC BY 4.0.
+        <footer className="mx-auto max-w-5xl space-y-1 px-6 py-8 text-sm text-muted">
+          <p>
+            Launch and spacecraft data from{" "}
+            <a
+              href="https://planet4589.org/space/gcat"
+              className="text-accent underline"
+            >
+              GCAT
+            </a>{" "}
+            (J. McDowell, planet4589.org/space/gcat), used under CC BY 4.0.
+          </p>
+          <p>
+            Spacecraft pictures from{" "}
+            <a
+              href="https://commons.wikimedia.org"
+              className="text-accent underline"
+            >
+              Wikimedia Commons
+            </a>
+            , credited on each mission&apos;s page.
+          </p>
         </footer>
       </body>
     </html>
