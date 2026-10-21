@@ -61,6 +61,7 @@ export const missionTileSelect = {
   status: true,
   launchDate: true,
   description: true,
+  imageUrl: true,
   agencies: { select: { abbreviation: true }, orderBy: { id: "asc" } },
   destinations: { select: { name: true }, orderBy: { id: "asc" } },
 } satisfies Prisma.MissionSelect;

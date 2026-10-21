@@ -5,6 +5,7 @@ import { agencies } from "./data/agencies";
 import { builderAliases, builders } from "./data/builders";
 import { catalogue } from "./data/catalogue";
 import { destinations } from "./data/destinations";
+import { images } from "./data/images";
 import { missions, type SpacecraftSeed } from "./data/missions";
 
 const adapter = new PrismaPg({
@@ -103,6 +104,14 @@ async function main() {
           throw new Error(`${mission.slug}: no launch date.`);
         }
 
+        const image = mission.image ? images[mission.slug] : undefined;
+
+        if (mission.image && image?.file !== mission.image) {
+          throw new Error(
+            `${mission.slug}: ${mission.image} is not in images.json. Run "npm run import:images".`,
+          );
+        }
+
         const fields = {
           slug: mission.slug,
           name: mission.name,
@@ -113,8 +122,13 @@ async function main() {
           lastContactTimeKnown: hasTime(mission.lastContact),
           endDeclared: toDate(mission.endDeclared),
           description: mission.description,
-          imageUrl: mission.imageUrl ?? null,
-          imageCredit: mission.imageCredit ?? null,
+          imageUrl: image?.url ?? null,
+          imageWidth: image?.width ?? null,
+          imageHeight: image?.height ?? null,
+          imageCredit: image?.author ?? null,
+          imageLicense: image?.license ?? null,
+          imageLicenseUrl: image?.licenseUrl ?? null,
+          imageSourceUrl: image?.source ?? null,
           sourceUrl: mission.sourceUrl ?? null,
         };
         const agencyLinks = mission.agencies.map((abbreviation) => ({

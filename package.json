@@ -10,7 +10,8 @@
     "postinstall": "prisma generate",
     "import:catalogue": "tsx scripts/import-catalogue.ts",
     "import:positions": "tsx scripts/import-positions.ts",
-    "check:positions": "tsx scripts/check-positions.ts"
+    "check:positions": "tsx scripts/check-positions.ts",
+    "import:images": "tsx scripts/import-images.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.7.0",
@@ -29,6 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.3",
     "prisma": "^7.7.0",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5"

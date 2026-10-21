@@ -15,6 +15,8 @@
   --accent: #c4bcf1; /* Signal Lavender */
   --button: #c4bcf1; /* Signal Lavender */
   --button-text: #0f1126; /* Deep Space */
+  /* Behind mission pictures, in both themes: most show a craft in space. */
+  --picture: #0f1126; /* Deep Space */
 
   /* Status tags step outside the kit on purpose: green, grey and red are
      read at a glance in a way three violets are not. */
@@ -53,6 +55,7 @@
   --color-accent: var(--accent);
   --color-button: var(--button);
   --color-button-text: var(--button-text);
+  --color-picture: var(--picture);
   --color-status-active: var(--status-active);
   --color-status-completed: var(--status-completed);
   --color-status-failed: var(--status-failed);

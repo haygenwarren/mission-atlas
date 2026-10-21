@@ -29,6 +29,11 @@ export type MapCraft = {
     slug: string;
     name: string;
     status: Status;
+    imageUrl: string | null;
+    imageCredit: string | null;
+    imageLicense: string | null;
+    imageLicenseUrl: string | null;
+    imageSourceUrl: string | null;
     agencies: { abbreviation: string; name: string }[];
   };
 };

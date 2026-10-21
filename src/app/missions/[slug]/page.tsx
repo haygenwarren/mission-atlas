@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache, Fragment } from "react";
+import { ImageCredit } from "@/components/mission-image";
 import SpacecraftTile from "@/components/spacecraft-tile";
 import StatusBadge from "@/components/status-badge";
 import { prisma } from "@/lib/prisma";
@@ -54,6 +56,20 @@ export async function generateMetadata({
 
 const linkClasses = "text-accent hover:underline";
 
+// The picture beside the title keeps its own shape, as large as fits in this
+// box, so none is cropped.
+const PICTURE_WIDTH = 416;
+const PICTURE_HEIGHT = 288;
+
+function fitPicture(width: number, height: number) {
+  const scale = Math.min(PICTURE_WIDTH / width, PICTURE_HEIGHT / height, 1);
+
+  return {
+    width: Math.round(width * scale),
+    height: Math.round(height * scale),
+  };
+}
+
 function Fact({
   label,
   children,
@@ -86,6 +102,13 @@ export default async function MissionDetailPage({ params }: PageProps) {
   }
 
   const duration = missionDuration(mission);
+  const picture =
+    mission.imageUrl && mission.imageWidth && mission.imageHeight
+      ? {
+          src: mission.imageUrl,
+          ...fitPicture(mission.imageWidth, mission.imageHeight),
+        }
+      : null;
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-10">
@@ -96,37 +119,56 @@ export default async function MissionDetailPage({ params }: PageProps) {
         ← Mission archive
       </Link>
 
-      <header className="mt-6">
-        <p className="label-caps text-muted">
-          {disciplineLabels[mission.discipline]}
-        </p>
+      <header className="mt-6 flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="label-caps text-muted">
+            {disciplineLabels[mission.discipline]}
+          </p>
 
-        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
-          <h1 className="font-display text-4xl">{mission.name}</h1>
-          <StatusBadge status={mission.status} />
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <h1 className="font-display text-4xl">{mission.name}</h1>
+            <StatusBadge status={mission.status} />
+          </div>
+
+          <p className="mt-3">
+            {mission.agencies.map((agency, i) => (
+              <Fragment key={agency.id}>
+                {i > 0 && <span className="text-muted"> · </span>}
+                <Link
+                  href={`/missions?agency=${encodeURIComponent(agency.abbreviation)}`}
+                  title={agency.name}
+                  className={linkClasses}
+                >
+                  {agency.abbreviation}
+                </Link>
+              </Fragment>
+            ))}
+          </p>
+
+          <Link
+            href={`/map?mission=${mission.slug}`}
+            className="mt-5 inline-block rounded-lg bg-button px-5 py-2 font-medium text-button-text transition-opacity hover:opacity-90"
+          >
+            See where it is now →
+          </Link>
         </div>
 
-        <p className="mt-3">
-          {mission.agencies.map((agency, i) => (
-            <Fragment key={agency.id}>
-              {i > 0 && <span className="text-muted"> · </span>}
-              <Link
-                href={`/missions?agency=${encodeURIComponent(agency.abbreviation)}`}
-                title={agency.name}
-                className={linkClasses}
-              >
-                {agency.abbreviation}
-              </Link>
-            </Fragment>
-          ))}
-        </p>
-
-        <Link
-          href={`/map?mission=${mission.slug}`}
-          className="mt-5 inline-block rounded-lg bg-button px-5 py-2 font-medium text-button-text transition-opacity hover:opacity-90"
-        >
-          See where it is now →
-        </Link>
+        {picture && (
+          <figure className="w-fit shrink-0">
+            <Image
+              src={picture.src}
+              alt={mission.name}
+              width={picture.width}
+              height={picture.height}
+              preload
+              className="h-auto max-w-full rounded-xl border border-border bg-picture"
+            />
+            {/* The credit wraps to the picture's width. */}
+            <figcaption className="w-0 min-w-full">
+              <ImageCredit mission={mission} className="mt-2" />
+            </figcaption>
+          </figure>
+        )}
       </header>
 
       <dl className="mt-8 grid grid-cols-[repeat(auto-fit,minmax(11rem,1fr))] gap-4">

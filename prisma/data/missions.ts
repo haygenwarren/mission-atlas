@@ -51,17 +51,22 @@ export type SpacecraftSeed = {
 };
 
 // launchDate defaults to the catalogue launch time of the first spacecraft.
+//
+// image is the name of a picture of the spacecraft on Wikimedia Commons, under
+// a licence that lets anyone reuse it. `npm run import:images` downloads it
+// and records its credit, taken from Commons unless imageCredit says who to
+// credit instead (for when Commons gives no author, or not plainly).
 export type MissionSeed = {
   slug: string;
   name: string;
+  image?: string;
+  imageCredit?: string;
   discipline: Discipline;
   status: Status;
   launchDate?: string;
   lastContact?: string;
   endDeclared?: string;
   description: string;
-  imageUrl?: string;
-  imageCredit?: string;
   sourceUrl?: string;
   agencies: AgencyAbbreviation[];
   destinations: DestinationSlug[];
@@ -72,6 +77,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "jwst",
     name: "James Webb Space Telescope",
+    image: "JWST spacecraft model 3.png",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
     description: "Infrared space telescope located at the Sun-Earth L2 point.",
@@ -96,6 +102,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "voyager-1",
     name: "Voyager 1",
+    image: "Voyager spacecraft model.png",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -121,6 +128,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "voyager-2",
     name: "Voyager 2",
+    image: "Voyager spacecraft.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -152,6 +160,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "hubble",
     name: "Hubble Space Telescope",
+    image: "Hubble 2009 close-up 2.jpg",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
     description:
@@ -182,6 +191,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "cassini-huygens",
     name: "Cassini–Huygens",
+    image: "Cassini Saturn Orbit Insertion.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2017-09-15T11:55:46Z",
@@ -230,6 +240,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "mars-2020",
     name: "Mars 2020",
+    image: "Mars 2020 selfie containing both perseverance rover and ingenuity.gif",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -273,6 +284,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "rosetta",
     name: "Rosetta",
+    image: "Rosetta spacecraft model.png",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2016-09-30T11:19:36Z",
@@ -317,6 +329,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "change-4",
     name: "Chang'e 4",
+    image: "ChangE-4 - PCAM.png",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -353,6 +366,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "chandrayaan-3",
     name: "Chandrayaan-3",
+    image: "Chandrayaan-3 lander in clean-room 05.webp",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2023-09-04",
@@ -392,6 +406,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "venera-7",
     name: "Venera 7",
+    image: "Venera-7 spuskaemiy apparat.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1970-12-15",
@@ -419,6 +434,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "hayabusa2",
     name: "Hayabusa2",
+    image: "Hayabusa2 Ion thruster.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -459,6 +475,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "mars-climate-orbiter",
     name: "Mars Climate Orbiter",
+    image: "Mars Climate Orbiter 2.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "FAILED",
     lastContact: "1999-09-23T09:04:52Z",
@@ -485,6 +502,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "kepler",
     name: "Kepler",
+    image: "Kepler Space Telescope spacecraft model 2.png",
     discipline: "ASTROPHYSICS",
     status: "COMPLETED",
     lastContact: "2018-11-15",
@@ -511,6 +529,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "gaia",
     name: "Gaia",
+    image: "Gaia spacecraft.jpeg",
     discipline: "ASTROPHYSICS",
     status: "COMPLETED",
     lastContact: "2025-03-27",
@@ -538,6 +557,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "luna-2",
     name: "Luna 2",
+    image: "Luna 1 - 2 Spacecraft.png",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1959-09-13",
@@ -565,6 +585,8 @@ export const missions: MissionSeed[] = [
   {
     slug: "luna-3",
     name: "Luna 3",
+    image: "Луна-3 (14562265547).jpg",
+    imageCredit: "Memorial Museum of Cosmonautics, Moscow",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1959-10-22",
@@ -593,6 +615,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "luna-9",
     name: "Luna 9",
+    image: "Luna 9 Musee du Bourget P1010505.JPG",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1966-02-06",
@@ -619,6 +642,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "surveyor-1",
     name: "Surveyor 1",
+    image: "Surveyor NASA lunar lander.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1967-01-07",
@@ -648,6 +672,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "luna-16",
     name: "Luna 16",
+    image: "Luna 16.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1970-09-24",
@@ -674,6 +699,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "luna-17",
     name: "Luna 17",
+    image: "Soviet moonrover.JPG",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1971-09-14",
@@ -716,6 +742,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "smart-1",
     name: "SMART-1",
+    image: "Artist's impression of the SMART-1 mission ESA199399.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2006-09-03T05:42:22Z",
@@ -742,6 +769,8 @@ export const missions: MissionSeed[] = [
   {
     slug: "kaguya",
     name: "Kaguya (SELENE)",
+    image: "月周回衛星「かぐや（SELENE)」の模型.JPG",
+    imageCredit: "Hajitaro- at Japanese Wikipedia",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2009-06-10T18:25:00Z",
@@ -794,6 +823,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "chandrayaan-1",
     name: "Chandrayaan-1",
+    image: "Chandrayaan-1-01.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2009-08-28",
@@ -833,6 +863,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "lunar-reconnaissance-orbiter",
     name: "Lunar Reconnaissance Orbiter",
+    image: "Lunar Reconnaissance Orbiter 001.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -857,6 +888,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "change-3",
     name: "Chang'e 3",
+    image: "Yutu rover.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -895,6 +927,8 @@ export const missions: MissionSeed[] = [
   {
     slug: "change-5",
     name: "Chang'e 5",
+    image: "Chang-e-5-assembly-CG-1-Cropped.jpg",
+    imageCredit: "China News Service",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -933,6 +967,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "slim",
     name: "SLIM",
+    image: "SLIM half scale model (close cropped).png",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2024-04-29",
@@ -961,6 +996,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "beresheet",
     name: "Beresheet",
+    image: "Beresheet model on Habima Square 20190222 01.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "FAILED",
     lastContact: "2019-04-11T19:23:00Z",
@@ -987,6 +1023,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "mariner-10",
     name: "Mariner 10",
+    image: "NASM-A19830006000-NASM2019-01579.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1975-03-24T12:21:00Z",
@@ -1012,6 +1049,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "messenger",
     name: "MESSENGER",
+    image: "MESSENGER - spacecraft at mercury - atmercury lg.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2015-04-30",
@@ -1038,6 +1076,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "bepicolombo",
     name: "BepiColombo",
+    image: "BepiColombo stack cropped.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -1078,6 +1117,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "mariner-2",
     name: "Mariner 2",
+    image: "Mariner 2 Engineering Model.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1963-01-03",
@@ -1105,6 +1145,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "venera-9",
     name: "Venera 9",
+    image: "Venera 9 Space Probe 01.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1976-03-22",
@@ -1146,6 +1187,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "vega-1",
     name: "Vega 1",
+    image: "Vega model - Udvar-Hazy Center.JPG",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1987-01-30",
@@ -1197,6 +1239,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "magellan",
     name: "Magellan",
+    image: "Magellan at Kennedy Space Center.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1994-10-13T10:05:00Z",
@@ -1225,6 +1268,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "venus-express",
     name: "Venus Express",
+    image: "Venus Express in orbit (crop).jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2015-01-18",
@@ -1252,6 +1296,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "akatsuki",
     name: "Akatsuki",
+    image: "Akatsuki-1.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     endDeclared: "2025-09-18",
@@ -1279,6 +1324,8 @@ export const missions: MissionSeed[] = [
   {
     slug: "pioneer-10",
     name: "Pioneer 10",
+    image: "Pioneer 10 (18427352949).jpg",
+    imageCredit: "NASA",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2003-01-23",
@@ -1306,6 +1353,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "pioneer-11",
     name: "Pioneer 11",
+    image: "An artist's impression of a Pioneer spacecraft on its way to interstellar space.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1995-11-24",
@@ -1333,6 +1381,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "galileo",
     name: "Galileo",
+    image: "Artwork Galileo-Io-Jupiter.JPG",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2003-09-21",
@@ -1377,6 +1426,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "new-horizons",
     name: "New Horizons",
+    image: "New Horizons spacecraft model 1.png",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -1402,6 +1452,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "juno",
     name: "Juno",
+    image: "Juno spacecraft model 1.png",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -1426,6 +1477,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "juice",
     name: "JUICE",
+    image: "Juice launch kit cover close-up.png",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -1451,6 +1503,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "europa-clipper",
     name: "Europa Clipper",
+    image: "Europa Clipper spacecraft model.png",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -1476,6 +1529,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "mariner-4",
     name: "Mariner 4",
+    image: "Mariner 4 1304 1964novembemariner4.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1967-12-21",
@@ -1500,6 +1554,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "mariner-9",
     name: "Mariner 9",
+    image: "Mariner09.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1972-10-27",
@@ -1524,6 +1579,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "mars-3",
     name: "Mars 3",
+    image: "Mars 3 Space Probe 2.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     endDeclared: "1972-08-22",
@@ -1566,6 +1622,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "viking-1",
     name: "Viking 1",
+    image: "Viking spacecraft.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1982-11-11",
@@ -1604,6 +1661,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "mars-pathfinder",
     name: "Mars Pathfinder",
+    image: "Mars Pathfinder Lander preparations.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1997-09-27T10:23:00Z",
@@ -1646,6 +1704,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "mars-global-surveyor",
     name: "Mars Global Surveyor",
+    image: "Mars global surveyor.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2006-11-05",
@@ -1670,6 +1729,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "mars-odyssey",
     name: "2001 Mars Odyssey",
+    image: "Mars Odyssey spacecraft model.png",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -1694,6 +1754,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "mars-express",
     name: "Mars Express",
+    image: "Mars-express-volcanoes-sm.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -1735,6 +1796,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "spirit",
     name: "Spirit",
+    image: "KSC-03PD-0786.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2010-03-22",
@@ -1761,6 +1823,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "opportunity",
     name: "Opportunity",
+    image: "NASA Mars Rover.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2018-06-10",
@@ -1787,6 +1850,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "mars-reconnaissance-orbiter",
     name: "Mars Reconnaissance Orbiter",
+    image: "Mars Reconnaissance Orbiter, front view, artist's concept (PIA07245).jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -1811,6 +1875,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "phoenix",
     name: "Phoenix",
+    image: "Phoenix landing.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2008-11-02",
@@ -1837,6 +1902,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "mars-science-laboratory",
     name: "Mars Science Laboratory",
+    image: "MSL cruise stage configuration (PIA14831).png",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -1863,6 +1929,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "mars-orbiter-mission",
     name: "Mars Orbiter Mission",
+    image: "Mars Orbiter Mission Over Mars (15237158879).jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     endDeclared: "2022-10-03",
@@ -1888,6 +1955,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "exomars-trace-gas-orbiter",
     name: "ExoMars Trace Gas Orbiter",
+    image: "Maquette Exomars Orbiter Salon du Bourget 2015 DSC 0045.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -1929,6 +1997,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "insight",
     name: "InSight",
+    image: "InSight lander (PIA17358).jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2022-12-15",
@@ -1955,6 +2024,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "hope",
     name: "Hope",
+    image: "Emirates Mars Mission mockup at IAC 2021 01 (cropped).jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -1980,6 +2050,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "tianwen-1",
     name: "Tianwen-1",
+    image: "Tianwen-1 in Mars orbit.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -2018,6 +2089,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "giotto",
     name: "Giotto",
+    image: "Giotto Whipple shield ESA239195.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "1992-07-23",
@@ -2046,6 +2118,8 @@ export const missions: MissionSeed[] = [
   {
     slug: "near-shoemaker",
     name: "NEAR Shoemaker",
+    image: "NEAR at launch preparations.jpg",
+    imageCredit: "NASA",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2001-02-28",
@@ -2071,6 +2145,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "stardust",
     name: "Stardust",
+    image: "Stardust - Concepcao artistica.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2011-03-24T23:33:00Z",
@@ -2100,6 +2175,8 @@ export const missions: MissionSeed[] = [
   {
     slug: "hayabusa",
     name: "Hayabusa",
+    image: "Hayabusa hover.jpg",
+    imageCredit: "J. R. C. Garry",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2010-06-13",
@@ -2132,6 +2209,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "deep-impact",
     name: "Deep Impact",
+    image: "Deep Impact.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2013-08-08",
@@ -2175,6 +2253,8 @@ export const missions: MissionSeed[] = [
   {
     slug: "dawn",
     name: "Dawn",
+    image: "Dawn Flight Configuration 2.jpg",
+    imageCredit: "NASA/JPL",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2018-10-30",
@@ -2201,6 +2281,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "osiris-rex",
     name: "OSIRIS-REx",
+    image: "OSIRIS-REx spacecraft model.png",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -2229,6 +2310,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "dart",
     name: "DART",
+    image: "Artist's illustration of NASA's Double Asteroid Redirection Test Mission.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "COMPLETED",
     lastContact: "2022-09-26T23:14:00Z",
@@ -2270,6 +2352,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "lucy",
     name: "Lucy",
+    image: "Lucy-PatroclusMenoetius-art.png",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -2294,6 +2377,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "psyche",
     name: "Psyche",
+    image: "PIA21499 - Artist's Concept of Psyche Spacecraft with Five-Panel Array.jpg",
     discipline: "PLANETARY_SCIENCE",
     status: "ACTIVE",
     description:
@@ -2318,6 +2402,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "uhuru",
     name: "Uhuru",
+    image: "X-Ray Explorer Satellite.jpg",
     discipline: "ASTROPHYSICS",
     status: "COMPLETED",
     description:
@@ -2342,6 +2427,8 @@ export const missions: MissionSeed[] = [
   {
     slug: "iue",
     name: "IUE",
+    image: "NASA's International Ultraviolet Explorer (1993-04-93).jpg",
+    imageCredit: "NASA",
     discipline: "ASTROPHYSICS",
     status: "COMPLETED",
     lastContact: "1996-09-30T18:44:00Z",
@@ -2371,6 +2458,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "iras",
     name: "IRAS",
+    image: "IRAS testing.jpg",
     discipline: "ASTROPHYSICS",
     status: "COMPLETED",
     lastContact: "1983-11-21",
@@ -2396,6 +2484,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "hipparcos",
     name: "Hipparcos",
+    image: "Hipparcos-testing-estec.jpg",
     discipline: "ASTROPHYSICS",
     status: "COMPLETED",
     description:
@@ -2422,6 +2511,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "cobe",
     name: "COBE",
+    image: "Cosmic Background Explorer spacecraft model.png",
     discipline: "ASTROPHYSICS",
     status: "COMPLETED",
     lastContact: "1993-12-23",
@@ -2471,6 +2561,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "compton-gamma-ray-observatory",
     name: "Compton Gamma Ray Observatory",
+    image: "CGRO s37-96-010.jpg",
     discipline: "ASTROPHYSICS",
     status: "COMPLETED",
     lastContact: "2000-06-04",
@@ -2523,6 +2614,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "chandra",
     name: "Chandra",
+    image: "Chandra artist illustration.jpg",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
     description:
@@ -2547,6 +2639,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "xmm-newton",
     name: "XMM-Newton",
+    image: "XMM-Newton spacecraft model 1.png",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
     description:
@@ -2572,6 +2665,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "wmap",
     name: "WMAP",
+    image: "WMAP spacecraft.jpg",
     discipline: "ASTROPHYSICS",
     status: "COMPLETED",
     lastContact: "2010-10-20",
@@ -2598,6 +2692,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "integral",
     name: "INTEGRAL",
+    image: "INTEGRAL spacecraft model.png",
     discipline: "ASTROPHYSICS",
     status: "COMPLETED",
     endDeclared: "2025-02-28",
@@ -2624,6 +2719,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "spitzer",
     name: "Spitzer",
+    image: "Spitzer space telescope.jpg",
     discipline: "ASTROPHYSICS",
     status: "COMPLETED",
     lastContact: "2020-01-30",
@@ -2650,6 +2746,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "swift",
     name: "Swift",
+    image: "Swift Observatory spacecraft model.png",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
     description:
@@ -2674,6 +2771,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "corot",
     name: "CoRoT",
+    image: "COROT integration.jpg",
     discipline: "ASTROPHYSICS",
     status: "COMPLETED",
     lastContact: "2014-06-17T10:27:00Z",
@@ -2700,6 +2798,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "fermi",
     name: "Fermi",
+    image: "Fermi Gamma-ray Space Telescope spacecraft model.png",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
     description:
@@ -2723,6 +2822,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "herschel",
     name: "Herschel",
+    image: "Herschel Space Observatory at ESTEC.JPG",
     discipline: "ASTROPHYSICS",
     status: "COMPLETED",
     lastContact: "2013-06-17T12:25:00Z",
@@ -2751,6 +2851,8 @@ export const missions: MissionSeed[] = [
   {
     slug: "planck",
     name: "Planck",
+    image: "Model of the Planck Satellite.jpg",
+    imageCredit: "Mike Peel",
     discipline: "ASTROPHYSICS",
     status: "COMPLETED",
     lastContact: "2013-10-23T12:10:27Z",
@@ -2779,6 +2881,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "wise",
     name: "WISE",
+    image: "WISE artist concept (PIA17254, crop).jpg",
     discipline: "ASTROPHYSICS",
     status: "COMPLETED",
     lastContact: "2024-08-08",
@@ -2805,6 +2908,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "nustar",
     name: "NuSTAR",
+    image: "NuSTAR spacecraft model.png",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
     description:
@@ -2829,6 +2933,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "astrosat",
     name: "Astrosat",
+    image: "Astrosat-1 in deployed configuration 001.png",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
     description:
@@ -2852,6 +2957,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "hitomi",
     name: "Hitomi",
+    image: "Hitomi.png",
     discipline: "ASTROPHYSICS",
     status: "FAILED",
     lastContact: "2016-03-26",
@@ -2879,6 +2985,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "tess",
     name: "TESS",
+    image: "TESS alone high res.jpg",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
     description:
@@ -2903,6 +3010,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "spektr-rg",
     name: "Spektr-RG",
+    image: "SPEKTR RG.png",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
     description:
@@ -2927,6 +3035,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "euclid",
     name: "Euclid",
+    image: "Euclid looking into the Universe ESA24697255.jpeg",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
     description:
@@ -2952,6 +3061,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "xrism",
     name: "XRISM",
+    image: "XRISM in a nutshell (cropped).png",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
     description:
@@ -2977,6 +3087,8 @@ export const missions: MissionSeed[] = [
   {
     slug: "einstein-probe",
     name: "Einstein Probe",
+    image: "Einstein Probe illustration.png",
+    imageCredit: "China News Service",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
     description:
@@ -3004,6 +3116,7 @@ export const missions: MissionSeed[] = [
   {
     slug: "spherex",
     name: "SPHEREx",
+    image: "SPHEREx Spacecraft on Work Stand in Astrotech (KSC-20250116-PH-BMF01 0002).jpg",
     discipline: "ASTROPHYSICS",
     status: "ACTIVE",
     description:

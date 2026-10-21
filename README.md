@@ -12,8 +12,9 @@ Mission Atlas is an archive of robotic planetary science and astrophysics missio
 ## Features
 
 - **Map:** where every spacecraft is right now, on a true-scale map of the solar system. Drag, scroll or pinch to move around. Hover over a craft for its distance from the Sun and from Earth and a faint outline of its route; click it to show the route in full, solid so far and dashed ahead. Missions at the same planet are counted on a badge, and clicking it lists them with their craft there. Clicking a planet flies in close to it; around Earth, Jupiter and Saturn the moons then separate out on their orbits, each with its own count. Active missions pulse softly. Markers at the edge point to things out of view; clicking one zooms out to it. A list beside the map searches and filters the missions (active or ended, in flight or at a planet, by agency), narrowing what the map shows; hovering a mission there highlights it, and clicking flies to it.
+- **Pictures:** a picture of each mission's spacecraft, freely licensed and credited, on its page, its tile and its card on the map.
 - **Archive:** search across missions, spacecraft, agencies and destinations, and filter by status, agency, destination, spacecraft type and builder. Results sort by launch date or name and come in pages of 24.
-- **Mission pages:** a link to where the mission is now on the map, launch time to the second, last contact, end declared, duration and destinations, then a tile for each spacecraft with its mass, size, power source, builder and its own status.
+- **Mission pages:** a picture of the spacecraft, a link to where the mission is now on the map, launch time to the second, last contact, end declared, duration and destinations, then a tile for each spacecraft with its mass, size, power source, builder and its own status.
 - **Linked facts:** every agency, destination, spacecraft type and builder links to the archive filtered by it.
 - **Light and dark themes:** dark by default, with a switch that remembers the visitor's choice.
 
@@ -32,6 +33,8 @@ flowchart LR
   F["prisma/data/*.ts<br/>missions, agencies,<br/>destinations, builders"] --> S["prisma/seed.ts"]
   G["GCAT catalogue"] -- "npm run import:catalogue" --> C["prisma/data/catalogue.json"]
   C --> S
+  M["Wikimedia Commons"] -- "npm run import:images" --> I["prisma/data/images.json<br/>public/images/missions/"]
+  I --> S
   S -- "on every deploy" --> D[("PostgreSQL on Neon")]
   D --> W["Next.js on Vercel"]
   H["JPL Horizons"] -- "npm run import:positions" --> P["public/positions.json"]
@@ -45,6 +48,7 @@ flowchart LR
   - **Accuracy:** from 90 days before the first of the current month to two years after it, every position is within 1,000 km of Horizons. Outside that window positions only feed trails and animations, and are within 75,000 km.
   - **Freshness:** a GitHub Actions job refreshes the file from Horizons every day and commits it to `main` when Horizons' data has changed, which redeploys the site. Horizons revises the paths of craft in transit as they are tracked and as they manoeuvre.
   - Facts such as where a craft ended up stay in the database; only the numbers live in the file.
+- **Pictures** come from [Wikimedia Commons](https://commons.wikimedia.org). Each mission names a file there in `missions.ts`; a script checks that its licence lets anyone reuse it (public domain, CC0, CC BY or CC BY-SA, and India's GODL), downloads it at up to 1,200 pixels wide into `public/images/missions/`, and records its author, licence and source in `prisma/data/images.json` for the credit line. Each file is named after its contents, so a changed picture gets a new address and Vercel can keep resized copies for a month.
 - **The seed** makes the database match the files: it creates or updates rows by slug, deletes rows no longer listed, and runs in one transaction so a failure changes nothing.
 - **Pages:** the home page, the map and mission pages are built ahead of time and refreshed hourly. The archive is rendered on each request, because its results depend on the search and filters in the address.
 - **The map** is drawn on a canvas in the browser (`src/components/map/`), because it redraws hundreds of objects many times a second while moving. The page hands it each craft's facts from the database; it loads `positions.json` itself and works out every position for the current moment, once a second.
@@ -56,6 +60,7 @@ Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · Prisma 7 
 ## Data sources and credits
 
 - Launch and spacecraft data from [GCAT](https://planet4589.org/space/gcat) (J. McDowell), used under CC BY 4.0.
+- Spacecraft pictures from [Wikimedia Commons](https://commons.wikimedia.org), each credited with its author and licence on its mission's page.
 - Positions of planets, asteroids, comets and spacecraft from [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) (NASA/JPL Solar System Dynamics).
 - End dates and statuses checked against agency mission pages, NASA's NSSDCA catalogue and Wikipedia. Each mission links to its main source.
 - Mission and spacecraft descriptions are written for this project.
@@ -97,15 +102,17 @@ npm run dev                  # http://localhost:3000
 | `npm run lint` | ESLint. |
 | `npm run import:catalogue` | Refreshes `prisma/data/catalogue.json` from GCAT for every spacecraft that has a `catalogueId`. |
 | `npm run import:positions` | Refreshes `public/positions.json` from JPL Horizons: orbits for every body, and routes for every spacecraft that has a `horizonsId`. Takes 10–15 minutes. The daily refresh job runs it, so it only needs running by hand after adding a `horizonsId`. |
+| `npm run import:images` | Downloads each mission's picture from Wikimedia Commons into `public/images/missions/` and records its credit in `prisma/data/images.json`. Refuses a file whose licence doesn't allow reuse. Pictures already downloaded are kept; `-- --all` downloads every one again. |
 | `npm run check:positions` | Compares `public/positions.json` with the committed version. Fails if a body or route has gone missing or the file shrank sharply, and says whether anything but the fetch date changed. |
 
 ## Adding or changing a mission
 
 1. Add the mission to `prisma/data/missions.ts`. Give each spacecraft its GCAT catalogue ID (for example `S25008` for Cassini; carried craft such as landers have IDs starting with `A`), its location, and its [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) ID if Horizons tracks it (`-82` for Cassini).
 2. Run `npm run import:catalogue` to fetch its launch time, masses, size and builders.
-3. Add any new agency, destination or builder to `agencies.ts`, `destinations.ts` or `builders.ts`. Type-checking flags one that is used but not listed, and the seed refuses to run.
-4. Run `npx prisma db seed` against your development database and check the page.
-5. Open a pull request.
+3. Find a picture of the spacecraft on [Wikimedia Commons](https://commons.wikimedia.org) under a free licence, set it as the mission's `image`, and run `npm run import:images`.
+4. Add any new agency, destination or builder to `agencies.ts`, `destinations.ts` or `builders.ts`. Type-checking flags one that is used but not listed, and the seed refuses to run.
+5. Run `npx prisma db seed` against your development database and check the page.
+6. Open a pull request.
 
 The conventions the data follows:
 
@@ -115,6 +122,7 @@ The conventions the data follows:
 - Destinations are the places a mission studied or landed on, not gravity-assist flybys.
 - A spacecraft's `location` is where it is now: where it is headed if it is still on its way, or where it ended up if its mission is over. It is one of the destinations, but not necessarily one of its mission's (Gaia worked at L2 and was retired into an orbit around the Sun).
 - `horizonsId` is the craft's own entry in Horizons, found by designator or by a name Horizons lists. A carried craft without its own entry has none.
+- A mission's `image` shows its spacecraft, whether a photo, a model or an artist's impression. If Commons gives no author, or not plainly, `imageCredit` says who to credit.
 - Catalogue values that need correcting are overridden in `missions.ts` with a comment giving the reason; companies with several GCAT codes are merged in `builderAliases`.
 
 ## Deploys and environments
@@ -135,14 +143,17 @@ One job commits to `main` without a pull request: `.github/workflows/refresh-pos
 prisma/
   schema.prisma          database tables
   migrations/            schema changes, applied in order
-  data/                  missions, agencies, destinations, builders, catalogue snapshot
+  data/                  missions, agencies, destinations, builders, catalogue
+                         snapshot, picture credits
   seed.ts                loads prisma/data into the database
 scripts/
   import-catalogue.ts    refreshes the GCAT snapshot
   import-positions.ts    refreshes the positions snapshot from JPL Horizons
   check-positions.ts     guards the daily refresh before it commits
+  import-images.ts       downloads mission pictures from Wikimedia Commons
 public/
   positions.json         orbits and routes for the map
+  images/missions/       mission pictures
 src/
   app/                   pages: home, map, archive, mission page, not-found
   components/            tiles, status tags, theme switch, navbar
