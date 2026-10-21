@@ -56,20 +56,6 @@ export async function generateMetadata({
 
 const linkClasses = "text-accent hover:underline";
 
-// The picture beside the title keeps its own shape, as large as fits in this
-// box, so none is cropped.
-const PICTURE_WIDTH = 416;
-const PICTURE_HEIGHT = 288;
-
-function fitPicture(width: number, height: number) {
-  const scale = Math.min(PICTURE_WIDTH / width, PICTURE_HEIGHT / height, 1);
-
-  return {
-    width: Math.round(width * scale),
-    height: Math.round(height * scale),
-  };
-}
-
 function Fact({
   label,
   children,
@@ -78,7 +64,7 @@ function Fact({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-surface p-4">
+    <div className="bg-surface p-4">
       <dt className="label-caps text-muted">{label}</dt>
       <dd className="mt-2 font-semibold">{children}</dd>
     </div>
@@ -102,13 +88,6 @@ export default async function MissionDetailPage({ params }: PageProps) {
   }
 
   const duration = missionDuration(mission);
-  const picture =
-    mission.imageUrl && mission.imageWidth && mission.imageHeight
-      ? {
-          src: mission.imageUrl,
-          ...fitPicture(mission.imageWidth, mission.imageHeight),
-        }
-      : null;
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-10">
@@ -119,59 +98,74 @@ export default async function MissionDetailPage({ params }: PageProps) {
         ← Mission archive
       </Link>
 
-      <header className="mt-6 flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <p className="label-caps text-muted">
-            {disciplineLabels[mission.discipline]}
-          </p>
+      {/* The picture across the page, cropped to fit, with the title over
+          its lower edge. A mission without a picture keeps the dark band. */}
+      <header
+        className={`relative mt-6 flex flex-col justify-end overflow-hidden rounded-xl border border-border bg-picture ${
+          mission.imageUrl ? "min-h-[28rem] sm:aspect-[2/1] sm:min-h-0" : ""
+        }`}
+      >
+        {mission.imageUrl && (
+          <>
+            <Image
+              src={mission.imageUrl}
+              alt={mission.name}
+              fill
+              sizes="(min-width: 1024px) 976px, 100vw"
+              preload
+              className="object-cover"
+            />
+            {/* A fade from the bottom, so the title reads on any picture. */}
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-linear-to-t from-picture from-5% via-picture/50 via-35% to-transparent to-65%"
+            />
+          </>
+        )}
 
-          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
-            <h1 className="font-display text-4xl">{mission.name}</h1>
-            <StatusBadge status={mission.status} />
+        <div className="relative flex flex-wrap items-end justify-between gap-x-6 gap-y-4 p-5 sm:p-8">
+          <div>
+            <p className="label-caps text-picture-accent">
+              {disciplineLabels[mission.discipline]}
+            </p>
+
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+              <h1 className="font-display text-3xl text-picture-text sm:text-4xl">
+                {mission.name}
+              </h1>
+              <StatusBadge status={mission.status} />
+            </div>
+
+            <p className="mt-3 text-picture-text">
+              {mission.agencies.map((agency, i) => (
+                <Fragment key={agency.id}>
+                  {i > 0 && <span className="opacity-60"> · </span>}
+                  <Link
+                    href={`/missions?agency=${encodeURIComponent(agency.abbreviation)}`}
+                    title={agency.name}
+                    className="text-picture-accent hover:underline"
+                  >
+                    {agency.abbreviation}
+                  </Link>
+                </Fragment>
+              ))}
+            </p>
           </div>
-
-          <p className="mt-3">
-            {mission.agencies.map((agency, i) => (
-              <Fragment key={agency.id}>
-                {i > 0 && <span className="text-muted"> · </span>}
-                <Link
-                  href={`/missions?agency=${encodeURIComponent(agency.abbreviation)}`}
-                  title={agency.name}
-                  className={linkClasses}
-                >
-                  {agency.abbreviation}
-                </Link>
-              </Fragment>
-            ))}
-          </p>
 
           <Link
             href={`/map?mission=${mission.slug}`}
-            className="mt-5 inline-block rounded-lg bg-button px-5 py-2 font-medium text-button-text transition-opacity hover:opacity-90"
+            className="shrink-0 rounded-lg bg-picture-accent px-5 py-2 font-medium text-picture transition-opacity hover:opacity-90"
           >
             See where it is now →
           </Link>
         </div>
-
-        {picture && (
-          <figure className="w-fit shrink-0">
-            <Image
-              src={picture.src}
-              alt={mission.name}
-              width={picture.width}
-              height={picture.height}
-              preload
-              className="h-auto max-w-full rounded-xl border border-border bg-picture"
-            />
-            {/* The credit wraps to the picture's width. */}
-            <figcaption className="w-0 min-w-full">
-              <ImageCredit mission={mission} className="mt-2" />
-            </figcaption>
-          </figure>
-        )}
       </header>
 
-      <dl className="mt-8 grid grid-cols-[repeat(auto-fit,minmax(11rem,1fr))] gap-4">
+      <ImageCredit mission={mission} className="mt-2" />
+
+      {/* One strip of facts, with hairlines between them. On phones an odd
+          last fact spans both columns rather than leaving a gap. */}
+      <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border max-sm:[&>*:last-child:nth-child(odd)]:col-span-2 sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]">
         <Fact label="Launched">
           {formatDate(mission.launchDate, "none")}
           <Detail>{formatTime(mission.launchDate)}</Detail>
