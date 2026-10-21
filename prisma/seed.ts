@@ -123,6 +123,8 @@ async function main() {
           endDeclared: toDate(mission.endDeclared),
           description: mission.description,
           imageUrl: image?.url ?? null,
+          imageWidth: image?.width ?? null,
+          imageHeight: image?.height ?? null,
           imageCredit: image?.author ?? null,
           imageLicense: image?.license ?? null,
           imageLicenseUrl: image?.licenseUrl ?? null,

@@ -7,6 +7,8 @@ export type ImageRecord = {
   file: string;
   // Where the site serves it, under public/.
   url: string;
+  width: number;
+  height: number;
   author: string;
   license: string;
   // Public domain files have no licence page.

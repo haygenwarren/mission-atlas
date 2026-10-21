@@ -63,6 +63,8 @@ model Mission {
   description          String
   // A picture of the spacecraft, credited as its licence asks.
   imageUrl             String?
+  imageWidth           Int?
+  imageHeight          Int?
   imageCredit          String?
   imageLicense         String?
   imageLicenseUrl      String?

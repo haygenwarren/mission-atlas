@@ -19,10 +19,10 @@ export default function MissionTile({ mission }: { mission: MissionTileData }) {
         <MissionImage
           src={mission.imageUrl}
           sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
-          className="aspect-[16/9]"
+          className="aspect-[3/2]"
         />
       ) : (
-        <div className="flex aspect-[16/9] items-center justify-center bg-picture">
+        <div className="flex aspect-[3/2] items-center justify-center bg-picture">
           <Image
             src="/brand/mission-atlas-mark-small.svg"
             alt=""

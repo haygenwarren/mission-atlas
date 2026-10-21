@@ -206,9 +206,13 @@ async function main() {
       downloaded++;
     }
 
+    const { width, height } = await sharp(path.join(PUBLIC, url!)).metadata();
+
     records[mission.slug] = {
       file,
       url: url!,
+      width,
+      height,
       author: credit || "Unknown",
       license,
       licenseUrl: info.extmetadata?.LicenseUrl?.value ?? null,

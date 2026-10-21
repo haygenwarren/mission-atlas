@@ -1477,7 +1477,7 @@ function InfoCard({
             <MissionImage
               src={mission.imageUrl}
               sizes="(min-width: 640px) 344px, 100vw"
-              className="aspect-[2/1] rounded-lg"
+              className="aspect-[3/2] rounded-lg"
             />
             <figcaption>
               <ImageCredit mission={mission} className="mt-1.5" />

@@ -1,38 +1,18 @@
 import Image from "next/image";
 
-// A mission's picture, shown whole whatever its shape: the frame sets the
-// shape, and a blurred copy of the picture fills the space beside it. Both
-// copies ask for the same sizes, so the browser downloads it once.
+// A mission's picture filling a frame of the given shape, cropped to fit.
 export default function MissionImage({
   src,
-  alt = "",
   sizes,
-  preload = false,
   className = "",
 }: {
   src: string;
-  alt?: string;
   sizes: string;
-  preload?: boolean;
   className?: string;
 }) {
   return (
     <div className={`relative overflow-hidden bg-picture ${className}`}>
-      <Image
-        src={src}
-        alt=""
-        fill
-        sizes={sizes}
-        className="scale-125 object-cover opacity-40 blur-2xl"
-      />
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        sizes={sizes}
-        preload={preload}
-        className="object-contain"
-      />
+      <Image src={src} alt="" fill sizes={sizes} className="object-cover" />
     </div>
   );
 }
