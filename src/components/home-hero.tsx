@@ -147,7 +147,9 @@ export default function HomeHero({ craft, names, missionCount }: Props) {
             opacity: "calc(1 - var(--p) * 2.5)",
             transform: "translateY(calc(var(--p) * -3rem))",
           }}
-          className="pointer-events-none absolute inset-x-0 bottom-0 top-[73px] flex items-start justify-end pl-6 pr-(--edge) pt-8 sm:items-center sm:pt-0"
+          // On phones the text covers most of the screen, so the map fades
+          // out behind it and shows below.
+          className="pointer-events-none absolute inset-x-0 bottom-0 top-[73px] flex items-start justify-end bg-linear-to-b from-background from-55% to-transparent to-75% pl-6 pr-(--edge) pt-8 sm:items-center sm:bg-none sm:pt-0"
         >
           <div
             ref={searchRef}

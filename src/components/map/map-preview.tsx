@@ -40,11 +40,11 @@ type Props = {
 };
 
 // The hero shows a quarter of the map: the Sun in the bottom-left corner,
-// this far in, and the inner planets large, with Jupiter's orbit the
-// outermost arc, nearly reaching across the longer side of the screen.
+// this far in, and the inner planets close up, with Mars's orbit reaching
+// across the shorter side of the screen.
 const CORNER_INSET = 28;
-const JUPITER_AU = 5.2;
-const JUPITER_SHARE = 0.95;
+const MARS_AU = 1.52;
+const MARS_SHARE = 0.9;
 
 // The map section shows everything out past Jupiter's orbit around the Sun,
 // or just the inner planets on a narrow screen.
@@ -87,7 +87,7 @@ function cameraAt(
   const start = {
     x: CORNER_INSET,
     y: height - CORNER_INSET,
-    scale: (Math.max(width, height) * JUPITER_SHARE) / JUPITER_AU,
+    scale: (Math.min(width, height) * MARS_SHARE) / MARS_AU,
   };
   const end = {
     x: width / 2,
