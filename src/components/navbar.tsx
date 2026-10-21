@@ -4,7 +4,8 @@ import ThemeToggle from "@/components/theme-toggle";
 
 export default function Navbar() {
   return (
-    <header className="border-b border-border">
+    // Above the page, so the home page's map can run underneath it.
+    <header className="relative z-10 border-b border-border bg-background/80 backdrop-blur-sm">
       <nav className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-4">
         <Link href="/" className="flex items-center gap-3">
           <Image

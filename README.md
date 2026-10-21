@@ -11,13 +11,13 @@ Mission Atlas is an archive of robotic planetary science and astrophysics missio
 
 ## Features
 
-- **Home page:** the live map out to Jupiter, beside the search. Hovering shows where a craft is, and clicking opens the full map on it. Below it are a Mission of the Day (the same for everyone, changing at midnight UTC, with every mission taking a turn before any repeats), six featured missions picked on each visit, the archive's numbers, and an about section.
+- **Home page:** opens on a quarter of the live map, the Sun in the bottom-left corner, with the search laid over it. Scrolling down, or clicking the map, glides the map to the middle of the screen; there, hovering shows where a craft is and its path, and clicking opens the full map on it. Below come a Mission of the Day (the same for everyone, changing at midnight UTC, with every mission taking a turn before any repeats), the archive's numbers, six featured missions picked on each visit, and an about section.
 - **Map:** where every spacecraft is right now, on a true-scale map of the solar system. Drag, scroll or pinch to move around. Hover over a craft for its distance from the Sun and from Earth and a faint outline of its route; click it to show the route in full, solid so far and dashed ahead. Missions at the same planet are counted on a badge, and clicking it lists them with their craft there. Clicking a planet flies in close to it; around Earth, Jupiter and Saturn the moons then separate out on their orbits, each with its own count. Active missions pulse softly. Markers at the edge point to things out of view; clicking one zooms out to it. A list beside the map searches and filters the missions (active or ended, in flight or at a planet, by agency), narrowing what the map shows; hovering a mission there highlights it, and clicking flies to it.
 - **Pictures:** a picture of each mission's spacecraft, freely licensed and credited, on its page, its tile and its card on the map.
 - **Archive:** search across missions, spacecraft, agencies and destinations, and filter by status, agency, destination, spacecraft type and builder. Results sort by launch date or name and come in pages of 24.
 - **Mission pages:** a picture of the spacecraft, a link to where the mission is now on the map, launch time to the second, last contact, end declared, duration and destinations, then a tile for each spacecraft with its mass, size, power source, builder and its own status.
 - **Linked facts:** every agency, destination, spacecraft type and builder links to the archive filtered by it.
-- **Light and dark themes:** dark by default, with a switch that remembers the visitor's choice.
+- **Light and dark themes:** dark by default, with a sun and moon switch in the navbar that remembers the visitor's choice.
 
 | Mission page | Archive, light theme |
 | --- | --- |

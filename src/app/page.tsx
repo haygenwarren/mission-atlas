@@ -1,6 +1,6 @@
 import Link from "next/link";
 import FeaturedMissions from "@/components/featured-missions";
-import MapPreview from "@/components/map/map-preview";
+import HomeHero from "@/components/home-hero";
 import MissionOfTheDay from "@/components/mission-of-the-day";
 import { getMapData } from "@/lib/map-data";
 import {
@@ -22,9 +22,6 @@ const dayFormat = new Intl.DateTimeFormat("en-GB", {
   dateStyle: "long",
   timeZone: "UTC",
 });
-
-const buttonClasses =
-  "rounded-lg bg-button px-5 py-2 font-medium text-button-text transition-opacity hover:opacity-90";
 
 export default async function Home() {
   const today = new Date();
@@ -76,55 +73,11 @@ export default async function Home() {
 
   return (
     <main>
-      {/* The map fills the left of the screen; the words line up with the
-          page's content on the right. */}
-      <section className="border-b border-border lg:grid lg:grid-cols-[minmax(0,1fr)_auto]">
-        <div className="h-[26rem] sm:h-[32rem] lg:h-[min(80vh,46rem)] lg:min-h-[32rem] lg:border-r lg:border-border">
-          <MapPreview craft={map.craft} names={map.names} />
-        </div>
-
-        <div className="flex flex-col justify-center px-6 py-10 lg:w-[calc(26rem+max(1.5rem,(100vw-64rem)/2+1.5rem))] lg:py-12 lg:pl-12 lg:pr-[max(1.5rem,calc((100vw-64rem)/2+1.5rem))]">
-          <p className="label-caps mb-3 text-muted">Mission Atlas</p>
-
-          <h1 className="font-display mb-4 text-4xl sm:text-5xl">
-            Explore how we explore.
-          </h1>
-
-          <p className="text-lg text-foreground/80">
-            Where the spacecraft exploring the solar system, and the
-            telescopes looking beyond it, are right now, and the story of
-            each: {missionCount} missions from space agencies around the
-            world.
-          </p>
-
-          <Link href="/map" className={`${buttonClasses} mt-6 self-start`}>
-            Explore the full map →
-          </Link>
-
-          <form action="/missions" method="GET" className="mt-8 flex gap-3">
-            <input
-              type="search"
-              name="q"
-              placeholder="Search missions and spacecraft"
-              aria-label="Search the archive"
-              className="field w-full"
-            />
-            <button
-              type="submit"
-              className="rounded-lg border border-border-strong px-4 py-2 font-medium transition-colors hover:border-accent"
-            >
-              Search
-            </button>
-          </form>
-
-          <Link
-            href="/missions"
-            className="mt-4 self-start text-sm font-medium text-accent hover:underline"
-          >
-            Or browse all {missionCount} missions
-          </Link>
-        </div>
-      </section>
+      <HomeHero
+        craft={map.craft}
+        names={map.names}
+        missionCount={missionCount}
+      />
 
       <div className="mx-auto max-w-5xl space-y-16 px-6 py-12">
         <section>
@@ -134,6 +87,18 @@ export default async function Home() {
           </div>
 
           <MissionOfTheDay mission={featured} />
+        </section>
+
+        <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          {stats.map(({ label, value }) => (
+            <div
+              key={label}
+              className="rounded-xl border border-border bg-surface p-5"
+            >
+              <p className="label-caps text-muted">{label}</p>
+              <p className="font-display mt-2 text-3xl">{value}</p>
+            </div>
+          ))}
         </section>
 
         <section>
@@ -148,18 +113,6 @@ export default async function Home() {
           </div>
 
           <FeaturedMissions pool={featuredPool} />
-        </section>
-
-        <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {stats.map(({ label, value }) => (
-            <div
-              key={label}
-              className="rounded-xl border border-border bg-surface p-5"
-            >
-              <p className="label-caps text-muted">{label}</p>
-              <p className="font-display mt-2 text-3xl">{value}</p>
-            </div>
-          ))}
         </section>
 
         <section id="about" className="max-w-3xl">

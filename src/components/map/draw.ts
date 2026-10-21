@@ -73,6 +73,9 @@ export type Frame = {
   // Where the pulse around active missions is in its cycle, from 0 to 1, or
   // null for no pulse (for visitors who ask for reduced motion).
   pulse: number | null;
+  // How visible the markers at the edge for things out of view are, from 0
+  // (not drawn) to 1. The home page fades them in as its map moves.
+  edges?: number;
 };
 
 // Small bodies are left out until the map is zoomed in this far (pixels per
@@ -143,6 +146,7 @@ type Label = {
   priority: number;
   target?: Target;
   reach?: number;
+  alpha?: number;
 };
 
 function statusColour(palette: Palette, status: Status) {
@@ -271,6 +275,7 @@ export function drawMap(frame: Frame): Hit[] {
     frame;
   const hits: Hit[] = [];
   const labels: Label[] = [];
+  const edges = frame.edges ?? 1;
   // Dots, badges and controls, which labels must not cover.
   const taken: Box[] = [...frame.covered];
   const around = (x: number, y: number, r: number) =>
@@ -437,11 +442,13 @@ export function drawMap(frame: Frame): Hit[] {
     const [x, y] = screen(body.position[0], body.position[1]);
 
     if (!onScreen(size, x, y, 40)) {
-      if (planet || body.slug === "pluto") {
+      if ((planet || body.slug === "pluto") && edges > 0) {
         const edge = edgePoint(size, insets, x, y);
         const reach = Math.hypot(body.position[0], body.position[1]);
 
+        ctx.globalAlpha = edges;
         drawEdgeArrow(ctx, edge, highlighted ? palette.accent : palette.muted);
+        ctx.globalAlpha = 1;
         hits.push({ ...target, x: edge.x, y: edge.y, radius: 14, reach });
         labels.push({
           text: `${names[body.slug]} · ${formatDistance(fromSun(body.position))}`,
@@ -451,6 +458,7 @@ export function drawMap(frame: Frame): Hit[] {
           priority: highlighted ? 90 : 20,
           target,
           reach,
+          alpha: edges,
         });
       }
       continue;
@@ -574,10 +582,12 @@ export function drawMap(frame: Frame): Hit[] {
     const target: Target = { kind: "craft", slug: craft.slug };
 
     if (!onScreen(size, x, y, 8)) {
+      if (edges === 0) continue;
+
       const edge = edgePoint(size, insets, x, y);
       const reach = Math.hypot(position[0], position[1]);
 
-      ctx.globalAlpha = ended && !highlighted ? 0.55 : 1;
+      ctx.globalAlpha = (ended && !highlighted ? 0.55 : 1) * edges;
       drawEdgeArrow(ctx, edge, colour);
       ctx.globalAlpha = 1;
       hits.push({ ...target, x: edge.x, y: edge.y, radius: 14, reach });
@@ -589,6 +599,7 @@ export function drawMap(frame: Frame): Hit[] {
         priority: highlighted ? 90 : ended ? 15 : 25,
         target,
         reach,
+        alpha: edges,
       });
       continue;
     }
@@ -707,7 +718,9 @@ function drawLabels(
 
       placed.push(box);
       ctx.fillStyle = label.color;
+      ctx.globalAlpha = label.alpha ?? 1;
       ctx.fillText(label.text, start, label.y);
+      ctx.globalAlpha = 1;
 
       if (label.target) {
         hits.push({
