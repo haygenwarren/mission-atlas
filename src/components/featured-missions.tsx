@@ -5,7 +5,7 @@ import MissionTile from "@/components/mission-tile";
 import { sample } from "@/lib/random";
 import type { MissionTileData } from "@/lib/missions";
 
-const SHOWN = 3;
+const SHOWN = 6;
 
 // The home page is cached, so the server cannot pick different missions for
 // each visitor. It sends a pool instead, and this picks from it in the
