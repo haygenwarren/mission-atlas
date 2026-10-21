@@ -185,3 +185,29 @@ export function missionDuration(mission: {
 
   return end && formatDuration(mission.launchDate, end);
 }
+
+// A stable number for a slug (FNV-1a), to shuffle missions the same way on
+// every build.
+function shuffleKey(slug: string) {
+  let hash = 2166136261;
+
+  for (let i = 0; i < slug.length; i++) {
+    hash = Math.imul(hash ^ slug.charCodeAt(i), 16777619);
+  }
+
+  return hash >>> 0;
+}
+
+// The same mission for everyone on a given day (UTC). Missions take turns in
+// a fixed shuffled order, so each comes round once before any repeats.
+export function missionOfTheDay<T extends { slug: string }>(
+  missions: T[],
+  date: Date,
+) {
+  const day = Math.floor(date.getTime() / 86_400_000);
+  const order = [...missions].sort(
+    (a, b) => shuffleKey(a.slug) - shuffleKey(b.slug),
+  );
+
+  return order[day % order.length];
+}

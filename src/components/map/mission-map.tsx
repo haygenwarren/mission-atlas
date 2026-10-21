@@ -8,14 +8,12 @@ import type { DestinationKind, Status } from "@/generated/prisma/enums";
 import { statusLabels } from "@/lib/missions";
 import {
   MOON_NAMES,
-  PLANETS,
   buildScene,
   dayToDate,
   formatDistance,
   formatLightTime,
   fromSun,
   placeCraft,
-  routeSamples,
   type MapCraft,
   type Scene,
 } from "@/lib/map-scene";
@@ -23,15 +21,10 @@ import {
   bodyPosition,
   daysSinceJ2000,
   distance,
-  MOONS,
   isMoon,
-  orbitOutline,
-  type BodySlug,
-  type MoonSlug,
   type PlaceSlug,
   type Days,
   type PositionsSnapshot,
-  type Vec3,
 } from "@/lib/orbits";
 import {
   between,
@@ -50,8 +43,18 @@ import {
   type Hit,
   type Palette,
   type Target,
-  type Trail,
 } from "./draw";
+import {
+  PULSE_MS,
+  TooltipContent,
+  hitAt,
+  loadPositions,
+  missionTrails,
+  placeTooltip,
+  readPalette,
+  timeFormat,
+  type MapData,
+} from "./shared";
 import MissionList, {
   NO_FILTERS,
   matches,
@@ -65,12 +68,6 @@ import MissionList, {
 type Selection =
   | { kind: "mission"; slug: string }
   | { kind: "body"; slug: PlaceSlug };
-
-type Data = {
-  snapshot: PositionsSnapshot;
-  orbits: { slug: BodySlug; points: Vec3[] }[];
-  moonOrbits: { slug: MoonSlug; points: Vec3[] }[];
-};
 
 type Props = {
   craft: MapCraft[];
@@ -98,16 +95,11 @@ const PINCH_RATE = 0.012;
 const WHEEL_RATE = 0.002;
 const LINE_RATE = 0.05;
 
-// How long one pulse around an active mission takes, in milliseconds.
-const PULSE_MS = 2400;
-
 // The view the map opens on: out to Jupiter.
 const OPENING_RADIUS = 6;
 
 // Safari reports a trackpad pinch as its own gesture events.
 type GestureEvent = UIEvent & { scale: number; clientX: number; clientY: number };
-
-const ORBITS: BodySlug[] = [...PLANETS, "pluto"];
 
 // Camera and pointer state, changed many times a second, so kept in a ref
 // rather than React state.
@@ -181,65 +173,10 @@ function fly(v: View, to: Camera) {
   v.request();
 }
 
-const timeFormat = new Intl.DateTimeFormat("en-GB", {
-  dateStyle: "medium",
-  timeStyle: "short",
-  timeZone: "UTC",
-});
-
 const dayFormat = new Intl.DateTimeFormat("en-GB", {
   dateStyle: "medium",
   timeZone: "UTC",
 });
-
-// Theme colours, resolved to plain colours a canvas understands.
-function readPalette(): Palette {
-  const probe = document.createElement("span");
-
-  document.body.appendChild(probe);
-
-  const colour = (name: string) => {
-    probe.style.color = `var(${name})`;
-    return getComputedStyle(probe).color;
-  };
-  const root = getComputedStyle(document.documentElement);
-  const palette = {
-    background: colour("--background"),
-    surface: colour("--surface"),
-    foreground: colour("--foreground"),
-    muted: colour("--muted"),
-    border: colour("--border"),
-    borderStrong: colour("--border-strong"),
-    accent: colour("--accent"),
-    active: colour("--status-active"),
-    completed: colour("--status-completed"),
-    failed: colour("--status-failed"),
-    sans: `${root.getPropertyValue("--font-archivo")}, Arial, sans-serif`,
-    mono: `${root.getPropertyValue("--font-plex-mono")}, monospace`,
-  };
-
-  probe.remove();
-
-  return palette;
-}
-
-// A mission's routes, ready to draw.
-function missionTrails(
-  craft: MapCraft[],
-  snapshot: PositionsSnapshot,
-  mission: string,
-): Trail[] {
-  const ids = new Set(
-    craft
-      .filter((one) => one.mission.slug === mission && one.horizonsId)
-      .map((one) => one.horizonsId!),
-  );
-
-  return [...ids]
-    .map((id) => snapshot.routes[id])
-    .filter((route) => route && route.length > 1)
-    .map(routeSamples);
-}
 
 // A view centred on (x, y) in `area` of the screen (the part not covered by
 // the list and the info card), showing `radius` AU around it.
@@ -458,7 +395,7 @@ export default function MissionMap({
   const controlsRef = useRef<HTMLDivElement>(null);
   const captionRef = useRef<HTMLParagraphElement>(null);
 
-  const [data, setData] = useState<Data | null>(null);
+  const [data, setData] = useState<MapData | null>(null);
   const [failed, setFailed] = useState(false);
   const [now, setNow] = useState<Days | null>(null);
   const [hovered, setHovered] = useState<Target | null>(null);
@@ -580,29 +517,13 @@ export default function MissionMap({
   useEffect(() => {
     let cancelled = false;
 
-    fetch("/positions.json")
-      .then((response) => {
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return response.json() as Promise<PositionsSnapshot>;
-      })
-      .then((snapshot) => {
+    loadPositions()
+      .then(({ data: loaded, today }) => {
         if (cancelled) return;
 
-        const today = daysSinceJ2000(new Date());
+        const { snapshot } = loaded;
 
-        setData({
-          snapshot,
-          // Fine enough that a planet sits on its orbit line even zoomed
-          // in close enough to see its moons.
-          orbits: ORBITS.map((slug) => ({
-            slug,
-            points: orbitOutline(snapshot.bodies[slug], today, 2048),
-          })),
-          moonOrbits: (Object.keys(MOONS) as MoonSlug[]).map((slug) => ({
-            slug,
-            points: orbitOutline(snapshot.moons[slug], today, 180),
-          })),
-        });
+        setData(loaded);
         setNow(today);
 
         const selected = readSelection(craft, snapshot);
@@ -760,30 +681,7 @@ export default function MissionMap({
         covered: [controls, caption, list].filter((box) => box !== null),
       });
 
-      // Keep the tooltip beside whatever it describes.
-      const tip = tooltipRef.current;
-      const hit =
-        l.hovered &&
-        v.hits.find(
-          (one) => one.kind === l.hovered!.kind && one.slug === l.hovered!.slug,
-        );
-
-      if (tip) {
-        if (hit) {
-          // Below and to the right of the target, unless that would run off
-          // the map.
-          const left = hit.x + 260 > width ? hit.x - 254 : hit.x + 14;
-          const top =
-            hit.y + 14 + tip.offsetHeight > height
-              ? hit.y - 14 - tip.offsetHeight
-              : hit.y + 14;
-
-          tip.style.transform = `translate(${left}px, ${top}px)`;
-          tip.style.visibility = "visible";
-        } else {
-          tip.style.visibility = "hidden";
-        }
-      }
+      placeTooltip(tooltipRef.current, v.hits, l.hovered, v.size);
 
       // Keep drawing while the view moves or the pulse runs.
       if (v.animation || !reducedMotion.matches) request();
@@ -947,37 +845,8 @@ export default function MissionMap({
     return { x: event.clientX - rect.left, y: event.clientY - rect.top };
   }
 
-  // The nearest target to (x, y), allowing `slack` extra pixels for a
-  // finger. A label counts when the point is inside its box.
-  function hitAt(x: number, y: number, slack = 0) {
-    let best: Hit | null = null;
-    let bestMiss = Infinity;
-
-    for (const hit of view.current.hits) {
-      const box = hit.box;
-      const inBox =
-        box &&
-        x >= box.left - slack &&
-        x <= box.right + slack &&
-        y >= box.top - slack &&
-        y <= box.bottom + slack;
-      const miss = box
-        ? inBox
-          ? -0.5
-          : Infinity
-        : Math.hypot(hit.x - x, hit.y - y) - hit.radius - slack;
-
-      if (miss <= 0 && miss < bestMiss) {
-        best = hit;
-        bestMiss = miss;
-      }
-    }
-
-    return best;
-  }
-
   function hover(x: number, y: number) {
-    const hit = hitAt(x, y);
+    const hit = hitAt(view.current.hits, x, y);
     const current = latest.current.hovered;
 
     canvasRef.current!.style.cursor = hit ? "pointer" : "grab";
@@ -1126,7 +995,12 @@ export default function MissionMap({
     if (v.pointers.size > 0) return;
 
     if (!v.dragged) {
-      const hit = hitAt(point.x, point.y, event.pointerType === "mouse" ? 0 : 14);
+      const hit = hitAt(
+        v.hits,
+        point.x,
+        point.y,
+        event.pointerType === "mouse" ? 0 : 14,
+      );
 
       // A marker for something out of view zooms out until it is in view;
       // for a craft, it also selects the mission.
@@ -1300,59 +1174,6 @@ export default function MissionMap({
         </p>
       )}
     </div>
-  );
-}
-
-function TooltipContent({
-  target,
-  scene,
-  craft,
-  names,
-}: {
-  target: Target;
-  scene: Scene;
-  craft: MapCraft[];
-  names: Record<string, string>;
-}) {
-  if (target.kind === "body") {
-    const body =
-      scene.bodies.find(({ slug }) => slug === target.slug) ??
-      scene.moons.find(({ slug }) => slug === target.slug);
-
-    if (!body) return null;
-
-    const count = new Set(body.craft.map(({ mission }) => mission.slug)).size;
-
-    return (
-      <>
-        <p className="font-semibold">{names[body.slug]}</p>
-        <p className="text-muted">
-          {count === 0
-            ? "No missions here"
-            : `${count} mission${count === 1 ? "" : "s"} here`}
-          {body.slug !== "earth" &&
-            ` · ${formatDistance(distance(body.position, scene.earth))} from Earth`}
-        </p>
-      </>
-    );
-  }
-
-  const one = craft.find(({ slug }) => slug === target.slug);
-  const free = scene.free.find(({ craft: c }) => c.slug === target.slug);
-
-  if (!one || !free) return null;
-
-  return (
-    <>
-      <p className="font-semibold">{one.name}</p>
-      {one.mission.name !== one.name && (
-        <p className="text-muted">{one.mission.name}</p>
-      )}
-      <p className="text-muted">
-        {formatDistance(fromSun(free.position))} from the Sun ·{" "}
-        {formatDistance(distance(free.position, scene.earth))} from Earth
-      </p>
-    </>
   );
 }
 
