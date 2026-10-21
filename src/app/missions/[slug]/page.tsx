@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache, Fragment } from "react";
 import { ImageCredit } from "@/components/mission-image";
+import PictureViewer from "@/components/picture-viewer";
 import SpacecraftTile from "@/components/spacecraft-tile";
 import StatusBadge from "@/components/status-badge";
 import { prisma } from "@/lib/prisma";
@@ -107,23 +107,23 @@ export default async function MissionDetailPage({ params }: PageProps) {
       >
         {mission.imageUrl && (
           <>
-            <Image
+            <PictureViewer
               src={mission.imageUrl}
               alt={mission.name}
-              fill
-              sizes="(min-width: 1024px) 976px, 100vw"
-              preload
-              className="object-cover"
+              width={mission.imageWidth}
+              height={mission.imageHeight}
+              credit={<ImageCredit mission={mission} />}
             />
             {/* A fade from the bottom, so the title reads on any picture. */}
             <div
               aria-hidden
-              className="absolute inset-0 bg-linear-to-t from-picture from-5% via-picture/50 via-35% to-transparent to-65%"
+              className="pointer-events-none absolute inset-0 bg-linear-to-t from-picture from-5% via-picture/50 via-35% to-transparent to-65%"
             />
           </>
         )}
 
-        <div className="relative flex flex-wrap items-end justify-between gap-x-6 gap-y-4 p-5 sm:p-8">
+        {/* Clicks between the words fall through to the picture. */}
+        <div className="pointer-events-none relative flex flex-wrap items-end justify-between gap-x-6 gap-y-4 p-5 sm:p-8">
           <div>
             <p className="label-caps text-picture-accent">
               {disciplineLabels[mission.discipline]}
@@ -143,7 +143,7 @@ export default async function MissionDetailPage({ params }: PageProps) {
                   <Link
                     href={`/missions?agency=${encodeURIComponent(agency.abbreviation)}`}
                     title={agency.name}
-                    className="text-picture-accent hover:underline"
+                    className="pointer-events-auto text-picture-accent hover:underline"
                   >
                     {agency.abbreviation}
                   </Link>
@@ -154,9 +154,11 @@ export default async function MissionDetailPage({ params }: PageProps) {
 
           <Link
             href={`/map?mission=${mission.slug}`}
-            className="shrink-0 rounded-lg bg-picture-accent px-5 py-2 font-medium text-picture transition-opacity hover:opacity-90"
+            className="pointer-events-auto shrink-0 rounded-lg bg-picture-accent px-5 py-2 font-medium text-picture transition-opacity hover:opacity-90"
           >
-            See where it is now →
+            {mission.status === "ACTIVE"
+              ? "See where it is now →"
+              : "See where it went →"}
           </Link>
         </div>
       </header>

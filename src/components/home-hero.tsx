@@ -212,9 +212,15 @@ export default function HomeHero({ craft, names, missionCount }: Props) {
           <h2 className="font-display text-2xl sm:text-3xl">
             Where every mission is now, and where it has been.
           </h2>
+          {/* Touch screens can't hover, so they get their own wording. */}
           <p className="mt-3 text-foreground/80">
-            Hover over a spacecraft to trace its path. Click anything to open
-            it on the live map.
+            <span className="pointer-coarse:hidden">
+              Hover over a spacecraft to trace its path. Click anything to
+              open it on the live map.
+            </span>
+            <span className="hidden pointer-coarse:inline">
+              Tap a spacecraft or planet to open it on the live map.
+            </span>
           </p>
         </div>
 

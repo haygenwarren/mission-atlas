@@ -90,7 +90,9 @@ export default function MissionOfTheDay({ mission }: Props) {
             href={`/map?mission=${mission.slug}`}
             className={`${linkClasses} border border-border-strong text-foreground`}
           >
-            See where it is now →
+            {mission.status === "ACTIVE"
+              ? "See where it is now →"
+              : "See where it went →"}
           </Link>
         </div>
 
