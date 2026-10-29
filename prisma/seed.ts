@@ -110,6 +110,8 @@ async function main() {
 
       const destinationIds = new Map<string, number>();
       const missionIds = new Map<string, number>();
+      // Each mission's launch day (UTC), to check its milestones against.
+      const launchDays = new Map<string, string>();
       const craftIds = new Map<string, { id: number; mission: string }>();
 
       for (const destination of destinations) {
@@ -186,6 +188,10 @@ async function main() {
         });
 
         missionIds.set(mission.slug, saved.id);
+        launchDays.set(
+          mission.slug,
+          saved.launchDate.toISOString().slice(0, 10),
+        );
 
         // A mission's only spacecraft shares its status and end dates. With
         // more than one, each states its own and nothing is borrowed.
@@ -237,7 +243,10 @@ async function main() {
             create: { ...craftFields, builders: { connect: builderLinks } },
           });
 
-          craftIds.set(craft.slug, { id: savedCraft.id, mission: mission.slug });
+          craftIds.set(craft.slug, {
+            id: savedCraft.id,
+            mission: mission.slug,
+          });
         }
       }
 
@@ -252,6 +261,27 @@ async function main() {
           if (!missionId) {
             throw new Error(
               `prisma/data/milestones.ts lists "${mission}", which is not a mission.`,
+            );
+          }
+
+          // Nothing happens before the launch, and a listed launch must be on
+          // the launch day, or the timeline would show the launch twice.
+          const launchDay = launchDays.get(mission)!;
+          const firstLaunch = events.find(({ kind }) => kind === "LAUNCH");
+
+          for (const event of events) {
+            if (
+              event.date.slice(0, 10) < launchDay.slice(0, event.date.length)
+            ) {
+              throw new Error(
+                `${mission}: "${event.title}" is dated ${event.date}, before the launch on ${launchDay}.`,
+              );
+            }
+          }
+
+          if (firstLaunch && firstLaunch.date !== launchDay) {
+            throw new Error(
+              `${mission}: its launch milestone is dated ${firstLaunch.date}, but it launched on ${launchDay}.`,
             );
           }
 

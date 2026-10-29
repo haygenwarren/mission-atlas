@@ -82,13 +82,18 @@ function formatEventDate(event: TimelineEvent) {
 // long quiet stretches shrink to make room, so every event can be labelled.
 // Between events the scale runs evenly, so year marks still fall in order.
 // Today counts as a point too, so its marker never sits on an event's dot.
+// Returns the scale for any moment, and each event's own place on it (so
+// two events on the same day still get separate dots).
 function scaleWithToday(times: number[], end: number, today: number | null) {
-  const points =
-    today !== null && today < end
-      ? [...times, today].sort((a, b) => a - b)
-      : times;
+  const withToday = today !== null && today < end;
+  const points = withToday ? [...times, today].sort((a, b) => a - b) : times;
+  const { at, positions } = makeScale(points, end);
+  const todayIndex = withToday ? points.indexOf(today) : -1;
 
-  return makeScale(points, end);
+  return {
+    at,
+    events: positions.filter((_, k) => k !== todayIndex),
+  };
 }
 
 function makeScale(times: number[], end: number) {
@@ -114,7 +119,7 @@ function makeScale(times: number[], end: number) {
   const knots = [...times, end];
   const positions = [...xs, total].map((x) => x / total);
 
-  return (time: number) => {
+  const at = (time: number) => {
     if (time <= start) return 0;
     if (time >= end) return 1;
 
@@ -124,6 +129,8 @@ function makeScale(times: number[], end: number) {
 
     return t1 > t0 ? x0 + ((time - t0) / (t1 - t0)) * (x1 - x0) : x0;
   };
+
+  return { at, positions: positions.slice(0, times.length) };
 }
 
 // Years marked along the bar: every year, or every 2, 5, 10 or 20, whichever
@@ -269,28 +276,32 @@ export default function MissionTimeline({
   const today = status === "ACTIVE" && nowTime < end ? nowTime : null;
   // An active mission's craft is still out there: it is marked at today.
   const nowMark = status === "ACTIVE" ? Math.min(nowTime, end) : null;
-  const fraction = scaleWithToday(times, end, nowMark);
+  const scale = scaleWithToday(times, end, nowMark);
+  const fraction = scale.at;
   // Where a moment falls on the bar, as CSS and in pixels.
   const cssAt = (time: number) =>
     `calc(${PAD}px + ${fraction(time)} * (100% - ${2 * PAD}px))`;
   const pxAt = (time: number, width: number) =>
     PAD + fraction(time) * (width - 2 * PAD);
+  // Where each event's dot sits, as CSS and in pixels.
+  const cssAtEvent = (i: number) =>
+    `calc(${PAD}px + ${scale.events[i]} * (100% - ${2 * PAD}px))`;
+  const pxAtEvent = (i: number, width: number) =>
+    PAD + scale.events[i] * (width - 2 * PAD);
 
   // Measure the labels and lay them out, again whenever the width changes
   // or the fonts finish loading.
   useEffect(() => {
     const stage = stageRef.current!;
     const eventTimes = events.map(({ date }) => new Date(date).getTime());
-    const scale = scaleWithToday(eventTimes, end, nowMark);
+    const { events: places } = scaleWithToday(eventTimes, end, nowMark);
 
     function measure() {
       const width = stage.clientWidth;
       const widths = events.map(
         (_, i) => measureRefs.current[i]?.offsetWidth ?? 120,
       );
-      const xs = eventTimes.map(
-        (time) => PAD + scale(time) * (width - 2 * PAD),
-      );
+      const xs = places.map((place) => PAD + place * (width - 2 * PAD));
       const labels = placeLabels(xs, widths, width);
       const rows = (side: Side) =>
         Math.max(
@@ -409,7 +420,7 @@ export default function MissionTimeline({
   }
 
   const panelWidth = Math.min(PANEL_W, width);
-  const openX = openIndex !== null ? pxAt(times[openIndex], width) : 0;
+  const openX = openIndex !== null ? pxAtEvent(openIndex, width) : 0;
   const panelLeft = Math.min(
     Math.max(openX - panelWidth / 2, 0),
     width - panelWidth,
@@ -472,7 +483,7 @@ export default function MissionTimeline({
           {geometry &&
             events.map((e, i) => {
               const label = geometry.labels[i];
-              const x = pxAt(times[i], width);
+              const x = pxAtEvent(i, width);
               const offset = STEM + label.row * ROW;
               // Labels keep their place while the bar slides away and they
               // fade.
@@ -616,7 +627,7 @@ export default function MissionTimeline({
                 aria-label={`${e.title}, ${formatEventDate(e)}`}
                 onClick={() => (selected === i ? close() : open(i))}
                 className="group absolute -translate-x-1/2 -translate-y-1/2 p-1.5"
-                style={{ top: LINE_Y, left: cssAt(times[i]) }}
+                style={{ top: LINE_Y, left: cssAtEvent(i) }}
               >
                 <span
                   className={`block size-3 rounded-full border-2 transition-transform group-hover:scale-150 ${dotClasses(e)} ${selected === i ? "scale-150 ring-4 ring-accent/30" : ""}`}
