@@ -95,10 +95,6 @@ export default function MissionTimeline({
   const today =
     status === "ACTIVE" && now.getTime() < end ? now.getTime() : null;
   const doneUntil = today ?? end;
-  // Where the list splits into a second column on wide screens: from six
-  // events up, half in each.
-  const split =
-    events.length >= 6 ? Math.ceil(events.length / 2) : events.length;
 
   return (
     <section className="mt-10">
@@ -182,84 +178,71 @@ export default function MissionTimeline({
         })}
       </div>
 
-      {/* On wide screens a longer list splits into two columns, read down
-          the left and then the right, so it doesn't run on with empty space
-          beside it. */}
-      <div
-        className={`mt-4 grid ${split < events.length ? "lg:grid-cols-2 lg:gap-x-10" : "max-w-3xl"}`}
-      >
-        {[events.slice(0, split), events.slice(split)].map(
-          (column, c) =>
-            column.length > 0 && (
-              <ol key={c} start={c === 0 ? 1 : split + 1}>
-                {column.map((event, j) => {
-                  const i = c === 0 ? j : split + j;
-                  const next = events[i + 1];
-                  // The line on to the next event; across the columns it is
-                  // only drawn when they stack.
-                  const lastInColumn = j === column.length - 1;
+      {/* The line runs down the middle of the page, with the dates to its
+          left and the events to its right. On phones the dates take a
+          narrow column instead. */}
+      <ol className="mt-4">
+        {events.map((event, i) => {
+          const next = events[i + 1];
 
-                  return (
-                    <li
-                      key={event.key}
-                      id={`milestone-${event.key}`}
-                      className="grid scroll-mt-24 grid-cols-[6.5rem_1.5rem_1fr] gap-x-3 sm:grid-cols-[7.5rem_1.5rem_1fr]"
-                    >
-                      <p
-                        className={`pt-0.5 text-right text-sm ${event.planned ? "text-muted" : ""}`}
-                      >
-                        {eventDate(event)}
-                      </p>
+          return (
+            <li
+              key={event.key}
+              id={`milestone-${event.key}`}
+              className="grid scroll-mt-24 grid-cols-[6.5rem_1.5rem_1fr] gap-x-3 sm:grid-cols-[1fr_1.5rem_1fr] sm:gap-x-4"
+            >
+              <p
+                className={`pt-0.5 text-right text-sm ${event.planned ? "text-muted" : ""}`}
+              >
+                {eventDate(event)}
+              </p>
 
-                      {/* The dot, on a line running down to the next event. */}
-                      <div className="relative flex justify-center">
-                        {next && (
-                          <span
-                            className={`absolute bottom-0 top-3 w-px ${
-                              next.planned
-                                ? "bg-[repeating-linear-gradient(to_bottom,var(--border-strong)_0_4px,transparent_4px_8px)]"
-                                : "bg-border-strong"
-                            } ${lastInColumn ? "lg:hidden" : ""}`}
-                          />
-                        )}
-                        <span
-                          className={`relative mt-1.5 size-3 rounded-full border-2 border-accent ${
-                            event.planned
-                              ? "bg-background"
-                              : event.kind === "END"
-                                ? `${endColours[status]} border-transparent`
-                                : "bg-accent"
-                          }`}
-                        />
-                      </div>
+              {/* The dot, on a line running down to the next event. */}
+              <div className="relative flex justify-center">
+                {next && (
+                  <span
+                    className={`absolute bottom-0 top-3 w-px ${
+                      next.planned
+                        ? "bg-[repeating-linear-gradient(to_bottom,var(--border-strong)_0_4px,transparent_4px_8px)]"
+                        : "bg-border-strong"
+                    }`}
+                  />
+                )}
+                <span
+                  className={`relative mt-1.5 size-3 rounded-full border-2 border-accent ${
+                    event.planned
+                      ? "bg-background"
+                      : event.kind === "END"
+                        ? `${endColours[status]} border-transparent`
+                        : "bg-accent"
+                  }`}
+                />
+              </div>
 
-                      <div className="pb-6">
-                        <p className="font-semibold">
-                          {event.title}
-                          {event.planned && (
-                            <span className="label-caps ml-2 rounded-full border border-border-strong px-2 py-0.5 align-middle text-[0.65rem] text-muted">
-                              Planned
-                            </span>
-                          )}
-                        </p>
-                        {event.spacecraft && (
-                          <p className="label-caps mt-1 text-muted">
-                            {event.spacecraft.name}
-                          </p>
-                        )}
-                        {event.detail && (
-                          <p className="mt-1 text-sm text-foreground/80">
-                            {event.detail}
-                          </p>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ol>
-            ),
-        )}
-      </div>
+              <div className="max-w-md pb-6">
+                <p className="font-semibold">
+                  {event.title}
+                  {event.planned && (
+                    <span className="label-caps ml-2 rounded-full border border-border-strong px-2 py-0.5 align-middle text-[0.65rem] text-muted">
+                      Planned
+                    </span>
+                  )}
+                </p>
+                {event.spacecraft && (
+                  <p className="label-caps mt-1 text-muted">
+                    {event.spacecraft.name}
+                  </p>
+                )}
+                {event.detail && (
+                  <p className="mt-1 text-sm text-foreground/80">
+                    {event.detail}
+                  </p>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
     </section>
   );
 }
