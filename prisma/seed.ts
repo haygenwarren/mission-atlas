@@ -6,6 +6,7 @@ import { builderAliases, builders } from "./data/builders";
 import { catalogue } from "./data/catalogue";
 import { destinations } from "./data/destinations";
 import { images } from "./data/images";
+import { milestones, type MilestoneSeed } from "./data/milestones";
 import { missions, type SpacecraftSeed } from "./data/missions";
 
 const adapter = new PrismaPg({
@@ -45,6 +46,38 @@ function hasTime(value?: string | null) {
   return Boolean(value?.includes("T"));
 }
 
+// A milestone's date: "2004-07-01" is a day, "2031-07" only a month.
+function milestoneDate(mission: string, milestone: MilestoneSeed) {
+  const match = /^(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(milestone.date);
+
+  if (!match) {
+    throw new Error(
+      `${mission}: milestone "${milestone.title}" has date "${milestone.date}"; write it as "2004-07-01" or "2031-07".`,
+    );
+  }
+
+  const [, year, month, day] = match;
+  const date = new Date(Date.UTC(+year, +month - 1, day ? +day : 1));
+  // The last moment the event could fall on, to check plans against today.
+  const latest = day
+    ? new Date(Date.UTC(+year, +month - 1, +day + 1))
+    : new Date(Date.UTC(+year, +month, 1));
+
+  if (milestone.planned && latest < new Date()) {
+    console.warn(
+      `${mission}: "${milestone.title}" was planned for ${milestone.date}. Mark it done with the actual date, or update the plan.`,
+    );
+  }
+
+  if (!milestone.planned && date > new Date()) {
+    throw new Error(
+      `${mission}: "${milestone.title}" is dated ${milestone.date}, in the future; mark it planned.`,
+    );
+  }
+
+  return { date, precision: day ? ("DAY" as const) : ("MONTH" as const) };
+}
+
 function craftBuilders(craft: SpacecraftSeed) {
   const listed = craft.builders ?? catalogueRecord(craft)?.builders ?? [];
   const codes = [
@@ -76,6 +109,8 @@ async function main() {
       }
 
       const destinationIds = new Map<string, number>();
+      const missionIds = new Map<string, number>();
+      const craftIds = new Map<string, { id: number; mission: string }>();
 
       for (const destination of destinations) {
         const saved = await tx.destination.upsert({
@@ -150,6 +185,8 @@ async function main() {
           },
         });
 
+        missionIds.set(mission.slug, saved.id);
+
         // A mission's only spacecraft shares its status and end dates. With
         // more than one, each states its own and nothing is borrowed.
         const soleCraft = mission.spacecraft.length === 1;
@@ -194,13 +231,55 @@ async function main() {
             missionId: saved.id,
           };
 
-          await tx.spacecraft.upsert({
+          const savedCraft = await tx.spacecraft.upsert({
             where: { slug: craft.slug },
             update: { ...craftFields, builders: { set: builderLinks } },
             create: { ...craftFields, builders: { connect: builderLinks } },
           });
+
+          craftIds.set(craft.slug, { id: savedCraft.id, mission: mission.slug });
         }
       }
+
+      // Milestones have nothing to match them by, so they are replaced
+      // wholesale.
+      await tx.milestone.deleteMany();
+
+      const milestoneRows = Object.entries(milestones).flatMap(
+        ([mission, events]) => {
+          const missionId = missionIds.get(mission);
+
+          if (!missionId) {
+            throw new Error(
+              `prisma/data/milestones.ts lists "${mission}", which is not a mission.`,
+            );
+          }
+
+          return events.map((event) => {
+            const craft = event.spacecraft
+              ? craftIds.get(event.spacecraft)
+              : undefined;
+
+            if (event.spacecraft && craft?.mission !== mission) {
+              throw new Error(
+                `${mission}: milestone "${event.title}" names spacecraft "${event.spacecraft}", which is not one of its craft.`,
+              );
+            }
+
+            return {
+              missionId,
+              spacecraftId: craft ? craft.id : null,
+              kind: event.kind,
+              title: event.title,
+              detail: event.detail ?? null,
+              planned: event.planned ?? false,
+              ...milestoneDate(mission, event),
+            };
+          });
+        },
+      );
+
+      await tx.milestone.createMany({ data: milestoneRows });
 
       const craftSlugs = missions.flatMap((mission) =>
         mission.spacecraft.map((craft) => craft.slug),
@@ -227,7 +306,7 @@ async function main() {
       });
 
       console.log(
-        `Seeded ${missions.length} missions, ${craftSlugs.length} spacecraft, ${agencies.length} agencies, ${destinations.length} destinations, ${builders.length} builders.`,
+        `Seeded ${missions.length} missions, ${craftSlugs.length} spacecraft, ${milestoneRows.length} milestones, ${agencies.length} agencies, ${destinations.length} destinations, ${builders.length} builders.`,
       );
     },
     { maxWait: 15_000, timeout: 120_000 },

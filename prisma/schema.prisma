@@ -50,6 +50,25 @@ enum DestinationKind {
   INTERSTELLAR_SPACE
 }
 
+// What kind of event a milestone is.
+enum MilestoneKind {
+  LAUNCH
+  FLYBY
+  ARRIVAL
+  LANDING
+  RELEASE
+  SAMPLE_RETURN
+  OPERATIONS
+  END
+}
+
+// How precisely a milestone's date is known: to the day, or only the month
+// (for plans not yet fixed to a day).
+enum DatePrecision {
+  DAY
+  MONTH
+}
+
 model Mission {
   id                   Int           @id @default(autoincrement())
   name                 String
@@ -73,6 +92,7 @@ model Mission {
   agencies             Agency[]
   destinations         Destination[]
   spacecraft           Spacecraft[]
+  milestones           Milestone[]
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
 }
@@ -109,8 +129,31 @@ model Spacecraft {
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
 
+  milestones Milestone[]
+
   @@index([missionId])
   @@index([locationId])
+}
+
+// A key event in a mission: a flyby, an arrival, a landing, a sample return,
+// the end. The launch itself comes from the mission's launch date. Planned
+// events are marked until they happen.
+model Milestone {
+  id           Int           @id @default(autoincrement())
+  mission      Mission       @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  missionId    Int
+  // The craft it concerns, when it is not the whole mission (Huygens landing
+  // on Titan, but not Cassini reaching Saturn with Huygens aboard).
+  spacecraft   Spacecraft?   @relation(fields: [spacecraftId], references: [id], onDelete: Cascade)
+  spacecraftId Int?
+  kind         MilestoneKind
+  title        String
+  detail       String?
+  date         DateTime      @db.Date
+  precision    DatePrecision @default(DAY)
+  planned      Boolean       @default(false)
+
+  @@index([missionId])
 }
 
 model Builder {
@@ -129,9 +172,9 @@ model Agency {
 }
 
 model Destination {
-  id       Int             @id @default(autoincrement())
-  name     String          @unique
-  slug     String          @unique
+  id         Int             @id @default(autoincrement())
+  name       String          @unique
+  slug       String          @unique
   kind       DestinationKind
   missions   Mission[]
   spacecraft Spacecraft[]

@@ -16,6 +16,7 @@ Mission Atlas is an archive of robotic planetary science and astrophysics missio
 - **Pictures:** a picture of each mission's spacecraft, freely licensed and credited, on its page, its tile and its card on the map.
 - **Archive:** search across missions, spacecraft, agencies and destinations, and filter by status, agency, destination, spacecraft type and builder. Results sort by launch date or name and come in pages of 24.
 - **Mission pages:** a banner picture of the spacecraft (click it to see the whole picture) with the mission's name over it and a link to where it is now on the map (or where it went, for missions that have ended), then a strip of facts: launch time to the second, last contact, end declared, duration and destinations, then a tile for each spacecraft with its mass, size, power source, builder and its own status.
+- **Milestones:** each mission's key events (flybys, arrivals, landings, sample returns, the end) on a bar drawn to scale from launch to today or the last planned event, with the full list beneath it. Planned events are marked until they happen. Ten missions have them so far.
 - **Linked facts:** every agency, destination, spacecraft type and builder links to the archive filtered by it.
 - **Light and dark themes:** dark by default, with a sun and moon switch in the navbar that remembers the visitor's choice.
 
@@ -110,10 +111,11 @@ npm run dev                  # http://localhost:3000
 
 1. Add the mission to `prisma/data/missions.ts`. Give each spacecraft its GCAT catalogue ID (for example `S25008` for Cassini; carried craft such as landers have IDs starting with `A`), its location, and its [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) ID if Horizons tracks it (`-82` for Cassini).
 2. Run `npm run import:catalogue` to fetch its launch time, masses, size and builders.
-3. Find a picture of the spacecraft on [Wikimedia Commons](https://commons.wikimedia.org) under a free licence, set it as the mission's `image`, and run `npm run import:images`.
-4. Add any new agency, destination or builder to `agencies.ts`, `destinations.ts` or `builders.ts`. Type-checking flags one that is used but not listed, and the seed refuses to run.
-5. Run `npx prisma db seed` against your development database and check the page.
-6. Open a pull request.
+3. Add its key events to `prisma/data/milestones.ts`, with the sources you checked them against.
+4. Find a picture of the spacecraft on [Wikimedia Commons](https://commons.wikimedia.org) under a free licence, set it as the mission's `image`, and run `npm run import:images`.
+5. Add any new agency, destination or builder to `agencies.ts`, `destinations.ts` or `builders.ts`. Type-checking flags one that is used but not listed, and the seed refuses to run.
+6. Run `npx prisma db seed` against your development database and check the page.
+7. Open a pull request.
 
 The conventions the data follows:
 
@@ -123,6 +125,7 @@ The conventions the data follows:
 - Destinations are the places a mission studied or landed on, not gravity-assist flybys.
 - A spacecraft's `location` is where it is now: where it is headed if it is still on its way, or where it ended up if its mission is over. It is one of the destinations, but not necessarily one of its mission's (Gaia worked at L2 and was retired into an orbit around the Sun).
 - `horizonsId` is the craft's own entry in Horizons, found by designator or by a name Horizons lists. A carried craft without its own entry has none.
+- Milestones are key events only: flybys, arrivals and orbit insertions, landings and releases, sample returns, the start of science for telescopes, and the end. Dates are the UTC day, or the month for plans not yet fixed to a day. A planned event stays marked `planned` until it happens; the seed warns when a planned date has passed.
 - A mission's `image` shows its spacecraft, whether a photo, a model or an artist's impression. If Commons gives no author, or not plainly, `imageCredit` says who to credit.
 - Catalogue values that need correcting are overridden in `missions.ts` with a comment giving the reason; companies with several GCAT codes are merged in `builderAliases`.
 
@@ -145,7 +148,7 @@ prisma/
   schema.prisma          database tables
   migrations/            schema changes, applied in order
   data/                  missions, agencies, destinations, builders, catalogue
-                         snapshot, picture credits
+                         snapshot, picture credits, milestones
   seed.ts                loads prisma/data into the database
 scripts/
   import-catalogue.ts    refreshes the GCAT snapshot

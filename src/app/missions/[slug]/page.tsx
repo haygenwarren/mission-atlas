@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache, Fragment } from "react";
 import { ImageCredit } from "@/components/mission-image";
+import MissionTimeline from "@/components/mission-timeline";
 import PictureViewer from "@/components/picture-viewer";
 import SpacecraftTile from "@/components/spacecraft-tile";
 import StatusBadge from "@/components/status-badge";
@@ -29,6 +30,10 @@ const getMission = cache((slug: string) =>
       spacecraft: {
         orderBy: { id: "asc" },
         include: { builders: { orderBy: { id: "asc" } } },
+      },
+      milestones: {
+        orderBy: { date: "asc" },
+        include: { spacecraft: { select: { name: true } } },
       },
     },
   }),
@@ -212,6 +217,14 @@ export default async function MissionDetailPage({ params }: PageProps) {
       <p className="mt-8 max-w-3xl text-lg leading-relaxed">
         {mission.description}
       </p>
+
+      {mission.milestones.length > 0 && (
+        <MissionTimeline
+          launchDate={mission.launchDate}
+          status={mission.status}
+          milestones={mission.milestones}
+        />
+      )}
 
       <section className="mt-10">
         <h2 className="text-2xl font-semibold">Spacecraft</h2>
