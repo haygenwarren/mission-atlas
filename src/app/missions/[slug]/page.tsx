@@ -274,6 +274,7 @@ export default async function MissionDetailPage({ params }: PageProps) {
             status={mission.status}
             now={new Date().toISOString()}
             events={timelineEvents(mission)}
+            mapHref={`/map?mission=${mission.slug}`}
           />
         </section>
       )}

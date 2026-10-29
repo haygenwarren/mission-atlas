@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { DatePrecision, Status } from "@/generated/prisma/enums";
 
@@ -22,6 +23,8 @@ type Props = {
   // When the page was built, so the server and browser agree on "today".
   now: string;
   events: TimelineEvent[];
+  // Where the pulsing marker for an active mission's craft leads: the map.
+  mapHref: string;
 };
 
 type Side = "above" | "below";
@@ -47,8 +50,8 @@ const LABEL_H = 36;
 const GAP = 12;
 // Room at each end, so the first and last dots aren't cut off.
 const PAD = 8;
-// Narrower screens scroll the timeline sideways rather than squeeze it,
-// giving each event at least this much room.
+// Phones scroll the timeline sideways rather than squeeze it, giving each
+// event at least this much room.
 const MIN_WIDTH = 640;
 const MIN_PER_EVENT = 100;
 const PANEL_W = 400;
@@ -78,6 +81,16 @@ function formatEventDate(event: TimelineEvent) {
 // events that bunch together are spread out to a minimum spacing, and the
 // long quiet stretches shrink to make room, so every event can be labelled.
 // Between events the scale runs evenly, so year marks still fall in order.
+// Today counts as a point too, so its marker never sits on an event's dot.
+function scaleWithToday(times: number[], end: number, today: number | null) {
+  const points =
+    today !== null && today < end
+      ? [...times, today].sort((a, b) => a - b)
+      : times;
+
+  return makeScale(points, end);
+}
+
 function makeScale(times: number[], end: number) {
   const start = times[0];
   const span = Math.max(end - start, 1);
@@ -230,7 +243,13 @@ function WrittenText({ text }: { text: string }) {
 // on through today to the last planned event). Each event is labelled above
 // or below the bar. Opening one fades the other labels, slides the bar out
 // of the way, and writes out what happened.
-export default function MissionTimeline({ status, now, events }: Props) {
+export default function MissionTimeline({
+  status,
+  now,
+  events,
+  mapHref,
+}: Props) {
+  const scrollerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const measureRefs = useRef<(HTMLElement | null)[]>([]);
   const labelRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -248,7 +267,9 @@ export default function MissionTimeline({ status, now, events }: Props) {
   // An active mission runs on to today, or to its last planned event.
   const end = status === "ACTIVE" ? Math.max(last, nowTime) : last;
   const today = status === "ACTIVE" && nowTime < end ? nowTime : null;
-  const fraction = makeScale(times, end);
+  // An active mission's craft is still out there: it is marked at today.
+  const nowMark = status === "ACTIVE" ? Math.min(nowTime, end) : null;
+  const fraction = scaleWithToday(times, end, nowMark);
   // Where a moment falls on the bar, as CSS and in pixels.
   const cssAt = (time: number) =>
     `calc(${PAD}px + ${fraction(time)} * (100% - ${2 * PAD}px))`;
@@ -260,7 +281,7 @@ export default function MissionTimeline({ status, now, events }: Props) {
   useEffect(() => {
     const stage = stageRef.current!;
     const eventTimes = events.map(({ date }) => new Date(date).getTime());
-    const scale = makeScale(eventTimes, end);
+    const scale = scaleWithToday(eventTimes, end, nowMark);
 
     function measure() {
       const width = stage.clientWidth;
@@ -291,7 +312,7 @@ export default function MissionTimeline({ status, now, events }: Props) {
     document.fonts?.ready.then(measure);
 
     return () => resize.disconnect();
-  }, [events, end]);
+  }, [events, end, nowMark]);
 
   // The open panel's height decides how far the bar slides.
   useEffect(() => {
@@ -304,12 +325,24 @@ export default function MissionTimeline({ status, now, events }: Props) {
     );
 
     resize.observe(panel);
-    // On a phone, scroll the timeline so the panel is in view.
-    panel.scrollIntoView({
-      block: "nearest",
-      inline: "nearest",
-      behavior: "smooth",
-    });
+
+    // On a phone, scroll the timeline sideways so the panel is in view. Only
+    // sideways: scrolling the page as well would jerk the bar out of sight.
+    const scroller = scrollerRef.current;
+
+    if (scroller && scroller.scrollWidth > scroller.clientWidth) {
+      const box = panel.getBoundingClientRect();
+      const view = scroller.getBoundingClientRect();
+      const by =
+        box.left < view.left
+          ? box.left - view.left - 16
+          : box.right > view.right
+            ? box.right - view.right + 16
+            : 0;
+
+      if (by) scroller.scrollBy({ left: by, behavior: "smooth" });
+    }
+
     panel.focus({ preventScroll: true });
 
     return () => resize.disconnect();
@@ -397,14 +430,20 @@ export default function MissionTimeline({ status, now, events }: Props) {
       <p className="mt-2 text-sm text-muted sm:hidden">
         Swipe the timeline to see it all, and tap an event to open it.
       </p>
-      <div className="-mx-6 mt-4 overflow-x-auto px-6 sm:mx-0 sm:mt-6 sm:px-0">
+      {/* Phones scroll the timeline sideways; it never scrolls up and down. */}
+      <div
+        ref={scrollerRef}
+        className="-mx-6 mt-4 overflow-x-auto overflow-y-hidden px-6 sm:mx-0 sm:mt-6 sm:overflow-visible sm:px-0"
+      >
         <div
           ref={stageRef}
-          className="relative transition-[height] duration-500 ease-out motion-reduce:transition-none"
-          style={{
-            minWidth: Math.max(MIN_WIDTH, events.length * MIN_PER_EVENT),
-            height,
-          }}
+          className="relative min-w-(--min-width) transition-[height] duration-500 ease-out motion-reduce:transition-none sm:min-w-0"
+          style={
+            {
+              "--min-width": `${Math.max(MIN_WIDTH, events.length * MIN_PER_EVENT)}px`,
+              height,
+            } as React.CSSProperties
+          }
           onClick={(e) => {
             // A click on empty space closes the open event.
             if (e.target === e.currentTarget && selected !== null) close();
@@ -435,14 +474,16 @@ export default function MissionTimeline({ status, now, events }: Props) {
               const label = geometry.labels[i];
               const x = pxAt(times[i], width);
               const offset = STEM + label.row * ROW;
+              // Labels keep their place while the bar slides away and they
+              // fade.
               const labelTop =
                 label.side === "above"
-                  ? barTop - offset - LABEL_H
-                  : barTop + BAND + offset;
+                  ? above - offset - LABEL_H
+                  : above + BAND + offset;
               const stemTop =
-                label.side === "above" ? labelTop + LABEL_H : barTop + LINE_Y;
+                label.side === "above" ? labelTop + LABEL_H : above + LINE_Y;
               const stemBottom =
-                label.side === "above" ? barTop + LINE_Y : labelTop;
+                label.side === "above" ? above + LINE_Y : labelTop;
               const hidden = openIndex !== null;
 
               return (
@@ -505,23 +546,11 @@ export default function MissionTimeline({ status, now, events }: Props) {
               }}
             />
             {today !== null && (
-              <>
-                {/* The stretch still to come, dashed. */}
-                <div
-                  className="absolute h-0.5 bg-[repeating-linear-gradient(to_right,var(--accent)_0_6px,transparent_6px_12px)]"
-                  style={{ top: LINE_Y - 1, left: cssAt(today), right: PAD }}
-                />
-                <div
-                  className="absolute h-4 w-px bg-foreground/60"
-                  style={{ top: LINE_Y - 8, left: cssAt(today) }}
-                />
-                <span
-                  className="label-caps absolute -translate-x-1/2 text-[0.6rem] text-muted"
-                  style={{ top: LINE_Y + 8, left: cssAt(today) }}
-                >
-                  Today
-                </span>
-              </>
+              // The stretch still to come, dashed.
+              <div
+                className="absolute h-0.5 bg-[repeating-linear-gradient(to_right,var(--accent)_0_6px,transparent_6px_12px)]"
+                style={{ top: LINE_Y - 1, left: cssAt(today), right: PAD }}
+              />
             )}
 
             {yearTicks(start, end).map((year, i, years) => {
@@ -531,7 +560,8 @@ export default function MissionTimeline({ status, now, events }: Props) {
               // too close to the one before where the bar is squeezed.
               const crowded =
                 width > 0 &&
-                ((today !== null && Math.abs(x - pxAt(today, width)) < 44) ||
+                ((nowMark !== null &&
+                  Math.abs(x - pxAt(nowMark, width)) < 44) ||
                   (i > 0 &&
                     x - pxAt(Date.UTC(years[i - 1], 0, 1), width) < 40));
 
@@ -547,6 +577,36 @@ export default function MissionTimeline({ status, now, events }: Props) {
                 )
               );
             })}
+
+            {nowMark !== null && (
+              <>
+                {/* Where the craft is today: a diamond with a ring that grows
+                    and fades, as active craft have on the map, which it
+                    opens. */}
+                <Link
+                  href={mapHref}
+                  aria-label="See where it is now on the map"
+                  title="See where it is now"
+                  className="group absolute z-10 -translate-x-1/2 -translate-y-1/2 p-2"
+                  style={{ top: LINE_Y, left: cssAt(nowMark) }}
+                >
+                  <span
+                    aria-hidden
+                    className="absolute left-1/2 top-1/2 -ml-2 -mt-2 size-4 animate-craft-pulse rounded-full border-[1.5px] border-status-active motion-reduce:hidden"
+                  />
+                  <span
+                    aria-hidden
+                    className="block size-[0.6rem] rotate-45 bg-status-active transition-transform group-hover:scale-125"
+                  />
+                </Link>
+                <span
+                  className="label-caps absolute -translate-x-1/2 text-[0.6rem] text-muted"
+                  style={{ top: LINE_Y + 8, left: cssAt(nowMark) }}
+                >
+                  Today
+                </span>
+              </>
+            )}
 
             {events.map((e, i) => (
               <button
@@ -590,8 +650,15 @@ export default function MissionTimeline({ status, now, events }: Props) {
                 role="region"
                 aria-label={opened.title}
                 tabIndex={-1}
-                className="absolute rounded-xl border border-border-strong bg-surface p-5 shadow-lg outline-none"
-                style={{ left: panelLeft, top: panelTop, width: panelWidth }}
+                className="absolute z-20 animate-panel-in rounded-xl border border-border-strong bg-surface p-5 shadow-lg outline-none motion-reduce:animate-none"
+                style={
+                  {
+                    left: panelLeft,
+                    top: panelTop,
+                    width: panelWidth,
+                    "--panel-from": openSide === "above" ? "-10px" : "10px",
+                  } as React.CSSProperties
+                }
               >
                 <div className="flex items-start justify-between gap-3">
                   <p className="label-caps text-muted">
