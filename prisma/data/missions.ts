@@ -2748,9 +2748,15 @@ export const missions: MissionSeed[] = [
     name: "Swift",
     image: "Swift Observatory spacecraft model.png",
     discipline: "ASTROPHYSICS",
-    status: "ACTIVE",
+    status: "COMPLETED",
+    // NASA ended the science mission on 23 October 2026, after the final
+    // observation on 20 October: atmospheric drag below 275 km stopped the
+    // telescopes pointing steadily. Last contact is left out until a date is
+    // published; Swift is expected to re-enter within weeks.
+    // https://science.nasa.gov/missions/swift/nasas-swift-mission-ends/
+    endDeclared: "2026-10-23",
     description:
-      "A NASA observatory that detects gamma-ray bursts and turns within about a minute to observe their afterglows in X-ray, ultraviolet and visible light.",
+      "A NASA observatory that caught gamma-ray bursts and turned within about a minute to observe their afterglows in X-ray, ultraviolet and visible light. Built for a two-year mission, it observed more than 2,000 bursts over nearly 22 years, until atmospheric drag pulled it too low to point steadily.",
     sourceUrl: "https://science.nasa.gov/mission/swift/",
     agencies: ["NASA"],
     destinations: ["low-earth-orbit"],
