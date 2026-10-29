@@ -1410,4 +1410,836 @@ export const milestones: Record<string, MilestoneSeed[]> = {
         "Contact was lost in April 2024 when its pointing control failed, and JAXA ended the mission in September 2025.",
     },
   ],
+
+  // The outer planets
+
+  // https://en.wikipedia.org/wiki/Voyager_2
+  "voyager-2": [
+    {
+      date: "1977-08-20",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Titan IIIE/Centaur from Cape Canaveral, two weeks before Voyager 1 but on a slower route, so Voyager 1 reached Jupiter and Saturn first.",
+    },
+    {
+      date: "1979-07-09",
+      kind: "FLYBY",
+      title: "Jupiter flyby",
+      description:
+        "Passed about 570,000 km above Jupiter's clouds and watched the Great Red Spot turning as a vast storm.",
+    },
+    {
+      date: "1981-08-26",
+      kind: "FLYBY",
+      title: "Saturn flyby",
+      description:
+        "Passed about 101,000 km from Saturn and saw dark 'spokes' in its rings. Saturn's gravity sent it on towards Uranus.",
+    },
+    {
+      date: "1986-01-24",
+      kind: "FLYBY",
+      title: "Uranus flyby",
+      description:
+        "The only spacecraft to visit Uranus. It found 11 new moons and a magnetic field tilted far from the planet's spin.",
+    },
+    {
+      date: "1989-08-25",
+      kind: "FLYBY",
+      title: "Neptune flyby",
+      description:
+        "The only spacecraft to visit Neptune. It passed less than 5,000 km above the clouds and found rings and a Great Dark Spot, a storm that has since gone.",
+    },
+    {
+      date: "2018-11-05",
+      kind: "ARRIVAL",
+      title: "Enters interstellar space",
+      description:
+        "Crossed the heliopause, about 120 times farther from the Sun than Earth, six years after Voyager 1.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Pioneer_10
+  "pioneer-10": [
+    {
+      date: "1972-03-03",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on an Atlas-Centaur from Cape Canaveral, carrying a plaque with a message for anyone who finds it.",
+    },
+    {
+      date: "1973-12-03",
+      kind: "FLYBY",
+      title: "Jupiter flyby",
+      description:
+        "After becoming the first spacecraft to cross the asteroid belt, it passed about 132,000 km from Jupiter: the first visit to the planet.",
+    },
+    {
+      date: "1983-06-13",
+      kind: "ARRIVAL",
+      title: "Crosses Neptune's orbit",
+      description:
+        "Became the first human-made object to pass beyond the orbits of all the planets, on a path towards the star Aldebaran.",
+    },
+    {
+      date: "1997-03-31",
+      kind: "END",
+      title: "Science mission ends",
+      description:
+        "NASA ended the science mission, though contact continued for a few more years.",
+    },
+    {
+      date: "2003-01-23",
+      kind: "END",
+      title: "Last signal",
+      description:
+        "Its last faint signal was received from about 80 times Earth's distance from the Sun.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Pioneer_11
+  "pioneer-11": [
+    {
+      date: "1973-04-06",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched on an Atlas-Centaur from Cape Canaveral.",
+    },
+    {
+      date: "1974-12-03",
+      kind: "FLYBY",
+      title: "Jupiter flyby",
+      description:
+        "Passed about 42,500 km above Jupiter's clouds, much closer than Pioneer 10, and Jupiter's gravity swung it across the Solar System towards Saturn.",
+    },
+    {
+      date: "1979-09-01",
+      kind: "FLYBY",
+      title: "Saturn flyby",
+      description:
+        "The first spacecraft to visit Saturn. It found a new ring and a small moon, and crossed the ring plane on the path Voyager 2 would later follow.",
+    },
+    {
+      date: "1995-11-24",
+      kind: "END",
+      title: "Last signal",
+      description:
+        "Routine contact ended that September, as its power ran low, and its last usable signal arrived in November.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Galileo_(spacecraft), and for its flybys
+  // https://www.nasa.gov/history/30-years-ago-galileo-off-to-orbit-jupiter/
+  galileo: [
+    {
+      date: "1989-10-18",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched from the Space Shuttle Atlantis, with a probe to drop into Jupiter's atmosphere.",
+    },
+    {
+      date: "1990-02-10",
+      kind: "FLYBY",
+      title: "Venus flyby",
+      description:
+        "The first of three gravity assists on a looping route to Jupiter.",
+    },
+    {
+      date: "1990-12-08",
+      kind: "FLYBY",
+      title: "Earth flyby",
+      description: "Passed about 960 km from Earth for more speed.",
+    },
+    {
+      date: "1991-10-29",
+      kind: "FLYBY",
+      title: "Asteroid Gaspra flyby",
+      description: "The first close flyby of an asteroid.",
+    },
+    {
+      date: "1992-12-08",
+      kind: "FLYBY",
+      title: "Second Earth flyby",
+      description:
+        "A second pass of Earth, about 300 km up, gave it the energy to reach Jupiter.",
+    },
+    {
+      date: "1993-08-28",
+      kind: "FLYBY",
+      title: "Asteroid Ida flyby",
+      description:
+        "Found that Ida has a small moon of its own, later named Dactyl: the first moon of an asteroid ever found.",
+    },
+    {
+      date: "1995-07-12",
+      kind: "RELEASE",
+      title: "Probe released",
+      description:
+        "Five months out from Jupiter, the atmospheric probe separated to fly the rest of the way on its own.",
+      spacecraft: "galileo-probe",
+    },
+    {
+      date: "1995-12-07",
+      kind: "END",
+      title: "Probe plunges into Jupiter",
+      description:
+        "The probe entered Jupiter's atmosphere and sent back measurements for about an hour as it fell, until the heat and pressure overcame it.",
+      spacecraft: "galileo-probe",
+    },
+    {
+      date: "1995-12-08",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Jupiter",
+      description:
+        "Hours after relaying the probe's data, Galileo fired its engine to become the first spacecraft to orbit Jupiter.",
+    },
+    {
+      date: "2003-09-21",
+      kind: "END",
+      title: "Plunges into Jupiter",
+      description:
+        "After nearly eight years in orbit, Galileo was steered into Jupiter so it could never crash into Europa and contaminate any life there.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Juno_(spacecraft)
+  juno: [
+    {
+      date: "2011-08-05",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on an Atlas V from Cape Canaveral: the first mission to the outer planets powered by solar panels rather than nuclear generators.",
+    },
+    {
+      date: "2013-10-09",
+      kind: "FLYBY",
+      title: "Earth flyby",
+      description:
+        "Swung past Earth, 559 km up, for the speed to reach Jupiter.",
+    },
+    {
+      date: "2016-07-05",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Jupiter",
+      description:
+        "Fired its engine for 35 minutes to enter a polar orbit. A valve problem later ruled out the burn that would have shortened it, so Juno stayed in a 53-day orbit.",
+    },
+    {
+      date: "2021-06-07",
+      kind: "FLYBY",
+      title: "Ganymede flyby",
+      description:
+        "Passed about 1,000 km from Ganymede, the closest any spacecraft had come in more than 20 years.",
+    },
+    {
+      date: "2022-09-29",
+      kind: "FLYBY",
+      title: "Europa flyby",
+      description: "Passed 352 km from Europa's icy surface.",
+    },
+    {
+      date: "2023-12-30",
+      kind: "FLYBY",
+      title: "Io flyby",
+      description:
+        "The first of two passes about 1,500 km from Io, the most volcanic world in the Solar System.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Europa_Clipper
+  "europa-clipper": [
+    {
+      date: "2024-10-14",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Falcon Heavy from Kennedy Space Center: the largest spacecraft NASA has sent to another planet, with solar arrays spanning 30.5 m.",
+    },
+    {
+      date: "2025-03-01",
+      kind: "FLYBY",
+      title: "Mars flyby",
+      description:
+        "Passed 884 km from Mars for a gravity assist back towards Earth.",
+    },
+    {
+      date: "2026-12-03",
+      kind: "FLYBY",
+      title: "Earth flyby",
+      description:
+        "Due to swing past Earth for the speed it needs to reach Jupiter.",
+      planned: true,
+    },
+    {
+      date: "2030-04",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Jupiter",
+      description:
+        "Due to slow into orbit around Jupiter, after a flyby of Ganymede.",
+      planned: true,
+    },
+    {
+      date: "2034-09",
+      kind: "END",
+      title: "End of mission",
+      description:
+        "The primary mission is planned to end in 2034, after dozens of close flybys of Europa to study the ocean beneath its ice.",
+      planned: true,
+    },
+  ],
+
+  // Mars
+
+  // https://en.wikipedia.org/wiki/Mariner_4
+  "mariner-4": [
+    {
+      date: "1964-11-28",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched on an Atlas-Agena from Cape Canaveral.",
+    },
+    {
+      date: "1965-07-15",
+      kind: "FLYBY",
+      title: "Mars flyby",
+      description:
+        "Passed 9,846 km from Mars and took the first close-up pictures of another planet. They showed a cratered, Moon-like surface and a thin atmosphere. Each picture took about six hours to send home.",
+    },
+    {
+      date: "1967-12-21",
+      kind: "END",
+      title: "Last contact",
+      description: "Contact ended more than two years after the flyby.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Mariner_9
+  "mariner-9": [
+    {
+      date: "1971-05-30",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched on an Atlas-Centaur from Cape Canaveral.",
+    },
+    {
+      date: "1971-11-14",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Mars",
+      description:
+        "The first spacecraft to orbit another planet. It arrived during a dust storm covering all of Mars, and waited about two months for the dust to clear.",
+    },
+    {
+      date: "1972-10-27",
+      kind: "END",
+      title: "Switched off",
+      description:
+        "Switched off when its attitude-control gas ran out, after mapping 85% of Mars and revealing Valles Marineris and the giant volcanoes.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Mars_3
+  "mars-3": [
+    {
+      date: "1971-05-28",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Proton from Baikonur, carrying an orbiter and a lander.",
+    },
+    {
+      date: "1971-12-02",
+      kind: "RELEASE",
+      title: "Lander released",
+      description:
+        "The lander separated about four and a half hours before reaching Mars.",
+      spacecraft: "mars-3-lander",
+    },
+    {
+      date: "1971-12-02",
+      kind: "LANDING",
+      title: "Lander touches down",
+      description:
+        "The first soft landing on Mars. The lander began transmitting 90 seconds later but fell silent after about 20 seconds, perhaps because of the planet-wide dust storm.",
+      spacecraft: "mars-3-lander",
+    },
+    {
+      date: "1971-12-02",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Mars",
+      description:
+        "A partial loss of fuel left the orbiter in a much longer orbit than planned.",
+      spacecraft: "mars-3-orbiter",
+    },
+    {
+      date: "1972-08-22",
+      kind: "END",
+      title: "Orbiter's mission ends",
+      description:
+        "The orbiter's mission was declared complete after 20 orbits.",
+      spacecraft: "mars-3-orbiter",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Viking_1
+  "viking-1": [
+    {
+      date: "1975-08-20",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Titan IIIE/Centaur from Cape Canaveral, carrying an orbiter and a lander.",
+    },
+    {
+      date: "1976-06-19",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Mars",
+      description:
+        "The orbiter spent a month scouting for a safe landing site.",
+    },
+    {
+      date: "1976-07-20",
+      kind: "LANDING",
+      title: "Lander touches down in Chryse Planitia",
+      description:
+        "The first successful landing on Mars. It sent its first picture 25 seconds after landing, and went on to test the soil for signs of life.",
+      spacecraft: "viking-1-lander",
+    },
+    {
+      date: "1980-08-17",
+      kind: "END",
+      title: "Orbiter switched off",
+      description:
+        "Low on attitude-control gas, the orbiter was shut down after 1,485 orbits.",
+      spacecraft: "viking-1-orbiter",
+    },
+    {
+      date: "1982-11-11",
+      kind: "END",
+      title: "Lander falls silent",
+      description:
+        "A faulty command meant to update its battery software overwrote its antenna pointing data, and contact was never regained. Its six years on the surface stood as a record until 2010.",
+      spacecraft: "viking-1-lander",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Mars_Pathfinder
+  "mars-pathfinder": [
+    {
+      date: "1996-12-04",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Delta II from Cape Canaveral: a low-cost test of landing on airbags, carrying a small rover.",
+    },
+    {
+      date: "1997-07-04",
+      kind: "LANDING",
+      title: "Lands in Ares Vallis",
+      description:
+        "Hit the ground wrapped in airbags and bounced at least 16 times, the first bounce about 15 metres high, before rolling to a stop.",
+    },
+    {
+      date: "1997-07-06",
+      kind: "RELEASE",
+      title: "Sojourner rolls onto the surface",
+      description:
+        "The first rover on Mars drove down a ramp. It explored the rocks within about 12 metres of the lander.",
+      spacecraft: "sojourner",
+    },
+    {
+      date: "1997-09-27",
+      kind: "END",
+      title: "Last transmission",
+      description:
+        "Built for a week to a month, the lander and rover worked for almost three months.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Mars_Global_Surveyor
+  "mars-global-surveyor": [
+    {
+      date: "1996-11-07",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched on a Delta II from Cape Canaveral.",
+    },
+    {
+      date: "1997-09-11",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Mars",
+      description:
+        "Began dipping into the atmosphere to lower its orbit, but a solar panel bent under the drag and the process had to be slowed down.",
+    },
+    {
+      date: "1999-04-01",
+      kind: "OPERATIONS",
+      title: "Mapping begins",
+      description:
+        "Began mapping Mars, including its shape with a laser altimeter. It later found gullies that appeared to have been carved by liquid water.",
+    },
+    {
+      date: "2006-11-05",
+      kind: "END",
+      title: "Last contact",
+      description:
+        "Contact was lost after a command to move its solar panels. A flaw in a software update was later found to be to blame.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/2001_Mars_Odyssey
+  "mars-odyssey": [
+    {
+      date: "2001-04-07",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched on a Delta II from Cape Canaveral.",
+    },
+    {
+      date: "2001-10-24",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Mars",
+      description:
+        "Settled into orbit and spent three months dipping into the atmosphere to lower it.",
+    },
+    {
+      date: "2002-02-19",
+      kind: "OPERATIONS",
+      title: "Mapping begins",
+      description:
+        "Began mapping Mars. Within months it had found signs of water ice within a metre of the surface. In 2010 it became the longest-serving spacecraft at Mars.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Mars_Express and
+  // https://en.wikipedia.org/wiki/Beagle_2
+  "mars-express": [
+    {
+      date: "2003-06-02",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Soyuz-Fregat from Baikonur: ESA's first planetary mission, carrying the British Beagle 2 lander.",
+    },
+    {
+      date: "2003-12-19",
+      kind: "RELEASE",
+      title: "Beagle 2 released",
+      description: "The lander was released six days before reaching Mars.",
+      spacecraft: "beagle-2",
+    },
+    {
+      date: "2003-12-25",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Mars",
+      description:
+        "Mars Express entered orbit on Christmas Day, as Beagle 2 was due to land.",
+    },
+    {
+      date: "2004-02-06",
+      kind: "END",
+      title: "Beagle 2 declared lost",
+      description:
+        "Beagle 2 was never heard from. In 2015 a NASA orbiter found it on the surface: it had landed, but not all of its solar panels had opened, blocking its antenna.",
+      spacecraft: "beagle-2",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Spirit_(rover)
+  spirit: [
+    {
+      date: "2003-06-10",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Delta II from Cape Canaveral, the first of two twin rovers.",
+    },
+    {
+      date: "2004-01-04",
+      kind: "LANDING",
+      title: "Lands in Gusev crater",
+      description: "Bounced to a stop on airbags inside Gusev crater.",
+    },
+    {
+      date: "2010-03-22",
+      kind: "END",
+      title: "Last contact",
+      description:
+        "Built for 90 sols, it drove 7.7 km over six years. Stuck in soft sand since 2009, it could not turn its solar panels to the Sun for the winter, and fell silent.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Opportunity_(rover)
+  opportunity: [
+    {
+      date: "2003-07-08",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Delta II from Cape Canaveral, a month after its twin, Spirit.",
+    },
+    {
+      date: "2004-01-25",
+      kind: "LANDING",
+      title: "Lands in Meridiani Planum",
+      description:
+        "Bounced to a stop on airbags and rolled into the small Eagle crater, beside an outcrop of layered rock.",
+    },
+    {
+      date: "2011-08-09",
+      kind: "ARRIVAL",
+      title: "Reaches Endeavour crater",
+      description:
+        "After a three-year drive, it reached the rim of Endeavour crater, 22 km across.",
+    },
+    {
+      date: "2018-06-10",
+      kind: "END",
+      title: "Last contact",
+      description:
+        "A planet-wide dust storm cut off its sunlight. Built for 90 sols, it had worked for more than 14 years and driven 45 km, more than a marathon.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Mars_Reconnaissance_Orbiter
+  "mars-reconnaissance-orbiter": [
+    {
+      date: "2005-08-12",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched on an Atlas V from Cape Canaveral.",
+    },
+    {
+      date: "2006-03-10",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Mars",
+      description:
+        "Fired its engines for 27 minutes to be captured, then spent five months dipping into the atmosphere to lower its orbit.",
+    },
+    {
+      date: "2006-11",
+      kind: "OPERATIONS",
+      title: "Science begins",
+      description:
+        "Began its main science mission. Its HiRISE camera can see objects about a metre across, and it later photographed Phoenix and Curiosity as they parachuted down. By 2010 it had sent home more data than all other planetary missions combined.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Phoenix_(spacecraft)
+  phoenix: [
+    {
+      date: "2007-08-04",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched on a Delta II from Cape Canaveral.",
+    },
+    {
+      date: "2008-05-25",
+      kind: "LANDING",
+      title: "Lands in the Martian arctic",
+      description:
+        "Touched down at 68° north, the first landing in Mars's polar regions. The Mars Reconnaissance Orbiter photographed it hanging from its parachute.",
+    },
+    {
+      date: "2008-11-02",
+      kind: "END",
+      title: "Last contact",
+      description:
+        "As winter's darkness came, its power failed. By then it had dug trenches down to water ice and seen snow falling from Martian clouds.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Curiosity_(rover), and for Mount Sharp
+  // https://sciencedaily.com/releases/2014/09/140911183005.htm
+  "mars-science-laboratory": [
+    {
+      date: "2011-11-26",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on an Atlas V from Cape Canaveral, carrying the Curiosity rover.",
+    },
+    {
+      date: "2012-08-06",
+      kind: "LANDING",
+      title: "Lands in Gale crater",
+      description:
+        "A rocket-powered sky crane lowered Curiosity on cables onto the floor of Gale crater, the first landing of its kind.",
+    },
+    {
+      date: "2014-09-11",
+      kind: "ARRIVAL",
+      title: "Reaches Mount Sharp",
+      description:
+        "After two years exploring the crater floor, Curiosity reached the base of Mount Sharp, the mountain in the middle of Gale crater whose layers it has been climbing ever since.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Mars_Orbiter_Mission
+  "mars-orbiter-mission": [
+    {
+      date: "2013-11-05",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a PSLV from Sriharikota: India's first interplanetary mission, at a cost of about US$73 million.",
+    },
+    {
+      date: "2014-09-24",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Mars",
+      description:
+        "India became the first Asian nation to reach Mars orbit, and only the second space agency to succeed on its first attempt.",
+    },
+    {
+      date: "2022-10-03",
+      kind: "END",
+      title: "Mission ends",
+      description:
+        "Planned for six months, it lasted almost eight years, until contact was lost in April 2022 during a seven-hour eclipse it was never designed to survive.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Trace_Gas_Orbiter
+  "exomars-trace-gas-orbiter": [
+    {
+      date: "2016-03-14",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Proton from Baikonur: ESA and Roscosmos's ExoMars orbiter, carrying the Schiaparelli test lander.",
+    },
+    {
+      date: "2016-10-16",
+      kind: "RELEASE",
+      title: "Schiaparelli released",
+      description: "The lander separated three days before reaching Mars.",
+      spacecraft: "schiaparelli",
+    },
+    {
+      date: "2016-10-19",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Mars",
+      description:
+        "The orbiter was captured by Mars, then spent 11 months dipping into the atmosphere to reach its science orbit.",
+      spacecraft: "trace-gas-orbiter",
+    },
+    {
+      date: "2016-10-19",
+      kind: "END",
+      title: "Schiaparelli crashes",
+      description:
+        "A computer fault released its parachute too early, and Schiaparelli hit the ground at about 540 km/h.",
+      spacecraft: "schiaparelli",
+    },
+    {
+      date: "2018-04-21",
+      kind: "OPERATIONS",
+      title: "Science begins",
+      description:
+        "Began searching the atmosphere for methane and other trace gases. It also relays data from rovers on the surface.",
+      spacecraft: "trace-gas-orbiter",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/InSight
+  insight: [
+    {
+      date: "2018-05-05",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on an Atlas V from Vandenberg in California, the first interplanetary launch from the US West Coast, with two tiny MarCO satellites following it to relay its landing.",
+    },
+    {
+      date: "2018-11-26",
+      kind: "LANDING",
+      title: "Lands in Elysium Planitia",
+      description:
+        "Landed on a flat, smooth plain chosen as a safe place to set down.",
+    },
+    {
+      date: "2018-12-19",
+      kind: "RELEASE",
+      title: "Seismometer set on the ground",
+      description:
+        "Its robotic arm lifted the seismometer off the deck onto the ground. It went on to record hundreds of marsquakes and measure the size of Mars's core.",
+    },
+    {
+      date: "2022-12-15",
+      kind: "END",
+      title: "Last contact",
+      description:
+        "Dust building up on its solar panels slowly starved it of power, months after it recorded the largest marsquake yet seen.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Emirates_Mars_Mission
+  hope: [
+    {
+      date: "2020-07-19",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on an H-IIA from Tanegashima: the first interplanetary mission by an Arab nation.",
+    },
+    {
+      date: "2021-02-09",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Mars",
+      description:
+        "Settled into a high orbit, 20,000 to 43,000 km up, from which it watches the weather across the whole planet.",
+    },
+    {
+      date: "2023-03-10",
+      kind: "FLYBY",
+      title: "Deimos flyby",
+      description:
+        "Swung close to Mars's small outer moon Deimos and photographed it more closely and completely than any spacecraft before.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Tianwen-1 and
+  // https://en.wikipedia.org/wiki/Zhurong_(rover)
+  "tianwen-1": [
+    {
+      date: "2020-07-23",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Long March 5 from Wenchang, carrying an orbiter, a lander and the Zhurong rover.",
+    },
+    {
+      date: "2021-02-10",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Mars",
+      description:
+        "Spent three months in orbit studying the landing site before sending the lander down.",
+    },
+    {
+      date: "2021-05-14",
+      kind: "LANDING",
+      title: "Lands in Utopia Planitia",
+      description:
+        "China became the first country to orbit, land and rove on its first mission to Mars.",
+    },
+    {
+      date: "2021-05-22",
+      kind: "RELEASE",
+      title: "Zhurong drives onto the surface",
+      description:
+        "China became the second country, after the United States, to drive a rover on Mars.",
+      spacecraft: "zhurong",
+    },
+    {
+      date: "2022-05-18",
+      kind: "END",
+      title: "Zhurong goes into hibernation",
+      description:
+        "Built for 90 sols, it drove 1.9 km in a year, then hibernated for the winter. Covered in dust, it never woke up.",
+      spacecraft: "zhurong",
+    },
+  ],
 };
