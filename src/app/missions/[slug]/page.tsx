@@ -3,10 +3,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache, Fragment } from "react";
 import { ImageCredit } from "@/components/mission-image";
-import MissionTimeline from "@/components/mission-timeline";
+import MissionTimeline, {
+  type TimelineEvent,
+} from "@/components/mission-timeline";
 import PictureViewer from "@/components/picture-viewer";
 import SpacecraftTile from "@/components/spacecraft-tile";
 import StatusBadge from "@/components/status-badge";
+import type { DatePrecision, MilestoneKind } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import {
   disciplineLabels,
@@ -60,6 +63,52 @@ export async function generateMetadata({
 }
 
 const linkClasses = "text-accent hover:underline";
+
+// The mission's milestones, with its launch added if they don't include it.
+function timelineEvents(mission: {
+  launchDate: Date;
+  milestones: {
+    id: number;
+    kind: MilestoneKind;
+    title: string;
+    description: string;
+    date: Date;
+    precision: DatePrecision;
+    planned: boolean;
+    spacecraft: { name: string } | null;
+  }[];
+}): TimelineEvent[] {
+  const day = (date: Date) => date.toISOString().slice(0, 10);
+  const launchListed = mission.milestones.some(
+    ({ kind, date }) =>
+      kind === "LAUNCH" && day(date) === day(mission.launchDate),
+  );
+  const events: TimelineEvent[] = mission.milestones.map((milestone) => ({
+    key: String(milestone.id),
+    title: milestone.title,
+    description: milestone.description,
+    date: milestone.date.toISOString(),
+    precision: milestone.precision,
+    planned: milestone.planned,
+    end: milestone.kind === "END",
+    craft: milestone.spacecraft?.name ?? null,
+  }));
+
+  if (!launchListed) {
+    events.unshift({
+      key: "launch",
+      title: "Launch",
+      description: null,
+      date: mission.launchDate.toISOString(),
+      precision: "DAY",
+      planned: false,
+      end: false,
+      craft: null,
+    });
+  }
+
+  return events;
+}
 
 function Fact({
   label,
@@ -219,11 +268,14 @@ export default async function MissionDetailPage({ params }: PageProps) {
       </p>
 
       {mission.milestones.length > 0 && (
-        <MissionTimeline
-          launchDate={mission.launchDate}
-          status={mission.status}
-          milestones={mission.milestones}
-        />
+        <section className="mt-10">
+          <h2 className="text-2xl font-semibold">Milestones</h2>
+          <MissionTimeline
+            status={mission.status}
+            now={new Date().toISOString()}
+            events={timelineEvents(mission)}
+          />
+        </section>
       )}
 
       <section className="mt-10">

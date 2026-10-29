@@ -16,7 +16,7 @@ Mission Atlas is an archive of robotic planetary science and astrophysics missio
 - **Pictures:** a picture of each mission's spacecraft, freely licensed and credited, on its page, its tile and its card on the map.
 - **Archive:** search across missions, spacecraft, agencies and destinations, and filter by status, agency, destination, spacecraft type and builder. Results sort by launch date or name and come in pages of 24.
 - **Mission pages:** a banner picture of the spacecraft (click it to see the whole picture) with the mission's name over it and a link to where it is now on the map (or where it went, for missions that have ended), then a strip of facts: launch time to the second, last contact, end declared, duration and destinations, then a tile for each spacecraft with its mass, size, power source, builder and its own status.
-- **Milestones:** each mission's key events (flybys, arrivals, landings, sample returns, the end) on a bar drawn to scale from launch to today or the last planned event, with the full list beneath it. Planned events are marked until they happen. Ten missions have them so far.
+- **Milestones:** each mission's key events (launch, flybys, arrivals, landings, sample returns, the end) labelled along a timeline from launch to today or the last planned event. Clicking an event slides the timeline aside and writes out what happened, with buttons to step to the events either side. Where events bunch together, the timeline spreads them out and shortens long quiet stretches so every label fits. Planned events are marked until they happen. Ten missions have them so far.
 - **Linked facts:** every agency, destination, spacecraft type and builder links to the archive filtered by it.
 - **Light and dark themes:** dark by default, with a sun and moon switch in the navbar that remembers the visitor's choice.
 
@@ -125,7 +125,7 @@ The conventions the data follows:
 - Destinations are the places a mission studied or landed on, not gravity-assist flybys.
 - A spacecraft's `location` is where it is now: where it is headed if it is still on its way, or where it ended up if its mission is over. It is one of the destinations, but not necessarily one of its mission's (Gaia worked at L2 and was retired into an orbit around the Sun).
 - `horizonsId` is the craft's own entry in Horizons, found by designator or by a name Horizons lists. A carried craft without its own entry has none.
-- Milestones are key events only: flybys, arrivals and orbit insertions, landings and releases, sample returns, the start of science for telescopes, and the end. Dates are the UTC day, or the month for plans not yet fixed to a day. A planned event stays marked `planned` until it happens; the seed warns when a planned date has passed.
+- Milestones are key events only: the launch, flybys, arrivals and orbit insertions, landings and releases, sample returns, the start of science for telescopes, and the end. Each has a two- or three-sentence description of what happened. Dates are the UTC day, or the month for plans not yet fixed to a day. A planned event stays marked `planned` until it happens; the seed warns when a planned date has passed.
 - A mission's `image` shows its spacecraft, whether a photo, a model or an artist's impression. If Commons gives no author, or not plainly, `imageCredit` says who to credit.
 - Catalogue values that need correcting are overridden in `missions.ts` with a comment giving the reason; companies with several GCAT codes are merged in `builderAliases`.
 

@@ -148,7 +148,8 @@ model Milestone {
   spacecraftId Int?
   kind         MilestoneKind
   title        String
-  detail       String?
+  // What happened, in two or three sentences.
+  description  String
   date         DateTime      @db.Date
   precision    DatePrecision @default(DAY)
   planned      Boolean       @default(false)

@@ -271,7 +271,7 @@ async function main() {
               spacecraftId: craft ? craft.id : null,
               kind: event.kind,
               title: event.title,
-              detail: event.detail ?? null,
+              description: event.description,
               planned: event.planned ?? false,
               ...milestoneDate(mission, event),
             };

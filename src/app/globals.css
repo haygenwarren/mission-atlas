@@ -69,6 +69,17 @@
   --font-mono: var(--font-plex-mono);
 }
 
+/* An opened milestone's title grows from label size to heading size. */
+@theme {
+  --animate-title-grow: title-grow 450ms ease-out;
+
+  @keyframes title-grow {
+    from {
+      font-size: 0.875rem;
+    }
+  }
+}
+
 @custom-variant light (&:where([data-theme="light"], [data-theme="light"] *));
 
 /* Page titles, set like the wordmark: wide, heavy Archivo. */
