@@ -76,6 +76,9 @@ export type Frame = {
   // How visible the markers at the edge for things out of view are, from 0
   // (not drawn) to 1. The home page fades them in as its map moves.
   edges?: number;
+  // The asteroids and comets to show, whatever the zoom, in place of the
+  // usual choice by zoom: a replay shows only the ones its mission went to.
+  smallBodies?: BodySlug[];
 };
 
 // Small bodies are left out until the map is zoomed in this far (pixels per
@@ -464,15 +467,12 @@ export function drawMap(frame: Frame): Hit[] {
       continue;
     }
 
-    if (
-      !planet &&
-      !dwarf &&
-      here.length === 0 &&
-      !highlighted &&
-      camera.scale < SMALL_BODY_SCALE
-    ) {
-      continue;
-    }
+    const small = !planet && !dwarf;
+    const hidden = frame.smallBodies
+      ? !frame.smallBodies.includes(body.slug)
+      : !highlighted && camera.scale < SMALL_BODY_SCALE;
+
+    if (small && here.length === 0 && hidden) continue;
 
     const radius =
       PLANET_RADIUS[body.slug] ?? (dwarf ? DWARF_RADIUS : SMALL_BODY_RADIUS);

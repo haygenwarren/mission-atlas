@@ -122,10 +122,37 @@ export function placeCraft(
   };
 }
 
+// Where a craft was at time t during a replay of its journey: on its route
+// while it was flying it, then at the body it stays at once the route ends
+// there. Before its route begins, or with no route at all (a probe carried
+// aboard another craft), it is not shown.
+export function placeOnJourney(
+  craft: MapCraft,
+  snapshot: PositionsSnapshot,
+  t: Days,
+): Place {
+  const route = craft.horizonsId ? snapshot.routes[craft.horizonsId] : null;
+
+  if (!route || t < route[0][0]) return { kind: "unknown", since: null };
+
+  const onRoute = routePosition(route, t);
+
+  if (onRoute) return { kind: "route", position: onRoute };
+
+  const body = placements[craft.location];
+
+  return body
+    ? { kind: "body", body, moon: MOON_DESTINATIONS[craft.location] ?? null }
+    : { kind: "unknown", since: null };
+}
+
+// Where everything is at time t. `place` decides where each craft goes: by
+// default where the map would show it now, or `placeOnJourney` for a replay.
 export function buildScene(
   snapshot: PositionsSnapshot,
   craft: MapCraft[],
   t: Days,
+  place = placeCraft,
 ): Scene {
   const atBody = new Map<BodySlug, MapCraft[]>();
   const atMoon = new Map<MoonSlug, MapCraft[]>();
@@ -133,16 +160,16 @@ export function buildScene(
   const unknown: Scene["unknown"] = [];
 
   for (const one of craft) {
-    const place = placeCraft(one, snapshot, t);
+    const where = place(one, snapshot, t);
 
-    if (place.kind === "route") {
-      free.push({ craft: one, position: place.position });
-    } else if (place.kind === "body" && place.moon) {
-      atMoon.set(place.moon, [...(atMoon.get(place.moon) ?? []), one]);
-    } else if (place.kind === "body") {
-      atBody.set(place.body, [...(atBody.get(place.body) ?? []), one]);
+    if (where.kind === "route") {
+      free.push({ craft: one, position: where.position });
+    } else if (where.kind === "body" && where.moon) {
+      atMoon.set(where.moon, [...(atMoon.get(where.moon) ?? []), one]);
+    } else if (where.kind === "body") {
+      atBody.set(where.body, [...(atBody.get(where.body) ?? []), one]);
     } else {
-      unknown.push({ craft: one, since: place.since });
+      unknown.push({ craft: one, since: where.since });
     }
   }
 

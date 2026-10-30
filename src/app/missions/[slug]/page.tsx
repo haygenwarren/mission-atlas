@@ -11,6 +11,7 @@ import SpacecraftTile from "@/components/spacecraft-tile";
 import StatusBadge from "@/components/status-badge";
 import type { DatePrecision, MilestoneKind } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
+import { craftWithRoutes } from "@/lib/routes";
 import {
   disciplineLabels,
   formatDate,
@@ -142,6 +143,11 @@ export default async function MissionDetailPage({ params }: PageProps) {
   }
 
   const duration = missionDuration(mission);
+  // Whether the map can replay its journey: one of its craft has a route.
+  const routed = await craftWithRoutes();
+  const replayable = mission.spacecraft.some(
+    ({ horizonsId }) => horizonsId && routed.has(horizonsId),
+  );
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-10">
@@ -206,14 +212,32 @@ export default async function MissionDetailPage({ params }: PageProps) {
             </p>
           </div>
 
-          <Link
-            href={`/map?mission=${mission.slug}`}
-            className="pointer-events-auto shrink-0 rounded-lg bg-picture-accent px-5 py-2 font-medium text-picture transition-opacity hover:opacity-90"
-          >
-            {mission.status === "ACTIVE"
-              ? "See where it is now →"
-              : "See where it went →"}
-          </Link>
+          <div className="pointer-events-auto flex flex-wrap gap-3">
+            {replayable && (
+              <Link
+                href={`/map?replay=${mission.slug}`}
+                className="flex items-center gap-2 rounded-lg border border-picture-accent px-5 py-2 font-medium text-picture-accent transition-colors hover:bg-picture-accent/15"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="size-3.5"
+                  fill="currentColor"
+                  aria-hidden
+                >
+                  <path d="M7 4.5v15L19.5 12z" />
+                </svg>
+                Replay its journey
+              </Link>
+            )}
+            <Link
+              href={`/map?mission=${mission.slug}`}
+              className="rounded-lg bg-picture-accent px-5 py-2 font-medium text-picture transition-opacity hover:opacity-90"
+            >
+              {mission.status === "ACTIVE"
+                ? "See where it is now →"
+                : "See where it went →"}
+            </Link>
+          </div>
         </div>
       </header>
 

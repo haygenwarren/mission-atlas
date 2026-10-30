@@ -66,6 +66,27 @@ export function fitRadius(size: Size, radius: number, x = 0, y = 0): Camera {
   return { x, y, scale: clampScale((span / 2 / radius) * 0.9, size) };
 }
 
+// A view of everything from (minX, minY) to (maxX, maxY), in AU, filling
+// `area` of the screen with a little room to spare.
+export function fitBounds(
+  size: Size,
+  area: { left: number; top: number; right: number; bottom: number },
+  [minX, minY, maxX, maxY]: [number, number, number, number],
+): Camera {
+  const width = area.right - area.left;
+  const height = area.bottom - area.top;
+  const scale = clampScale(
+    Math.min(width / (maxX - minX), height / (maxY - minY)) * 0.88,
+    size,
+  );
+
+  return {
+    x: (minX + maxX) / 2 - ((area.left + area.right) / 2 - size.width / 2) / scale,
+    y: (minY + maxY) / 2 + ((area.top + area.bottom) / 2 - size.height / 2) / scale,
+    scale,
+  };
+}
+
 // Part way from one view to another. The scale changes geometrically, so a
 // zoom from 200 AU to 2 AU feels even all the way through.
 export function between(from: Camera, to: Camera, k: number): Camera {

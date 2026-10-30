@@ -13,9 +13,10 @@ Mission Atlas is an archive of robotic planetary science and astrophysics missio
 
 - **Home page:** opens on a quarter of the live map, the Sun in the bottom-left corner, with the search laid over it. Scrolling down, or clicking the map, glides the map to the middle of the screen; there, hovering shows where a craft is and its path, and clicking opens the full map on it. Below come a Mission of the Day (the same for everyone, changing at midnight UTC, with every mission taking a turn before any repeats), the archive's numbers, six featured missions picked on each visit, and an about section.
 - **Map:** where every spacecraft is right now, on a true-scale map of the solar system. Drag, scroll or pinch to move around. Hover over a craft for its distance from the Sun and from Earth and a faint outline of its route; click it to show the route in full, solid so far and dashed ahead. Missions at the same planet are counted on a badge, and clicking it lists them with their craft there. Clicking a planet flies in close to it; around Earth, Jupiter and Saturn the moons then separate out on their orbits, each with its own count. Active missions pulse softly. Markers at the edge point to things out of view; clicking one zooms out to it. A list beside the map searches and filters the missions (active or ended, in flight or at a planet, by agency), narrowing what the map shows; hovering a mission there highlights it, and clicking flies to it.
+- **Journey replays:** a mission with a tracked route (46 of them) can replay its journey on the map, from its card there or its page. The map frames the whole route and shows only that mission, with the asteroids and comets it went to, while the craft flies its path and the planets move round the Sun to match. Every replay takes about 30 seconds at normal speed, with play and pause, speeds from half to four times, and a scrubber to drag through time, its milestones marked above it. A replay can be shared as a link, such as `/map?replay=voyager-1`.
 - **Pictures:** a picture of each mission's spacecraft, freely licensed and credited, on its page, its tile and its card on the map.
 - **Archive:** search across missions, spacecraft, agencies and destinations, and filter by status, agency, destination, spacecraft type and builder. Results sort by launch date or name and come in pages of 24.
-- **Mission pages:** a banner picture of the spacecraft (click it to see the whole picture) with the mission's name over it and a link to where it is now on the map (or where it went, for missions that have ended), then a strip of facts: launch time to the second, last contact, end declared, duration and destinations, then a tile for each spacecraft with its mass, size, power source, builder and its own status.
+- **Mission pages:** a banner picture of the spacecraft (click it to see the whole picture) with the mission's name over it, a link to where it is now on the map (or where it went, for missions that have ended) and one to replay its journey, then a strip of facts: launch time to the second, last contact, end declared, duration and destinations, then a tile for each spacecraft with its mass, size, power source, builder and its own status.
 - **Milestones:** each mission's key events (launch, flybys, arrivals, landings, sample returns, the end) labelled along a timeline from launch to today or the last planned event. Clicking an event slides the timeline aside and writes out what happened, with buttons to step to the events either side. Where events bunch together, the timeline spreads them out and shortens long quiet stretches so every label fits. Planned events are marked until they happen. Every mission has them.
 - **Linked facts:** every agency, destination, spacecraft type and builder links to the archive filtered by it.
 - **Light and dark themes:** dark by default, with a sun and moon switch in the navbar that remembers the visitor's choice.
@@ -124,7 +125,7 @@ The conventions the data follows:
 - A mission's only spacecraft shares the mission's status and dates. When a mission has several spacecraft, each must state its own status, and the seed enforces this.
 - Destinations are the places a mission studied or landed on, not gravity-assist flybys.
 - A spacecraft's `location` is where it is now: where it is headed if it is still on its way, or where it ended up if its mission is over. It is one of the destinations, but not necessarily one of its mission's (Gaia worked at L2 and was retired into an orbit around the Sun).
-- `horizonsId` is the craft's own entry in Horizons, found by designator or by a name Horizons lists. A carried craft without its own entry has none.
+- `horizonsId` is the craft's own entry in Horizons, found by designator or by a name Horizons lists. A carried craft without its own entry has none. Once `npm run import:positions` has a route for a craft, its mission can replay its journey, with its milestones marked and its asteroid and comet destinations shown.
 - Milestones are key events only: the launch, flybys, arrivals and orbit insertions, landings and releases, sample returns, the start of science for telescopes, and the end. Each has a two- or three-sentence description of what happened. Dates are the UTC day, or the month for plans not yet fixed to a day. A planned event stays marked `planned` until it happens; the seed warns when a planned date has passed.
 - A mission's `image` shows its spacecraft, whether a photo, a model or an artist's impression. If Commons gives no author, or not plainly, `imageCredit` says who to credit.
 - Catalogue values that need correcting are overridden in `missions.ts` with a comment giving the reason; companies with several GCAT codes are merged in `builderAliases`.
@@ -161,10 +162,10 @@ public/
 src/
   app/                   pages: home, map, archive, mission page, not-found
   components/            tiles, status tags, theme switch, navbar
-    map/                 the map: camera, drawing, controls, and the home
-                         page's smaller version
+    map/                 the map: camera, drawing, controls, the replay
+                         player, and the home page's smaller version
   lib/                   database client, formatting helpers, orbit maths,
-                         where each craft is on the map
+                         where each craft is on the map, journey replays
 branding/                logo, colours and type
 docs/                    mission list and screenshots
 ```
