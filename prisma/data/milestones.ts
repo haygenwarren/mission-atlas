@@ -2841,7 +2841,8 @@ export const milestones: Record<string, MilestoneSeed[]> = {
     },
   ],
 
-  // https://en.wikipedia.org/wiki/Hubble_Space_Telescope
+  // https://en.wikipedia.org/wiki/Hubble_Space_Telescope, including its
+  // servicing missions
   hubble: [
     {
       date: "1990-04-24",
@@ -2948,6 +2949,428 @@ export const milestones: Record<string, MilestoneSeed[]> = {
       title: "Switched off",
       description:
         "After nine years mapping the afterglow of the Big Bang, which put the age of the universe at about 13.77 billion years, it was moved out of the way and switched off.",
+    },
+  ],
+
+  // Later space telescopes
+
+  // https://en.wikipedia.org/wiki/INTEGRAL
+  integral: [
+    {
+      date: "2002-10-17",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Proton from Baikonur: ESA's gamma-ray observatory.",
+    },
+    {
+      date: "2025-02-28",
+      kind: "END",
+      title: "Science observations end",
+      description:
+        "ESA ended its observations after more than 22 years, during which it caught the gamma rays from the first merger of two neutron stars seen in gravitational waves. It is due to fall back into the atmosphere in 2029.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Spitzer_Space_Telescope
+  spitzer: [
+    {
+      date: "2003-08-25",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Delta II from Cape Canaveral, the only one of NASA's Great Observatories not sent up by the Shuttle, into an orbit trailing behind Earth around the Sun.",
+    },
+    {
+      date: "2009-05-15",
+      kind: "OPERATIONS",
+      title: "Coolant runs out, warm mission begins",
+      description:
+        "Its liquid helium ran out, but its camera kept working at the warmer temperature, in two of its four channels, for more than ten years.",
+    },
+    {
+      date: "2020-01-30",
+      kind: "END",
+      title: "Retired",
+      description:
+        "NASA retired it after 16 years. Among its finds were five of the seven planets around the star TRAPPIST-1.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Neil_Gehrels_Swift_Observatory and
+  // https://science.nasa.gov/missions/swift/nasas-swift-mission-ends/
+  swift: [
+    {
+      date: "2004-11-20",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Delta II from Cape Canaveral, to catch gamma-ray bursts and turn quickly to watch their afterglows.",
+    },
+    {
+      date: "2026-10-23",
+      kind: "END",
+      title: "Mission ends",
+      description:
+        "After its final observation on 20 October, NASA ended the mission: atmospheric drag had pulled it too low to point steadily, and a private attempt to boost its orbit had failed. It observed more than 2,000 gamma-ray bursts.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/CoRoT
+  corot: [
+    {
+      date: "2006-12-27",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched on a Soyuz from Baikonur.",
+    },
+    {
+      date: "2007-02-02",
+      kind: "OPERATIONS",
+      title: "Observing begins",
+      description:
+        "Began watching stars for the tiny dips in light as planets pass in front of them.",
+    },
+    {
+      date: "2014-06-17",
+      kind: "END",
+      title: "Switched off",
+      description:
+        "A computer failure in November 2012 ended its science, and it was retired in 2013. It found 34 planets, among them CoRoT-7b, the first planet outside the Solar System shown to be rocky.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Fermi_Gamma-ray_Space_Telescope
+  fermi: [
+    {
+      date: "2008-06-11",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Delta II from Cape Canaveral as GLAST, and renamed for the physicist Enrico Fermi that August.",
+    },
+    {
+      date: "2008-06-26",
+      kind: "OPERATIONS",
+      title: "Sky survey begins",
+      description:
+        "Began surveying the whole gamma-ray sky. It went on to find two giant bubbles of gamma rays above and below the Milky Way, and to catch the burst from the first neutron-star merger seen in gravitational waves.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Herschel_Space_Observatory
+  herschel: [
+    {
+      date: "2009-05-14",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on an Ariane 5 from Kourou together with Planck. Its 3.5 m mirror was the largest of any space telescope until Webb.",
+    },
+    {
+      date: "2009-07",
+      kind: "ARRIVAL",
+      title: "Arrives at Sun–Earth L2",
+      description:
+        "Settled into orbit around the L2 point, 1.5 million km from Earth.",
+    },
+    {
+      date: "2013-06-17",
+      kind: "END",
+      title: "Switched off",
+      description:
+        "Its liquid helium ran out that April, as expected, and the last command was sent in June.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Planck_(spacecraft)
+  planck: [
+    {
+      date: "2009-05-14",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on an Ariane 5 from Kourou together with Herschel.",
+    },
+    {
+      date: "2009-07-03",
+      kind: "ARRIVAL",
+      title: "Arrives at Sun–Earth L2",
+      description: "Settled into orbit around the L2 point.",
+    },
+    {
+      date: "2009-08-13",
+      kind: "OPERATIONS",
+      title: "First all-sky survey begins",
+      description:
+        "Began mapping the afterglow of the Big Bang across the whole sky.",
+    },
+    {
+      date: "2013-10-23",
+      kind: "END",
+      title: "Switched off",
+      description:
+        "Its most sensitive instrument ran out of coolant in January 2012. Its maps put the age of the universe at about 13.8 billion years.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Wide-field_Infrared_Survey_Explorer
+  wise: [
+    {
+      date: "2009-12-14",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched on a Delta II from Vandenberg in California.",
+    },
+    {
+      date: "2010-01-14",
+      kind: "OPERATIONS",
+      title: "Sky survey begins",
+      description:
+        "Began mapping the whole sky in infrared, finding tens of thousands of asteroids and comets and very cold brown dwarfs.",
+    },
+    {
+      date: "2013-12-19",
+      kind: "OPERATIONS",
+      title: "Woken up as NEOWISE",
+      description:
+        "After almost three years in hibernation, it was woken up to hunt asteroids and comets near Earth. In 2020 it found Comet NEOWISE, the brightest in the northern sky since 1997.",
+    },
+    {
+      date: "2024-08-08",
+      kind: "END",
+      title: "Switched off",
+      description:
+        "With its orbit decaying, its survey ended and its transmitter was switched off. It fell back into the atmosphere that November.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/NuSTAR
+  nustar: [
+    {
+      date: "2012-06-13",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Pegasus XL rocket dropped from an aircraft over the Pacific, near Kwajalein Atoll.",
+    },
+    {
+      date: "2012-06-22",
+      kind: "OPERATIONS",
+      title: "Mast unfolds",
+      description:
+        "Unfolded a 10 m mast to hold its X-ray optics far from its detectors: the first telescope in space to take direct images at X-ray energies beyond Chandra's.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/AstroSat
+  astrosat: [
+    {
+      date: "2015-09-28",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a PSLV from Sriharikota: India's first dedicated space telescope to observe in many wavelengths at once, from ultraviolet to X-rays.",
+    },
+    {
+      date: "2016-04-15",
+      kind: "OPERATIONS",
+      title: "Observing begins",
+      description:
+        "Finished its checks and began observing. In 2020 it detected extreme-ultraviolet light from a galaxy 9.3 billion light-years away.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Hitomi_(satellite)
+  hitomi: [
+    {
+      date: "2016-02-17",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched on an H-IIA from Tanegashima.",
+    },
+    {
+      date: "2016-03-26",
+      kind: "END",
+      title: "Breaks apart",
+      description:
+        "A false reading that it was turning, and a wrong software setting, made its thrusters spin it faster until parts broke off. In its few weeks it had measured the motion of gas in the Perseus galaxy cluster for the first time.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Transiting_Exoplanet_Survey_Satellite
+  tess: [
+    {
+      date: "2018-04-18",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched on a Falcon 9 from Cape Canaveral.",
+    },
+    {
+      date: "2018-05-17",
+      kind: "FLYBY",
+      title: "Moon flyby",
+      description:
+        "Swung past the Moon into a new kind of orbit that circles Earth twice for every orbit of the Moon.",
+    },
+    {
+      date: "2018-07-25",
+      kind: "OPERATIONS",
+      title: "Planet search begins",
+      description:
+        "Began surveying 85% of the sky for planets passing in front of bright, nearby stars. By October 2026 it had found more than 8,000 candidates, over 1,000 of them confirmed.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Spektr-RG and
+  // https://en.wikipedia.org/wiki/eROSITA
+  "spektr-rg": [
+    {
+      date: "2019-07-13",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Proton from Baikonur, carrying two X-ray telescopes: Germany's eROSITA and Russia's ART-XC.",
+    },
+    {
+      date: "2019-10-21",
+      kind: "ARRIVAL",
+      title: "Arrives at Sun–Earth L2",
+      description:
+        "Finished its 100-day cruise to the L2 point and began scanning the sky.",
+    },
+    {
+      date: "2022-02-26",
+      kind: "OPERATIONS",
+      title: "eROSITA stops observing",
+      description:
+        "After Russia invaded Ukraine, Germany switched off eROSITA, four surveys into eight. Its first survey alone had catalogued 1.1 million X-ray sources.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Euclid_(spacecraft)
+  euclid: [
+    {
+      date: "2023-07-01",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Falcon 9 from Cape Canaveral, to map a third of the sky and study dark matter and dark energy.",
+    },
+    {
+      date: "2023-11-07",
+      kind: "OPERATIONS",
+      title: "First images released",
+      description: "ESA released its first full-colour images of the cosmos.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/X-Ray_Imaging_and_Spectroscopy_Mission
+  xrism: [
+    {
+      date: "2023-09-06",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on an H-IIA from Tanegashima, sharing the ride with SLIM, to take up the work of the lost Hitomi.",
+    },
+    {
+      date: "2024-01",
+      kind: "OPERATIONS",
+      title: "First light",
+      description:
+        "Its first observations came in, though a protective shutter over its main spectrometer had failed to open, limiting it to higher-energy X-rays.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Einstein_Probe
+  "einstein-probe": [
+    {
+      date: "2024-01-09",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Long March 2C from Xichang. Its 'lobster-eye' X-ray optics see a huge patch of sky at once, to catch sudden flares and bursts.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/SPHEREx
+  spherex: [
+    {
+      date: "2025-03-12",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Falcon 9 from Vandenberg in California, sharing the ride with NASA's PUNCH satellites.",
+    },
+    {
+      date: "2025-05-01",
+      kind: "OPERATIONS",
+      title: "Sky survey begins",
+      description:
+        "Began mapping the whole sky in 96 colours, planning four complete maps over about two years.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Kepler_space_telescope
+  kepler: [
+    {
+      date: "2009-03-07",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Delta II from Cape Canaveral into an orbit trailing behind Earth.",
+    },
+    {
+      date: "2009-05-13",
+      kind: "OPERATIONS",
+      title: "Planet search begins",
+      description:
+        "Began staring at one patch of sky in Cygnus, Lyra and Draco, watching stars for the dips in light as planets pass in front.",
+    },
+    {
+      date: "2014-05-16",
+      kind: "OPERATIONS",
+      title: "K2 mission begins",
+      description:
+        "A second of its reaction wheels had failed in May 2013, so it could no longer hold its gaze. NASA approved a new mission, K2, looking at different fields in turn.",
+    },
+    {
+      date: "2018-11-15",
+      kind: "END",
+      title: "Switched off",
+      description:
+        "Out of fuel, it was switched off, having confirmed more than 2,600 planets beyond the Solar System.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Gaia_(spacecraft)
+  gaia: [
+    {
+      date: "2013-12-19",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched on a Soyuz-Fregat from Kourou.",
+    },
+    {
+      date: "2014-01-08",
+      kind: "ARRIVAL",
+      title: "Arrives at Sun–Earth L2",
+      description: "Settled into orbit around the L2 point.",
+    },
+    {
+      date: "2014-07-25",
+      kind: "OPERATIONS",
+      title: "Science begins",
+      description:
+        "Began measuring the positions, distances and motions of stars, scanning each part of the sky many times over.",
+    },
+    {
+      date: "2025-03-27",
+      kind: "END",
+      title: "Retired",
+      description:
+        "Its observations ended in January 2025 and it was switched off in March. Its final catalogue is expected around the end of 2030.",
     },
   ],
 };
