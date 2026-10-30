@@ -2242,4 +2242,712 @@ export const milestones: Record<string, MilestoneSeed[]> = {
       spacecraft: "zhurong",
     },
   ],
+
+  // Asteroids and comets
+
+  // https://en.wikipedia.org/wiki/Giotto_(spacecraft)
+  giotto: [
+    {
+      date: "1985-07-02",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on an Ariane 1 from Kourou to meet Halley's Comet.",
+    },
+    {
+      date: "1986-03-14",
+      kind: "FLYBY",
+      title: "Halley's Comet flyby",
+      description:
+        "Passed 596 km from Halley's nucleus and sent back the first close pictures of a comet's heart. Dust hits knocked it off balance and destroyed its camera.",
+    },
+    {
+      date: "1990-07-02",
+      kind: "FLYBY",
+      title: "Earth flyby",
+      description:
+        "Woken from four years of hibernation, it became the first spacecraft to use Earth for a gravity assist, setting course for a second comet.",
+    },
+    {
+      date: "1992-07-10",
+      kind: "FLYBY",
+      title: "Comet Grigg–Skjellerup flyby",
+      description:
+        "Passed about 200 km from a second comet, despite its broken camera.",
+    },
+    {
+      date: "1992-07-23",
+      kind: "END",
+      title: "Switched off",
+      description: "Giotto was switched off for good.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/NEAR_Shoemaker
+  "near-shoemaker": [
+    {
+      date: "1996-02-17",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Delta II from Cape Canaveral, bound for the asteroid Eros.",
+    },
+    {
+      date: "1997-06-27",
+      kind: "FLYBY",
+      title: "Asteroid Mathilde flyby",
+      description: "Flew past the dark asteroid Mathilde on the way.",
+    },
+    {
+      date: "1998-01-23",
+      kind: "FLYBY",
+      title: "Earth flyby",
+      description: "Swung past Earth to line up with Eros.",
+    },
+    {
+      date: "1998-12-23",
+      kind: "FLYBY",
+      title: "Misses Eros, flies past",
+      description:
+        "Its first braking burn aborted and the spacecraft tumbled, so it flew past Eros instead of stopping. It went round the Sun once more and came back a year later.",
+    },
+    {
+      date: "2000-02-14",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Eros",
+      description:
+        "Became the first spacecraft to orbit an asteroid, on Valentine's Day.",
+    },
+    {
+      date: "2001-02-12",
+      kind: "LANDING",
+      title: "Lands on Eros",
+      description:
+        "At the end of its mission it was steered down to the surface, the first soft landing on an asteroid, and to everyone's surprise it kept working.",
+    },
+    {
+      date: "2001-02-28",
+      kind: "END",
+      title: "Last contact",
+      description: "It sent data from the surface for two more weeks.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Stardust_(spacecraft)
+  stardust: [
+    {
+      date: "1999-02-07",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Delta II from Cape Canaveral to collect dust from a comet.",
+    },
+    {
+      date: "2001-01-15",
+      kind: "FLYBY",
+      title: "Earth flyby",
+      description: "Swung past Earth on the way to its comet.",
+    },
+    {
+      date: "2002-11-02",
+      kind: "FLYBY",
+      title: "Asteroid Annefrank flyby",
+      description:
+        "A rehearsal for the comet encounter, past a small asteroid.",
+    },
+    {
+      date: "2004-01-02",
+      kind: "FLYBY",
+      title: "Comet Wild 2 flyby",
+      description:
+        "Passed 237 km from the comet and caught dust from its coma in blocks of aerogel, a feather-light foam.",
+    },
+    {
+      date: "2006-01-15",
+      kind: "SAMPLE_RETURN",
+      title: "Sample capsule lands in Utah",
+      description:
+        "The capsule parachuted into the Utah desert with the first dust brought back from a comet. In it, scientists later found the amino acid glycine.",
+    },
+    {
+      date: "2011-02-15",
+      kind: "FLYBY",
+      title: "Comet Tempel 1 flyby",
+      description:
+        "Revisited the comet Deep Impact had struck in 2005 and photographed the crater it made.",
+    },
+    {
+      date: "2011-03-24",
+      kind: "END",
+      title: "Switched off",
+      description:
+        "After a last burn to use up its fuel, its transmitter was switched off.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Hayabusa
+  hayabusa: [
+    {
+      date: "2003-05-09",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on an M-V rocket from Uchinoura, with ion engines to reach the asteroid Itokawa.",
+    },
+    {
+      date: "2004-05-19",
+      kind: "FLYBY",
+      title: "Earth flyby",
+      description: "Swung past Earth for the speed to reach Itokawa.",
+    },
+    {
+      date: "2005-09-12",
+      kind: "ARRIVAL",
+      title: "Arrives at asteroid Itokawa",
+      description:
+        "Reached the small asteroid Itokawa, though one of the wheels that kept it pointed had already failed. A second failed soon after.",
+    },
+    {
+      date: "2005-11-19",
+      kind: "LANDING",
+      title: "First touchdown",
+      description: "Touched down on Itokawa to try to collect a sample.",
+    },
+    {
+      date: "2005-11-25",
+      kind: "LANDING",
+      title: "Second touchdown",
+      description:
+        "A second touchdown, after which a fuel leak and a loss of contact nearly ended the mission. It took more than a year to recover and start for home.",
+    },
+    {
+      date: "2010-06-13",
+      kind: "SAMPLE_RETURN",
+      title: "Capsule lands in Australia",
+      description:
+        "Hayabusa released its capsule and burned up in the atmosphere. The capsule landed in South Australia with about 1,500 tiny grains: the first sample brought back from an asteroid.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Deep_Impact_(spacecraft)
+  "deep-impact": [
+    {
+      date: "2005-01-12",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Delta II from Cape Canaveral, carrying an impactor to fire into a comet.",
+    },
+    {
+      date: "2005-07-03",
+      kind: "RELEASE",
+      title: "Impactor released",
+      description:
+        "The impactor separated a day before reaching comet Tempel 1.",
+      spacecraft: "deep-impact-impactor",
+    },
+    {
+      date: "2005-07-04",
+      kind: "END",
+      title: "Impactor hits comet Tempel 1",
+      description:
+        "The impactor struck the comet at 10.3 km/s while the flyby craft watched, blasting out material from beneath the surface.",
+      spacecraft: "deep-impact-impactor",
+    },
+    {
+      date: "2007-12-31",
+      kind: "FLYBY",
+      title: "Earth flyby",
+      description:
+        "Swung past Earth at the start of an extended mission, EPOXI.",
+    },
+    {
+      date: "2010-11-04",
+      kind: "FLYBY",
+      title: "Comet Hartley 2 flyby",
+      description: "Passed 694 km from a second comet.",
+    },
+    {
+      date: "2013-08-08",
+      kind: "END",
+      title: "Last contact",
+      description:
+        "Contact was lost when its clock counter overflowed, a problem much like the Y2K bug.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Dawn_(spacecraft)
+  dawn: [
+    {
+      date: "2007-09-27",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Delta II from Cape Canaveral: NASA's first exploration mission driven by ion engines.",
+    },
+    {
+      date: "2009-02-18",
+      kind: "FLYBY",
+      title: "Mars flyby",
+      description:
+        "Used Mars's gravity to bend its path towards the asteroid belt.",
+    },
+    {
+      date: "2011-07-16",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Vesta",
+      description:
+        "Spent more than a year orbiting Vesta, the second-largest body in the asteroid belt.",
+    },
+    {
+      date: "2015-03-06",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Ceres",
+      description:
+        "Having left Vesta in 2012, Dawn reached Ceres: the first spacecraft to orbit two worlds beyond Earth, and the first to orbit a dwarf planet.",
+    },
+    {
+      date: "2018-11-01",
+      kind: "END",
+      title: "Runs out of fuel",
+      description:
+        "Its thruster fuel ran out, and it can no longer point at Earth. It will stay in orbit around Ceres for decades.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/OSIRIS-REx
+  "osiris-rex": [
+    {
+      date: "2016-09-08",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on an Atlas V from Cape Canaveral to bring back a sample of the asteroid Bennu.",
+    },
+    {
+      date: "2017-09-22",
+      kind: "FLYBY",
+      title: "Earth flyby",
+      description: "Swung past Earth a year after launch.",
+    },
+    {
+      date: "2018-12-03",
+      kind: "ARRIVAL",
+      title: "Arrives at asteroid Bennu",
+      description:
+        "Arrived at Bennu, and on New Year's Eve went into orbit about 1.75 km up, the closest orbit of any spacecraft around any world.",
+    },
+    {
+      date: "2020-10-20",
+      kind: "LANDING",
+      title: "Collects a sample",
+      description:
+        "Touched Bennu's surface for a few seconds with its sampling arm and a puff of nitrogen, gathering far more than it needed.",
+    },
+    {
+      date: "2023-09-24",
+      kind: "SAMPLE_RETURN",
+      title: "Sample capsule lands in Utah",
+      description:
+        "The capsule parachuted into the Utah desert with 121.6 grams of Bennu. The spacecraft flew on, renamed OSIRIS-APEX.",
+    },
+    {
+      date: "2029-04",
+      kind: "ARRIVAL",
+      title: "Arrives at asteroid Apophis",
+      description:
+        "Due to reach Apophis just after the asteroid passes extremely close to Earth in April 2029.",
+      planned: true,
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Double_Asteroid_Redirection_Test
+  dart: [
+    {
+      date: "2021-11-24",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Falcon 9 from Vandenberg in California to test whether crashing into an asteroid can change its course.",
+    },
+    {
+      date: "2022-09-11",
+      kind: "RELEASE",
+      title: "LICIACube released",
+      description:
+        "Fifteen days before impact, DART released the Italian LICIACube to watch.",
+      spacecraft: "liciacube",
+    },
+    {
+      date: "2022-09-26",
+      kind: "END",
+      title: "Hits Dimorphos",
+      description:
+        "Struck the small moonlet Dimorphos at about 6.6 km/s while LICIACube flew past. The impact shortened its orbit around Didymos by about 32 minutes: the first test of defending Earth by moving an asteroid.",
+      spacecraft: "dart",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Lucy_(spacecraft)
+  lucy: [
+    {
+      date: "2021-10-16",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on an Atlas V from Cape Canaveral on a 12-year tour of Jupiter's Trojan asteroids. One of its two solar arrays never fully latched open.",
+    },
+    {
+      date: "2022-10-16",
+      kind: "FLYBY",
+      title: "Earth flyby",
+      description: "Swung past Earth, 300 km up, a year after launch.",
+    },
+    {
+      date: "2023-11-01",
+      kind: "FLYBY",
+      title: "Asteroid Dinkinesh flyby",
+      description:
+        "A test run past a small asteroid that turned up a surprise: a moon, Selam, itself made of two lobes stuck together.",
+    },
+    {
+      date: "2024-12-13",
+      kind: "FLYBY",
+      title: "Second Earth flyby",
+      description:
+        "A second pass of Earth sent it out towards the asteroid belt and the Trojans.",
+    },
+    {
+      date: "2025-04-20",
+      kind: "FLYBY",
+      title: "Asteroid Donaldjohanson flyby",
+      description:
+        "Passed 960 km from an asteroid named after the discoverer of the fossil Lucy, which the mission is also named after.",
+    },
+    {
+      date: "2027-08-12",
+      kind: "FLYBY",
+      title: "Trojan asteroid Eurybates flyby",
+      description:
+        "Due to make the first visit to one of Jupiter's Trojan asteroids.",
+      planned: true,
+    },
+    {
+      date: "2033-03-02",
+      kind: "FLYBY",
+      title: "Patroclus–Menoetius flyby",
+      description:
+        "Its last planned target: a pair of Trojan asteroids orbiting each other.",
+      planned: true,
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Psyche_(spacecraft)
+  psyche: [
+    {
+      date: "2023-10-13",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Falcon Heavy from Kennedy Space Center. On the way, it tested sending data home by laser, at up to 267 megabits per second.",
+    },
+    {
+      date: "2026-05-15",
+      kind: "FLYBY",
+      title: "Mars flyby",
+      description:
+        "Used Mars's gravity to bend its path towards the asteroid belt.",
+    },
+    {
+      date: "2029-08",
+      kind: "ARRIVAL",
+      title: "Enters orbit around Psyche",
+      description:
+        "Due to reach Psyche, a metal-rich asteroid about 220 km across, possibly part of the core of a shattered young planet.",
+      planned: true,
+    },
+    {
+      date: "2031-11",
+      kind: "END",
+      title: "End of the main mission",
+      description:
+        "The main mission is planned to end after 26 months in orbit.",
+      planned: true,
+    },
+  ],
+
+  // Early space telescopes
+
+  // https://en.wikipedia.org/wiki/Uhuru_(satellite)
+  uhuru: [
+    {
+      date: "1970-12-12",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Scout rocket from the San Marco platform off the coast of Kenya, on the anniversary of Kenya's independence, and named Uhuru, Swahili for 'freedom'.",
+    },
+    {
+      date: "1973-03",
+      kind: "END",
+      title: "Mission ends",
+      description:
+        "The first satellite built for X-ray astronomy had mapped 339 X-ray sources across the whole sky, including Cygnus X-1, the first strong candidate for a black hole.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/International_Ultraviolet_Explorer
+  iue: [
+    {
+      date: "1978-01-26",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Delta from Cape Canaveral: a joint NASA, British and European telescope.",
+    },
+    {
+      date: "1978-04-03",
+      kind: "OPERATIONS",
+      title: "Observing begins",
+      description:
+        "From a geosynchronous orbit it stayed in touch with the ground, so astronomers could steer it live, like a telescope on Earth.",
+    },
+    {
+      date: "1996-09-30",
+      kind: "END",
+      title: "Switched off",
+      description:
+        "Planned for three years, it worked for 18 and made more than 104,000 observations. It was switched off to save money while still working well.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/IRAS
+  iras: [
+    {
+      date: "1983-01-26",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched on a Delta from Vandenberg in California.",
+    },
+    {
+      date: "1983-02-09",
+      kind: "OPERATIONS",
+      title: "Survey begins",
+      description:
+        "Began the first survey of the whole sky in infrared light, mapping 96% of it four times over.",
+    },
+    {
+      date: "1983-11-21",
+      kind: "END",
+      title: "Coolant runs out",
+      description:
+        "Its liquid helium ran out after ten months. It had found hundreds of thousands of sources, six comets and a disc of dust around the star Vega.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Hipparcos
+  hipparcos: [
+    {
+      date: "1989-08-08",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on an Ariane 4 from Kourou. Its own motor failed to fire, leaving it stuck in a long, looping orbit instead of a fixed one.",
+    },
+    {
+      date: "1993-08",
+      kind: "END",
+      title: "Switched off",
+      description:
+        "Despite the wrong orbit, it measured the positions of stars for almost three and a half years. Its catalogues give precise positions for 118,000 stars and rough ones for more than a million.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Cosmic_Background_Explorer
+  cobe: [
+    {
+      date: "1989-11-18",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Delta from Vandenberg, after being redesigned when the Challenger disaster grounded the Shuttle it was meant to fly on.",
+    },
+    {
+      date: "1993-12-23",
+      kind: "END",
+      title: "Switched off",
+      description:
+        "It had shown that the afterglow of the Big Bang matches a perfect heat glow, and found faint ripples in it. Two of its scientists shared the 2006 Nobel Prize in Physics.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/ROSAT
+  rosat: [
+    {
+      date: "1990-06-01",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on a Delta II from Cape Canaveral: a German, American and British X-ray telescope.",
+    },
+    {
+      date: "1999-02-12",
+      kind: "END",
+      title: "Switched off",
+      description:
+        "After a pointing failure in 1998 let sunlight damage one of its cameras, it was switched off. Its all-sky survey catalogued more than 150,000 X-ray sources.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Compton_Gamma_Ray_Observatory
+  "compton-gamma-ray-observatory": [
+    {
+      date: "1991-04-05",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on the Space Shuttle Atlantis: the second of NASA's Great Observatories, after Hubble.",
+    },
+    {
+      date: "2000-06-04",
+      kind: "END",
+      title: "Brought down into the Pacific",
+      description:
+        "After one of its three gyroscopes failed, NASA steered it into the atmosphere so its heavy debris would fall safely into the Pacific Ocean.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Infrared_Space_Observatory
+  iso: [
+    {
+      date: "1995-11-17",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched on an Ariane 4 from Kourou.",
+    },
+    {
+      date: "1996-02-04",
+      kind: "OPERATIONS",
+      title: "Observing begins",
+      description:
+        "Began routine observations, finding water vapour in places from star-forming clouds to dying stars.",
+    },
+    {
+      date: "1998-05-16",
+      kind: "END",
+      title: "Switched off",
+      description:
+        "Its liquid helium lasted longer than planned, until April 1998. After more than 26,000 observations, it was switched off a month later.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Hubble_Space_Telescope
+  hubble: [
+    {
+      date: "1990-04-24",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched aboard the Space Shuttle Discovery.",
+    },
+    {
+      date: "1990-04-25",
+      kind: "RELEASE",
+      title: "Released into orbit",
+      description:
+        "Set free from the Shuttle. Within weeks its first pictures showed a flaw: its main mirror had been ground to slightly the wrong shape.",
+    },
+    {
+      date: "1993-12",
+      kind: "OPERATIONS",
+      title: "First servicing mission",
+      description:
+        "Astronauts fitted corrective optics that fixed its blurred vision, the first of five visits by Shuttle crews.",
+    },
+    {
+      date: "1997-02",
+      kind: "OPERATIONS",
+      title: "Second servicing mission",
+      description:
+        "Astronauts installed new instruments and replaced worn equipment.",
+    },
+    {
+      date: "1999-12",
+      kind: "OPERATIONS",
+      title: "Third servicing mission",
+      description: "Astronauts replaced its gyroscopes and its main computer.",
+    },
+    {
+      date: "2002-03",
+      kind: "OPERATIONS",
+      title: "Fourth servicing mission",
+      description: "Astronauts installed a new camera and new solar arrays.",
+    },
+    {
+      date: "2009-05",
+      kind: "OPERATIONS",
+      title: "Last servicing mission",
+      description:
+        "The last Shuttle visit added new instruments and repaired others, keeping Hubble working decades after launch.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Chandra_X-ray_Observatory
+  chandra: [
+    {
+      date: "1999-07-23",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched aboard the Space Shuttle Columbia, at 22.8 tonnes with its booster the heaviest payload a Shuttle ever carried, then boosted into a long orbit reaching far beyond the satellites around Earth.",
+    },
+    {
+      date: "1999-08",
+      kind: "OPERATIONS",
+      title: "First light",
+      description:
+        "Its first images included the supernova remnant Cassiopeia A, showing detail no X-ray telescope had seen before.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/XMM-Newton
+  "xmm-newton": [
+    {
+      date: "1999-12-10",
+      kind: "LAUNCH",
+      title: "Launch",
+      description:
+        "Launched on an Ariane 5 from Kourou, carrying three X-ray telescopes, each made of 58 mirrors nested inside one another.",
+    },
+    {
+      date: "2000-06-01",
+      kind: "OPERATIONS",
+      title: "Science operations begin",
+      description:
+        "Began routine observations from a long orbit that takes it more than 100,000 km from Earth.",
+    },
+  ],
+
+  // https://en.wikipedia.org/wiki/Wilkinson_Microwave_Anisotropy_Probe
+  wmap: [
+    {
+      date: "2001-06-30",
+      kind: "LAUNCH",
+      title: "Launch",
+      description: "Launched on a Delta II from Cape Canaveral.",
+    },
+    {
+      date: "2001-10-01",
+      kind: "ARRIVAL",
+      title: "Arrives at Sun–Earth L2",
+      description:
+        "Reached its observing post 1.5 million km beyond Earth, where it could scan the whole sky.",
+    },
+    {
+      date: "2010-10-20",
+      kind: "END",
+      title: "Switched off",
+      description:
+        "After nine years mapping the afterglow of the Big Bang, which put the age of the universe at about 13.77 billion years, it was moved out of the way and switched off.",
+    },
+  ],
 };
