@@ -1705,8 +1705,12 @@ export default function MissionMap({
           kinds={kinds}
           snapshot={positions!}
           onClose={closeCard}
+          // A mission can replay with a route between the planets, or a
+          // path around one (JWST has only that).
           onReplay={
-            selectedMission && trails.length > 0
+            selectedMission &&
+            (trails.length > 0 ||
+              missionLocalIds(craft, localIndex, selectedMission).length > 0)
               ? () => startReplay(selectedMission)
               : undefined
           }
