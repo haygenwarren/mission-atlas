@@ -3,23 +3,30 @@
 import { useState } from "react";
 import { STATUSES, type StatusRow } from "@/lib/data";
 import { statusLabels } from "@/lib/missions";
-import { Legend, Tooltip, usePointed, useWidth } from "./parts";
+import { COLOURINGS, Legend, Tooltip, usePointed, useWidth } from "./parts";
 
-const statusColours = {
-  ACTIVE: "var(--status-active)",
-  COMPLETED: "var(--status-completed)",
-  FAILED: "var(--status-failed)",
-};
+const statusColours = Object.fromEntries(
+  COLOURINGS.status.items.map(({ key, colour }) => [key, colour]),
+);
 
-// A bar for each destination or agency, as long as its count of missions
-// and split by how they stand: active, completed or failed. A row links to
-// its missions in the archive.
-export default function StatusBars({ rows }: { rows: StatusRow[] }) {
+// A bar for each group, place or agency, as long as its count of missions
+// and split by how they stand: active, completed or failed. Clicking a row
+// adds it to the page's filter, or takes it off again; while any are
+// chosen, the rest fade.
+export default function StatusBars({
+  rows,
+  picked,
+  onToggle,
+}: {
+  rows: StatusRow[];
+  picked: string[];
+  onToggle: (key: string) => void;
+}) {
   const [ref, width] = useWidth<HTMLDivElement>();
-  const { pointed, handlers, clear } = usePointed<string>();
+  const { pointed, handlers, clear, hint } = usePointed<string>();
   // Where the pointed row's bar ends, for its note.
   const [at, setAt] = useState({ x: 0, y: 0 });
-  const most = Math.max(...rows.map(({ total }) => total));
+  const most = Math.max(1, ...rows.map(({ total }) => total));
   const row = rows.find(({ key }) => key === pointed);
 
   function place(event: React.SyntheticEvent<HTMLElement>) {
@@ -32,22 +39,24 @@ export default function StatusBars({ rows }: { rows: StatusRow[] }) {
 
   return (
     <div className="space-y-4">
-      <Legend
-        items={STATUSES.map((status) => ({
-          label: statusLabels[status],
-          color: statusColours[status],
-        }))}
-      />
+      <Legend items={COLOURINGS.status.items} />
 
       <div ref={ref} className="relative" onPointerDown={clear}>
+        {rows.length === 0 && (
+          <p className="text-sm text-muted">No missions match the filters.</p>
+        )}
+
         <ul className="space-y-0.5">
           {rows.map((one) => {
-            const { onPointerEnter, onFocus, ...rest } = handlers(one.key);
+            const { onPointerEnter, onFocus, onPointerDown, ...rest } =
+              handlers(one.key, () => onToggle(one.key));
+            const chosen = picked.includes(one.key);
 
             return (
               <li key={one.key}>
-                <a
-                  href={one.href}
+                <button
+                  type="button"
+                  aria-pressed={chosen}
                   aria-label={`${one.title}: ${one.total} mission${one.total === 1 ? "" : "s"}`}
                   {...rest}
                   onPointerEnter={(event) => {
@@ -60,11 +69,15 @@ export default function StatusBars({ rows }: { rows: StatusRow[] }) {
                   }}
                   onPointerDown={(event) => {
                     place(event);
-                    rest.onPointerDown(event);
+                    onPointerDown(event);
                   }}
-                  className={`grid grid-cols-[6.5rem_1fr] items-center gap-3 rounded px-1.5 py-1 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent sm:grid-cols-[11rem_1fr] ${
-                    pointed === one.key ? "bg-surface" : ""
-                  }`}
+                  className={`grid w-full grid-cols-[6.5rem_1fr] items-center gap-3 rounded px-1.5 py-1 text-left outline-none transition focus-visible:ring-2 focus-visible:ring-accent sm:grid-cols-[9rem_1fr] ${
+                    chosen
+                      ? "bg-border/60"
+                      : pointed === one.key
+                        ? "bg-border/40"
+                        : ""
+                  } ${picked.length > 0 && !chosen ? "opacity-40" : ""}`}
                 >
                   <span className="truncate text-sm" title={one.title}>
                     {one.label}
@@ -82,7 +95,7 @@ export default function StatusBars({ rows }: { rows: StatusRow[] }) {
                           one.counts[status] > 0 && (
                             <span
                               key={status}
-                              className="h-full border-r border-background last:border-r-0"
+                              className="h-full border-r border-surface last:border-r-0"
                               style={{
                                 flexGrow: one.counts[status],
                                 background: statusColours[status],
@@ -95,7 +108,7 @@ export default function StatusBars({ rows }: { rows: StatusRow[] }) {
                       {one.total}
                     </span>
                   </span>
-                </a>
+                </button>
               </li>
             );
           })}
@@ -111,6 +124,9 @@ export default function StatusBars({ rows }: { rows: StatusRow[] }) {
                     `${row.counts[status]} ${statusLabels[status].toLowerCase()}`,
                 )
                 .join(" · ")}
+            </p>
+            <p className="mt-1.5 text-xs text-muted">
+              {hint(picked.includes(row.key))}
             </p>
           </Tooltip>
         )}

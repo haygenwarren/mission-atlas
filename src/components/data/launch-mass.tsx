@@ -1,13 +1,25 @@
 "use client";
 
-import { GROUPS, type MassPoint } from "@/lib/data";
-import { Legend, Tooltip, groupColour, usePointed, useWidth } from "./parts";
+import { useState } from "react";
+import type { MissionFacts } from "@/lib/data";
+import {
+  COLOURINGS,
+  COLOUR_OPTIONS,
+  Card,
+  Legend,
+  Switch,
+  Tooltip,
+  colourOf,
+  usePointed,
+  useWidth,
+  type ColourBy,
+} from "./parts";
 
 const HEIGHT = 300;
 const MARGIN = { top: 12, right: 12, bottom: 26, left: 64 };
 
 // Launch masses run from about 150 kg to over 15 tonnes, so the scale goes
-// up in powers of ten: each step up is ten times heavier.
+// up in powers of ten.
 const LOWEST_KG = 100;
 const HIGHEST_KG = 20_000;
 const MASS_TICKS = [100, 300, 1_000, 3_000, 10_000];
@@ -30,18 +42,32 @@ function yearOf(iso: string) {
   return date.getUTCFullYear() + (date.getTime() - start) / (end - start);
 }
 
-// A dot for each mission at its launch date and launch mass, coloured by
-// where it went. A dot links to its mission's page.
-export default function LaunchMass({ points }: { points: MassPoint[] }) {
+// A dot for each mission at its launch date and launch mass. A dot links to
+// its mission's page. The axes stay put as the filters change, so the dots
+// that remain keep their places.
+export default function LaunchMass({
+  missions,
+  first,
+  last,
+  unweighed,
+}: {
+  missions: MissionFacts[];
+  // The decades the chart runs across.
+  first: number;
+  last: number;
+  // How many of the filtered missions have no recorded mass.
+  unweighed: number;
+}) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const { pointed, handlers, clear } = usePointed<string>();
+  const [mode, setMode] = useState<ColourBy>("where");
 
+  const points = missions.filter(
+    (mission): mission is MissionFacts & { massKg: number } =>
+      mission.massKg !== null,
+  );
   const plotWidth = Math.max(0, width - MARGIN.left - MARGIN.right);
   const plotHeight = HEIGHT - MARGIN.top - MARGIN.bottom;
-  const years = points.map(({ launchDate }) => yearOf(launchDate));
-  // Whole decades either side of the launches.
-  const first = Math.floor(Math.min(...years) / 10) * 10;
-  const last = Math.ceil(Math.max(...years) / 10) * 10;
   const x = (year: number) =>
     MARGIN.left + ((year - first) / (last - first)) * plotWidth;
   const y = (kg: number) =>
@@ -55,17 +81,46 @@ export default function LaunchMass({ points }: { points: MassPoint[] }) {
     (_, i) => first + i * 10,
   );
   const point = points.find(({ slug }) => slug === pointed);
+  const lightest = points.reduce<(typeof points)[number] | null>(
+    (a, b) => (!a || b.massKg < a.massKg ? b : a),
+    null,
+  );
+  const heaviest = points.reduce<(typeof points)[number] | null>(
+    (a, b) => (!a || b.massKg > a.massKg ? b : a),
+    null,
+  );
 
   return (
-    <div className="space-y-4">
-      <Legend
-        items={GROUPS.map(({ key, label }) => ({
-          label,
-          color: groupColour(key),
-        }))}
-      />
+    <Card
+      label="Size"
+      title="Launch mass"
+      controls={
+        <Switch
+          label="Colour by"
+          options={COLOUR_OPTIONS}
+          value={mode}
+          onChange={setMode}
+        />
+      }
+    >
+      <p className="max-w-3xl text-sm text-muted">
+        {lightest && heaviest && lightest !== heaviest
+          ? `From ${lightest.name} at ${massFormat(lightest.massKg)} to ${heaviest.name} at ${massFormat(heaviest.massKg)}. `
+          : ""}
+        The scale grows by powers of ten: from 100 kg to 1,000 kg takes as much
+        room as from 1,000 kg to 10,000 kg. A mission&rsquo;s mass is its
+        spacecraft&rsquo;s launch masses added up, as the catalogue records
+        them, so a rover catalogued on its own, such as Spirit, appears
+        without its cruise stage.
+        {unweighed > 0 &&
+          ` ${unweighed} mission${unweighed === 1 ? " has" : "s have"} no recorded mass.`}
+      </p>
 
-      <div ref={ref} className="relative" onPointerDown={clear}>
+      <div className="mt-4">
+        <Legend items={COLOURINGS[mode].items} />
+      </div>
+
+      <div ref={ref} className="relative mt-4" onPointerDown={clear}>
         {width > 0 && (
           <svg
             width={width}
@@ -107,26 +162,26 @@ export default function LaunchMass({ points }: { points: MassPoint[] }) {
               </text>
             ))}
 
-            {points.map(({ slug, name, group, launchDate, massKg }, i) => {
-              const cx = x(years[i]);
-              const cy = y(massKg);
+            {points.map((mission) => {
+              const cx = x(yearOf(mission.launchDate));
+              const cy = y(mission.massKg);
 
               return (
                 <a
-                  key={slug}
-                  href={`/missions/${slug}`}
-                  aria-label={`${name}: ${massFormat(massKg)}, launched ${dayFormat.format(new Date(launchDate))}`}
+                  key={mission.slug}
+                  href={`/missions/${mission.slug}`}
+                  aria-label={`${mission.name}: ${massFormat(mission.massKg)}, launched ${dayFormat.format(new Date(mission.launchDate))}`}
                   className="outline-none"
-                  {...handlers(slug)}
+                  {...handlers(mission.slug)}
                 >
                   {/* A wider ring than the dot answers to the pointer. */}
                   <circle cx={cx} cy={cy} r={10} fill="transparent" />
                   <circle
                     cx={cx}
                     cy={cy}
-                    r={pointed === slug ? 7 : 5}
-                    fill={groupColour(group)}
-                    stroke="var(--background)"
+                    r={pointed === mission.slug ? 7 : 5}
+                    fill={colourOf(mission, mode).colour}
+                    stroke="var(--surface)"
                     strokeWidth={1.5}
                   />
                 </a>
@@ -149,6 +204,6 @@ export default function LaunchMass({ points }: { points: MassPoint[] }) {
           </Tooltip>
         )}
       </div>
-    </div>
+    </Card>
   );
 }

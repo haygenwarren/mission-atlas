@@ -1,39 +1,78 @@
 "use client";
 
-import { GROUPS, type YearColumn } from "@/lib/data";
-import { Legend, Tooltip, groupColour, usePointed, useWidth } from "./parts";
+import { useState } from "react";
+import { missionsByYear, type MissionFacts } from "@/lib/data";
+import {
+  COLOURINGS,
+  COLOUR_OPTIONS,
+  Card,
+  Legend,
+  Switch,
+  Tooltip,
+  colourOf,
+  usePointed,
+  useWidth,
+  type ColourBy,
+} from "./parts";
 
 const HEIGHT = 260;
 const MARGIN = { top: 10, right: 4, bottom: 26, left: 26 };
 
-// A column for every year, each mission a block coloured by where it went,
-// so the eras show: the race to the Moon, the run of missions to Mars. A
-// year's column links to its missions in the archive.
-export default function MissionsPerYear({ columns }: { columns: YearColumn[] }) {
+// A column for every year, each mission a block, so the eras show: the race
+// to the Moon, the run of missions to Mars. Clicking a year narrows the page
+// to it. The chart shows every year the other filters allow, with the
+// chosen years picked out.
+export default function MissionsPerYear({
+  missions,
+  first,
+  last,
+  years,
+  onPick,
+}: {
+  missions: MissionFacts[];
+  // The years the chart runs across.
+  first: number;
+  last: number;
+  // The years chosen, if any.
+  years: [number, number] | null;
+  onPick: (year: number) => void;
+}) {
   const [ref, width] = useWidth<HTMLDivElement>();
-  const { pointed, handlers, clear } = usePointed<number>();
+  const { pointed, handlers, clear, hint } = usePointed<number>();
+  const [mode, setMode] = useState<ColourBy>("where");
 
+  const columns = missionsByYear(missions, first, last);
   const plotWidth = Math.max(0, width - MARGIN.left - MARGIN.right);
   const plotHeight = HEIGHT - MARGIN.top - MARGIN.bottom;
-  const most = Math.max(...columns.map(({ missions }) => missions.length));
+  const most = Math.max(1, ...columns.map(({ missions }) => missions.length));
   const step = plotWidth / columns.length;
   // How tall one mission's block is.
   const block = plotHeight / most;
   const ticks = Array.from({ length: most + 1 }, (_, i) => i).filter(
     (n) => most <= 6 || n % 2 === 0,
   );
+  const chosen = (year: number) =>
+    !years || (year >= years[0] && year <= years[1]);
+  const picked = (year: number) =>
+    years !== null && years[0] === year && years[1] === year;
   const column = pointed === null ? null : columns[pointed];
 
   return (
-    <div className="space-y-4">
-      <Legend
-        items={GROUPS.map(({ key, label }) => ({
-          label,
-          color: groupColour(key),
-        }))}
-      />
+    <Card
+      label="Launches"
+      title="Missions per year"
+      controls={
+        <Switch
+          label="Colour by"
+          options={COLOUR_OPTIONS}
+          value={mode}
+          onChange={setMode}
+        />
+      }
+    >
+      <Legend items={COLOURINGS[mode].items} />
 
-      <div ref={ref} className="relative" onPointerDown={clear}>
+      <div ref={ref} className="relative mt-4" onPointerDown={clear}>
         {width > 0 && (
           <svg
             width={width}
@@ -67,9 +106,12 @@ export default function MissionsPerYear({ columns }: { columns: YearColumn[] }) 
               );
             })}
 
-            {columns.map(({ year, missions }, i) => {
+            {columns.map(({ year, missions: launched }, i) => {
               const x = MARGIN.left + i * step;
               const bar = Math.max(1.5, step * 0.7);
+              const stack = launched
+                .map((mission) => ({ mission, ...colourOf(mission, mode) }))
+                .sort((a, b) => a.order - b.order);
 
               // A decade's first year is named below the axis.
               const label = year % 10 === 0 && (
@@ -83,16 +125,19 @@ export default function MissionsPerYear({ columns }: { columns: YearColumn[] }) 
                 </text>
               );
 
-              if (missions.length === 0) return <g key={year}>{label}</g>;
+              if (launched.length === 0) return <g key={year}>{label}</g>;
 
               return (
                 <g key={year}>
                   {label}
-                  <a
-                    href={`/missions?year=${year}`}
-                    aria-label={`${year}: ${missions.map(({ name }) => name).join(", ")}`}
-                    className="outline-none"
-                    {...handlers(i)}
+                  <g
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={picked(year)}
+                    aria-label={`${year}: ${launched.map(({ name }) => name).join(", ")}`}
+                    className="cursor-pointer outline-none"
+                    opacity={chosen(year) ? 1 : 0.3}
+                    {...handlers(i, () => onPick(year), true)}
                   >
                     {/* The whole column answers to the pointer, not just
                         the blocks. */}
@@ -101,30 +146,21 @@ export default function MissionsPerYear({ columns }: { columns: YearColumn[] }) 
                       y={MARGIN.top}
                       width={step}
                       height={plotHeight}
-                      fill="transparent"
+                      fill={pointed === i ? "var(--border)" : "transparent"}
+                      opacity={0.5}
                     />
-                    {pointed === i && (
+                    {stack.map(({ mission, colour }, k) => (
                       <rect
-                        x={x}
-                        y={MARGIN.top}
-                        width={step}
-                        height={plotHeight}
-                        fill="var(--border)"
-                        opacity={0.5}
-                      />
-                    )}
-                    {missions.map(({ slug, group }, k) => (
-                      <rect
-                        key={slug}
+                        key={mission.slug}
                         x={x + (step - bar) / 2}
                         y={MARGIN.top + plotHeight - (k + 1) * block + 1}
                         width={bar}
                         height={block - 2}
                         rx={1}
-                        fill={groupColour(group)}
+                        fill={colour}
                       />
                     ))}
-                  </a>
+                  </g>
                 </g>
               );
             })}
@@ -142,20 +178,23 @@ export default function MissionsPerYear({ columns }: { columns: YearColumn[] }) 
               {column.missions.length === 1 ? "" : "s"}
             </p>
             <ul className="mt-1 space-y-0.5">
-              {column.missions.map(({ slug, name, group }) => (
-                <li key={slug} className="flex items-center gap-1.5">
+              {column.missions.map((mission) => (
+                <li key={mission.slug} className="flex items-center gap-1.5">
                   <span
                     aria-hidden
                     className="size-2 shrink-0 rounded-sm"
-                    style={{ background: groupColour(group) }}
+                    style={{ background: colourOf(mission, mode).colour }}
                   />
-                  {name}
+                  {mission.name}
                 </li>
               ))}
             </ul>
+            <p className="mt-1.5 text-xs text-muted">
+              {hint(picked(column.year))}
+            </p>
           </Tooltip>
         )}
       </div>
-    </div>
+    </Card>
   );
 }

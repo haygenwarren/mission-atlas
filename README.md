@@ -19,7 +19,7 @@ Mission Atlas is an archive of robotic planetary science and astrophysics missio
 - **Archive:** search across missions, spacecraft, agencies and destinations, and filter by status, agency, destination, spacecraft type, builder and launch year. Results sort by launch date or name and come in pages of 24.
 - **Mission pages:** a banner picture of the spacecraft (click it to see the whole picture) with the mission's name over it, a link to where it is now on the map (or where it went, for missions that have ended) and one to replay its journey, then a strip of facts: launch time to the second, last contact, end declared, duration and destinations, then a tile for each spacecraft with its mass, size, power source, builder and its own status.
 - **Milestones:** each mission's key events (launch, flybys, arrivals, landings, sample returns, the end) labelled along a timeline from launch to today or the last planned event. Clicking an event slides the timeline aside and writes out what happened, with buttons to step to the events either side. Where events bunch together, the timeline spreads them out and shortens long quiet stretches so every label fits. Planned events are marked until they happen. Every mission has them.
-- **Data page:** the archive in four charts: missions launched each year, coloured by where they went; the places they went and the agencies that flew them, split into active, completed and failed; and each mission's launch mass by launch date. Pointing at a bar or dot (or tapping it on a phone) shows its details, and clicking it opens those missions in the archive or the mission's page. The charts are drawn as SVG by the site's own components, in the site's colours and themes.
+- **Data page:** a dashboard of the archive, with a filter bar that stays in view: status, where missions went (six groups, or single places), agency and a launch-year range with quick picks such as the Space Race. Every card updates together: headline numbers (missions, active, agencies, years in space), missions per year, where they went, who flew them, a decade-by-destination heatmap, and each mission's launch mass. Clicking a year, bar or square filters the page to it; each chart still shows the other choices the filters allow, so they can be added. Charts can be coloured by destination, agency or status. The filters live in the address, so a filtered view can be shared, and a link opens the same missions in the archive when its filters can express them. The charts are drawn by the site's own components, in its colours and themes.
 - **Linked facts:** every agency, destination, spacecraft type and builder links to the archive filtered by it.
 - **Light and dark themes:** dark by default, with a sun and moon switch in the navbar that remembers the visitor's choice.
 
@@ -172,7 +172,7 @@ src/
   app/                   pages: home, map, archive, mission page, data,
                          not-found
   components/            tiles, status tags, theme switch, navbar
-    charts/              the data page's charts
+    data/                the data page's dashboard and charts
     map/                 the map: camera, drawing, controls, the replay
                          player, and the home page's smaller version
   lib/                   database client, formatting helpers, orbit maths,
