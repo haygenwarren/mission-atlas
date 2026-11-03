@@ -1,9 +1,10 @@
-# Refreshes public/positions.json from JPL Horizons every day, and commits it
-# straight to main when Horizons' data has changed (a craft tracked further,
-# or a revised prediction after a manoeuvre). The push deploys the site. It
-# commits nothing when only the date has changed, and refuses a snapshot that
-# has lost a body or route the last one had; a refused or failed run is
-# emailed to the repository owner and the site keeps the last good file.
+# Refreshes public/positions.json and the paths around a body in public/local
+# from JPL Horizons every day, and commits them straight to main when
+# Horizons' data has changed (a craft tracked further, or a revised
+# prediction after a manoeuvre). The push deploys the site. It commits
+# nothing when only the dates have changed, and refuses a snapshot that has
+# lost a body, route or path the last one had; a refused or failed run is
+# emailed to the repository owner and the site keeps the last good files.
 name: Refresh positions
 
 on:
@@ -43,6 +44,9 @@ jobs:
       - name: Fetch positions from JPL Horizons
         run: npm run import:positions
 
+      - name: Fetch paths around a body from JPL Horizons
+        run: npm run import:local
+
       - name: Check the new snapshot
         id: check
         run: npm run check:positions
@@ -52,7 +56,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/positions.json
+          git add public/positions.json public/local
           git commit -m "Refresh positions from JPL Horizons"
           git pull --rebase
           git push

@@ -1,15 +1,18 @@
 // What part of space the map shows: the point at the centre of the screen,
 // in AU, and how many CSS pixels one AU takes up. The map is drawn from above
-// the plane of the planets, with x to the right and y up.
-export type Camera = { x: number; y: number; scale: number };
+// the plane of the planets, with x to the right and y up, unless the view is
+// turned: `rotation` is then the direction (radians, anticlockwise from x)
+// that points right on screen. A replay turns it to keep the Sun in one
+// place while it shows a craft at L2.
+export type Camera = { x: number; y: number; scale: number; rotation?: number };
 
 export type Size = { width: number; height: number };
 
-// From about 400 AU across the screen (past Voyager 1) down to 0.004 AU
-// (one and a half times the distance to the Moon), close enough to see the
-// Moon apart from Earth.
+// From about 400 AU across the screen (past Voyager 1) down to 0.001 AU
+// (150,000 km), close enough to see a craft circling Mars or Venus apart
+// from the planet.
 const WIDEST_AU = 400;
-const NARROWEST_AU = 0.004;
+const NARROWEST_AU = 0.001;
 
 function clampScale(scale: number, size: Size) {
   const span = Math.min(size.width, size.height);
@@ -17,18 +20,31 @@ function clampScale(scale: number, size: Size) {
   return Math.min(Math.max(scale, span / WIDEST_AU), span / NARROWEST_AU);
 }
 
+// (x, y) turned anticlockwise by `angle` radians.
+function turn(x: number, y: number, angle = 0) {
+  const c = Math.cos(angle);
+  const s = Math.sin(angle);
+
+  return [c * x - s * y, s * x + c * y] as const;
+}
+
 export function toScreen(camera: Camera, size: Size, x: number, y: number) {
+  const [rx, ry] = turn(x - camera.x, y - camera.y, -(camera.rotation ?? 0));
+
   return [
-    size.width / 2 + (x - camera.x) * camera.scale,
-    size.height / 2 - (y - camera.y) * camera.scale,
+    size.width / 2 + rx * camera.scale,
+    size.height / 2 - ry * camera.scale,
   ] as const;
 }
 
 export function toWorld(camera: Camera, size: Size, sx: number, sy: number) {
-  return [
-    camera.x + (sx - size.width / 2) / camera.scale,
-    camera.y - (sy - size.height / 2) / camera.scale,
-  ] as const;
+  const [dx, dy] = turn(
+    (sx - size.width / 2) / camera.scale,
+    -(sy - size.height / 2) / camera.scale,
+    camera.rotation,
+  );
+
+  return [camera.x + dx, camera.y + dy] as const;
 }
 
 // Zooms by `factor`, keeping the point under (sx, sy) where it is, the way
@@ -42,20 +58,23 @@ export function zoomAround(
 ): Camera {
   const [wx, wy] = toWorld(camera, size, sx, sy);
   const scale = clampScale(camera.scale * factor, size);
+  const [dx, dy] = turn(
+    (sx - size.width / 2) / scale,
+    -(sy - size.height / 2) / scale,
+    camera.rotation,
+  );
 
-  return {
-    x: wx - (sx - size.width / 2) / scale,
-    y: wy + (sy - size.height / 2) / scale,
-    scale,
-  };
+  return { ...camera, x: wx - dx, y: wy - dy, scale };
 }
 
 export function panBy(camera: Camera, dx: number, dy: number): Camera {
-  return {
-    ...camera,
-    x: camera.x - dx / camera.scale,
-    y: camera.y + dy / camera.scale,
-  };
+  const [wx, wy] = turn(
+    -dx / camera.scale,
+    dy / camera.scale,
+    camera.rotation,
+  );
+
+  return { ...camera, x: camera.x + wx, y: camera.y + wy };
 }
 
 // A view with `radius` AU around (x, y) filling the shorter side of the
@@ -66,6 +85,35 @@ export function fitRadius(size: Size, radius: number, x = 0, y = 0): Camera {
   return { x, y, scale: clampScale((span / 2 / radius) * 0.9, size) };
 }
 
+// A view of everything from (minX, minY) to (maxX, maxY), in AU, filling
+// `area` of the screen with a little room to spare.
+export function fitBounds(
+  size: Size,
+  area: { left: number; top: number; right: number; bottom: number },
+  [minX, minY, maxX, maxY]: [number, number, number, number],
+): Camera {
+  const width = area.right - area.left;
+  const height = area.bottom - area.top;
+  const scale = clampScale(
+    Math.min(width / (maxX - minX), height / (maxY - minY)) * 0.88,
+    size,
+  );
+
+  return {
+    x: (minX + maxX) / 2 - ((area.left + area.right) / 2 - size.width / 2) / scale,
+    y: (minY + maxY) / 2 + ((area.top + area.bottom) / 2 - size.height / 2) / scale,
+    scale,
+  };
+}
+
+// Part way between two turns of the view.
+function turnBetween(from: Camera, to: Camera, k: number) {
+  const a = from.rotation ?? 0;
+  const b = to.rotation ?? 0;
+
+  return a + (b - a) * k;
+}
+
 // Part way from one view to another. The scale changes geometrically, so a
 // zoom from 200 AU to 2 AU feels even all the way through.
 export function between(from: Camera, to: Camera, k: number): Camera {
@@ -73,6 +121,7 @@ export function between(from: Camera, to: Camera, k: number): Camera {
     x: from.x + (to.x - from.x) * k,
     y: from.y + (to.y - from.y) * k,
     scale: from.scale * Math.pow(to.scale / from.scale, k),
+    rotation: turnBetween(from, to, k),
   };
 }
 
@@ -92,10 +141,11 @@ export function flight(from: Camera, to: Camera, size: Size) {
   const dx = to.x - from.x;
   const dy = to.y - from.y;
   const d = Math.hypot(dx, dy);
-  const view = (x: number, y: number, w: number): Camera => ({
+  const view = (x: number, y: number, w: number, k: number): Camera => ({
     x,
     y,
     scale: span / w,
+    rotation: turnBetween(from, to, k),
   });
 
   // Zooming on the spot.
@@ -104,7 +154,7 @@ export function flight(from: Camera, to: Camera, size: Size) {
 
     return {
       duration: Math.abs(S) * 1000,
-      at: (k: number) => view(from.x, from.y, w0 * Math.exp(RHO * k * S)),
+      at: (k: number) => view(from.x, from.y, w0 * Math.exp(RHO * k * S), k),
     };
   }
 
@@ -126,6 +176,7 @@ export function flight(from: Camera, to: Camera, size: Size) {
         from.x + u * dx,
         from.y + u * dy,
         (w0 * Math.cosh(r0)) / Math.cosh(RHO * s + r0),
+        k,
       );
     },
   };

@@ -1,20 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import MissionImage, { ImageCredit } from "@/components/mission-image";
 import StatusBadge from "@/components/status-badge";
 import type { DestinationKind, Status } from "@/generated/prisma/enums";
+import {
+  planJourney,
+  segmentAt,
+  type Journey,
+  type JourneyFacts,
+  type Segment,
+} from "@/lib/journey";
 import { statusLabels } from "@/lib/missions";
 import {
   MOON_NAMES,
   buildScene,
   dayToDate,
+  earthAngle,
   formatDistance,
   formatLightTime,
   fromSun,
+  moonAt,
   placeCraft,
+  placeOnJourney,
+  type LocalTrail,
   type MapCraft,
+  type Positions,
   type Scene,
 } from "@/lib/map-scene";
 import {
@@ -22,22 +40,28 @@ import {
   daysSinceJ2000,
   distance,
   isMoon,
+  type BodySlug,
   type PlaceSlug,
   type Days,
-  type PositionsSnapshot,
+  type LocalIndex,
+  type LocalPath,
+  type Vec3,
 } from "@/lib/orbits";
 import {
   between,
   easeInOut,
   flight,
   easeOut,
+  fitBounds,
   fitRadius,
   panBy,
+  toScreen,
   zoomAround,
   type Camera,
   type Size,
 } from "./camera";
 import {
+  SPLIT_PX,
   drawMap,
   type Box,
   type Hit,
@@ -48,7 +72,11 @@ import {
   PULSE_MS,
   TooltipContent,
   hitAt,
+  loadLocalIndex,
+  loadLocalPath,
   loadPositions,
+  missionLocalIds,
+  missionLocalTrails,
   missionTrails,
   placeTooltip,
   readPalette,
@@ -64,6 +92,7 @@ import MissionList, {
   type ListMission,
   type Where,
 } from "./mission-list";
+import ReplayPlayer from "./replay-player";
 
 type Selection =
   | { kind: "mission"; slug: string }
@@ -74,7 +103,13 @@ type Props = {
   // Display names of the bodies and of every place a craft can be.
   names: Record<string, string>;
   kinds: Record<string, DestinationKind>;
+  // The milestones and destinations of each mission with a route to replay.
+  journeys: Record<string, JourneyFacts>;
 };
+
+// A replay under way, and how long the player waits before it starts
+// playing (while the camera flies there).
+type Replay = { journey: Journey; delay: number };
 
 // Views the buttons jump to: everything within `radius` AU of the Sun.
 // "Everything" fits the farthest craft.
@@ -97,6 +132,10 @@ const LINE_RATE = 0.05;
 
 // The view the map opens on: out to Jupiter.
 const OPENING_RADIUS = 6;
+
+// Room kept clear along the bottom for the replay's player when framing a
+// journey, in pixels.
+const PLAYER_ROOM = 180;
 
 // Safari reports a trackpad pinch as its own gesture events.
 type GestureEvent = UIEvent & { scale: number; clientX: number; clientY: number };
@@ -124,8 +163,40 @@ type View = {
   // The view before the map flew in to a selection, to fly back to when its
   // card is closed.
   returnTo: Camera | null;
+  // The time a replay has reached, the part of it being shown, and until
+  // when it should hold still (performance.now() time) while the camera
+  // flies to that part.
+  replayT: Days | null;
+  segment: Segment | null;
+  holdUntil: number;
+  // During a replay's time around a body, the view follows the body, and
+  // `camera` is measured from it. For a craft at L2 the view also turns with
+  // the Sun–Earth line, keeping the Sun where it was (`angle`, the line's
+  // direction) when the view began following.
+  anchor: { body: BodySlug; turn: boolean; angle: number } | null;
   request: () => void;
 };
+
+// The camera as the screen sees it at time t: the view's own, or while it
+// follows a body, measured from where the body is then and turned with the
+// Sun–Earth line.
+function screenCamera(v: View, positions: Positions, t: Days): Camera | null {
+  const camera = v.camera;
+
+  if (!camera || !v.anchor) return camera;
+
+  const [bx, by] = bodyPosition(positions, v.anchor.body, t);
+  const turn = v.anchor.turn ? earthAngle(positions, t) - v.anchor.angle : 0;
+  const c = Math.cos(turn);
+  const s = Math.sin(turn);
+
+  return {
+    x: bx + c * camera.x - s * camera.y,
+    y: by + s * camera.x + c * camera.y,
+    scale: camera.scale,
+    rotation: (camera.rotation ?? 0) + turn,
+  };
+}
 
 // Moves the camera smoothly from where it is to `to`, at the visitor's
 // request.
@@ -151,26 +222,176 @@ function animate(
 }
 
 // Flies the camera to `to`, pulling back on the way for a long trip, or
-// jumps there for visitors who ask for reduced motion.
+// jumps there for visitors who ask for reduced motion. Returns how long the
+// flight takes, in milliseconds.
 function fly(v: View, to: Camera) {
-  if (!v.camera) return;
+  if (!v.camera) return 0;
 
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     v.camera = to;
     v.request();
-    return;
+    return 0;
   }
 
   const trip = flight(v.camera, to, v.size);
+  const duration = Math.min(2800, Math.max(1200, trip.duration));
 
   v.animation = {
     path: trip.at,
     to,
     start: performance.now(),
-    duration: Math.min(2800, Math.max(1200, trip.duration)),
+    duration,
     ease: easeInOut,
   };
   v.request();
+
+  return duration;
+}
+
+// What the view frames for a replay's time around a body: the mission's
+// paths there through that time, as [minX, minY, maxX, maxY] measured from
+// the body, turned as the view will be (by `angle`, the Sun–Earth line's
+// direction when the view began following), and the orbits it went round.
+// Only as far out as the craft usually were: a path starts where the craft
+// first counted as near (Cassini, 0.45 AU from Saturn), and the view should
+// show the tour, with the craft flying in from its edge.
+function localBounds(
+  trails: LocalTrail[],
+  segment: Segment,
+  angle: number,
+): [number, number, number, number] {
+  const bounds: [number, number, number, number] = [0, 0, 0, 0];
+  const add = (x: number, y: number) => {
+    bounds[0] = Math.min(bounds[0], x);
+    bounds[1] = Math.min(bounds[1], y);
+    bounds[2] = Math.max(bounds[2], x);
+    bounds[3] = Math.max(bounds[3], y);
+  };
+
+  for (const trail of trails) {
+    if (trail.body !== segment.body) continue;
+
+    const c = Math.cos(trail.turn ? angle : 0);
+    const s = Math.sin(trail.turn ? angle : 0);
+    const out = trail.reach * 1.5;
+
+    for (const [t, u, w] of trail.points) {
+      if (t >= segment.from && t <= segment.until && Math.hypot(u, w) <= out) {
+        add(c * u - s * w, s * u + c * w);
+      }
+    }
+
+    // An orbit reaches out to its apoapsis, a(1 + e).
+    for (const [t, a, e] of trail.orbits) {
+      if (t >= segment.from && t <= segment.until) {
+        const far = Math.min(out, a * (1 + e));
+
+        add(-far, -far);
+        add(far, far);
+      }
+    }
+  }
+
+  return bounds;
+}
+
+// Frames one part of a replay at time t, flying the camera there: the
+// routes for the cruise; for the time around a body, its paths there, with
+// the view following the body from then on. Returns how long the flight
+// takes, in milliseconds.
+function showSegment(
+  v: View,
+  segment: Segment,
+  journey: Journey,
+  positions: Positions,
+  trails: LocalTrail[],
+  t: Days,
+) {
+  const { width, height } = v.size;
+  const area = { left: 0, top: 0, right: width, bottom: height - PLAYER_ROOM };
+  const here = screenCamera(v, positions, t);
+
+  if (!here) return 0;
+
+  if (segment.kind === "cruise" || !segment.body) {
+    v.anchor = null;
+    v.camera = here;
+    return fly(v, fitBounds(v.size, area, journey.bounds));
+  }
+
+  const [bx, by] = bodyPosition(positions, segment.body, t);
+  const angle = earthAngle(positions, t);
+
+  v.anchor = { body: segment.body, turn: segment.turn, angle };
+  v.camera = { ...here, x: here.x - bx, y: here.y - by };
+
+  return fly(v, fitBounds(v.size, area, localBounds(trails, segment, angle)));
+}
+
+// Sets up a replay of a mission's journey and flies the camera to frame its
+// first part above the player. Null if the mission has nothing to replay.
+function prepareReplay(
+  v: View,
+  mission: string,
+  craft: MapCraft[],
+  positions: Positions,
+  index: LocalIndex | null,
+  journeys: Record<string, JourneyFacts>,
+): Replay | null {
+  const journey = planJourney(
+    mission,
+    craft,
+    positions,
+    journeys[mission],
+    daysSinceJ2000(new Date()),
+  );
+
+  if (!journey || !v.camera) return null;
+
+  const segment = journey.segments[0];
+  const trails = missionLocalTrails(craft, positions, index, mission);
+
+  v.replayT = journey.from;
+  v.segment = segment;
+  v.returnTo ??= v.camera;
+
+  // A short pause after the flight before it starts playing.
+  return {
+    journey,
+    delay:
+      showSegment(v, segment, journey, positions, trails, journey.from) + 400,
+  };
+}
+
+// The paths a replay of a mission needs: its craft's, and the Moon's (in
+// Horizons, 301) for one near Earth.
+function replayIds(
+  craft: MapCraft[],
+  mission: string,
+  index: LocalIndex | null,
+) {
+  const ids = missionLocalIds(craft, index, mission);
+  const nearEarth = ids.some((id) => index?.craft[id]?.body === "earth");
+
+  return nearEarth && index?.craft["301"] ? [...ids, "301"] : ids;
+}
+
+// Loads the paths around a body of the given craft, and returns them with
+// the ones loaded before.
+async function withLocal(
+  ids: string[],
+  loaded: Record<string, LocalPath>,
+): Promise<Record<string, LocalPath>> {
+  const paths = await Promise.all(ids.map(loadLocalPath));
+  const result = { ...loaded };
+
+  ids.forEach((id, i) => {
+    const path = paths[i];
+
+    if (path) result[id] = path;
+  });
+
+  return result;
 }
 
 const dayFormat = new Intl.DateTimeFormat("en-GB", {
@@ -199,31 +420,68 @@ const PLANET_VIEW = 0.02;
 
 // A view of where the selected mission's craft, or the selected body, are
 // now. A planet (or asteroid or comet) is shown up close: out to its
-// outermost moon, or its near neighbourhood if it has none. A mission is
-// shown with its surroundings, a quarter of its distance from the Sun across
-// (at least 0.3 AU), or close enough to see a moon it is at apart from its
-// planet. Null when nothing selected has a known position.
+// outermost moon and the craft circling it, or its near neighbourhood if it
+// has neither. A mission placed around its planet is shown with the planet;
+// otherwise with its surroundings, a quarter of its distance from the Sun
+// across (at least 0.3 AU), or close enough to see a moon it is at apart
+// from its planet. Null when nothing selected has a known position.
 function focusOn(
   selection: Selection,
   craft: MapCraft[],
-  snapshot: PositionsSnapshot,
+  snapshot: Positions,
+  index: LocalIndex | null,
   t: Days,
   size: Size,
   area: Box,
 ): Camera | null {
   const scene = buildScene(snapshot, craft, t);
 
+  // A mission with craft placed around their body: the body, out to the
+  // furthest of them or the way their paths usually reach, whichever is
+  // more (JWST with Earth and the Moon, Juno with Jupiter).
+  const near = scene.local.filter(
+    ({ craft: one }) =>
+      selection.kind === "mission" && one.mission.slug === selection.slug,
+  );
+
+  if (near.length > 0) {
+    const body = scene.bodies.find(({ slug }) => slug === near[0].body)!;
+    const radius = Math.max(
+      ...near.map(({ craft: one, offset }) =>
+        Math.max(
+          Math.hypot(offset[0], offset[1]),
+          snapshot.local?.[one.horizonsId!]?.reach ?? 0,
+        ),
+      ),
+    );
+
+    return viewAt(body.position[0], body.position[1], radius * 1.3, size, area);
+  }
+
   if (selection.kind === "body" && !isMoon(selection.slug)) {
     const body = scene.bodies.find(({ slug }) => slug === selection.slug);
 
     if (!body) return null;
 
-    const around = scene.moons.filter(({ parent }) => parent === body.slug);
+    // Out to its outermost moon, and to where craft circling it now
+    // usually reach (JWST at L2, Hope at Mars).
+    const reaches = [
+      ...scene.moons
+        .filter(({ parent }) => parent === body.slug)
+        .map(({ position }) => distance(position, body.position)),
+      ...Object.entries(index?.craft ?? {})
+        .filter(
+          ([id, entry]) =>
+            entry.body === body.slug &&
+            t >= entry.from &&
+            t <= entry.until &&
+            craft.some(({ horizonsId }) => horizonsId === id),
+        )
+        .map(([, entry]) => entry.reach),
+    ];
     const radius =
-      around.length > 0
-        ? Math.max(
-            ...around.map(({ position }) => distance(position, body.position)),
-          ) * 1.35
+      reaches.length > 0
+        ? Math.max(...reaches) * 1.35
         : fromSun(body.position) * PLANET_VIEW;
 
     return viewAt(body.position[0], body.position[1], radius, size, area);
@@ -299,7 +557,7 @@ function openArea(
 // The list rows: every mission, with where its craft are now, active first.
 function listMissions(
   craft: MapCraft[],
-  snapshot: PositionsSnapshot,
+  snapshot: Positions,
   t: Days,
   names: Record<string, string>,
 ): ListMission[] {
@@ -361,12 +619,14 @@ function listMissions(
     .sort(byActivity);
 }
 
+// What the address asks for: a mission or place to select, and whether to
+// replay the mission's journey ("?replay=voyager-1").
 function readSelection(
   craft: MapCraft[],
-  snapshot: PositionsSnapshot,
+  snapshot: Positions,
 ): Selection | null {
   const params = new URLSearchParams(window.location.search);
-  const mission = params.get("mission");
+  const mission = params.get("replay") ?? params.get("mission");
   const body = params.get("body");
 
   if (mission && craft.some((one) => one.mission.slug === mission)) {
@@ -384,8 +644,9 @@ export default function MissionMap({
   craft,
   names: placeNames,
   kinds,
+  journeys,
 }: Props) {
-  const names = useMemo(
+  const names = useMemo<Record<string, string>>(
     () => ({ ...MOON_NAMES, ...placeNames }),
     [placeNames],
   );
@@ -394,6 +655,7 @@ export default function MissionMap({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const controlsRef = useRef<HTMLDivElement>(null);
   const captionRef = useRef<HTMLParagraphElement>(null);
+  const playerRef = useRef<HTMLDivElement>(null);
 
   const [data, setData] = useState<MapData | null>(null);
   const [failed, setFailed] = useState(false);
@@ -407,6 +669,18 @@ export default function MissionMap({
   // the visitor opens or hides it.
   const [panel, setPanel] = useState<"auto" | "open" | "closed">("auto");
   const panelRef = useRef<HTMLElement>(null);
+  const [replay, setReplay] = useState<Replay | null>(null);
+  // Which craft have a path around a body (public/local), the paths loaded
+  // so far, and the ones asked for.
+  const [localIndex, setLocalIndex] = useState<LocalIndex | null>(null);
+  const [local, setLocal] = useState<Record<string, LocalPath>>({});
+  const requested = useRef(new Set<string>());
+
+  // What the map places things with: the snapshot and the paths loaded.
+  const positions = useMemo<Positions | null>(
+    () => (data ? { ...data.snapshot, local } : null),
+    [data, local],
+  );
 
   const selectedMission = selection?.kind === "mission" ? selection.slug : null;
   const hoveredMission =
@@ -417,8 +691,10 @@ export default function MissionMap({
   // Every mission, where it is now, and the ones the filters let through.
   const allRows = useMemo(
     () =>
-      data && now !== null ? listMissions(craft, data.snapshot, now, names) : [],
-    [craft, data, now, names],
+      positions && now !== null
+        ? listMissions(craft, positions, now, names)
+        : [],
+    [craft, positions, now, names],
   );
   const rows = useMemo(
     () => allRows.filter((row) => matches(row, filters)),
@@ -426,16 +702,20 @@ export default function MissionMap({
   );
 
   // The map shows only the missions the filters let through, and always the
-  // selected one.
+  // selected one. A replay shows only its own mission.
   const shown = useMemo(() => {
     if (!data) return craft;
+
+    if (replay) {
+      return craft.filter(({ mission }) => mission.slug === replay.journey.mission);
+    }
 
     const slugs = new Set(rows.map(({ slug }) => slug));
 
     return craft.filter(
       ({ mission }) => slugs.has(mission.slug) || mission.slug === selectedMission,
     );
-  }, [craft, data, rows, selectedMission]);
+  }, [craft, data, rows, selectedMission, replay]);
 
   const agencies = useMemo(
     () =>
@@ -466,9 +746,26 @@ export default function MissionMap({
     [craft, data, hoveredMission, selectedMission],
   );
 
+  // The same for their paths around a body, once loaded.
+  const localTrails = useMemo(
+    () =>
+      positions && selectedMission
+        ? missionLocalTrails(craft, positions, localIndex, selectedMission)
+        : [],
+    [craft, positions, localIndex, selectedMission],
+  );
+  const hoverLocalTrails = useMemo(
+    () =>
+      positions && hoveredMission && hoveredMission !== selectedMission
+        ? missionLocalTrails(craft, positions, localIndex, hoveredMission)
+        : [],
+    [craft, positions, localIndex, hoveredMission, selectedMission],
+  );
+
   const scene = useMemo(
-    () => (data && now !== null ? buildScene(data.snapshot, shown, now) : null),
-    [shown, data, now],
+    () =>
+      positions && now !== null ? buildScene(positions, shown, now) : null,
+    [shown, positions, now],
   );
 
   // Everything the drawing loop reads, refreshed after every render.
@@ -476,11 +773,16 @@ export default function MissionMap({
     craft: shown,
     names,
     data,
+    positions,
     hovered,
     hoveredMission,
     selection,
     trails,
     hoverTrails,
+    localTrails,
+    hoverLocalTrails,
+    localIndex,
+    replay,
     palette: null as Palette | null,
   });
 
@@ -495,6 +797,10 @@ export default function MissionMap({
     dragged: false,
     moved: false,
     returnTo: null,
+    replayT: null,
+    segment: null,
+    holdUntil: 0,
+    anchor: null,
     request: () => {},
   });
 
@@ -509,40 +815,100 @@ export default function MissionMap({
       selection,
       trails,
       hoverTrails,
+      localTrails,
+      hoverLocalTrails,
+      localIndex,
+      positions,
+      replay,
     };
     view.current.request();
   });
+
+  // Fetches the paths around a body of the given craft, once each.
+  const requestLocal = useEffectEvent((ids: string[]) => {
+    for (const id of ids) {
+      if (requested.current.has(id)) continue;
+
+      requested.current.add(id);
+      loadLocalPath(id).then((path) => {
+        if (path) setLocal((loaded) => ({ ...loaded, [id]: path }));
+      });
+    }
+  });
+
+  // A selected mission's paths around a body are drawn in full.
+  useEffect(() => {
+    if (selectedMission) {
+      requestLocal(missionLocalIds(craft, localIndex, selectedMission));
+    }
+  }, [craft, localIndex, selectedMission]);
 
   // Load the positions, then pick up any selection in the address.
   useEffect(() => {
     let cancelled = false;
 
-    loadPositions()
-      .then(({ data: loaded, today }) => {
+    Promise.all([loadPositions(), loadLocalIndex()])
+      .then(([{ data: loaded, today }, index]) => {
         if (cancelled) return;
 
         const { snapshot } = loaded;
 
         setData(loaded);
         setNow(today);
+        setLocalIndex(index);
 
         const selected = readSelection(craft, snapshot);
+        const replaying = new URLSearchParams(window.location.search).has(
+          "replay",
+        );
 
         setSelection(selected);
 
         // A mission or place picked in the address, perhaps from a mission
         // page's "See where it is now": the map opens on its usual view,
-        // then flies there, unless the visitor has started moving it.
+        // then flies there, unless the visitor has started moving it. Asked
+        // to replay a mission's journey, it starts the replay instead.
         if (selected) {
-          setTimeout(() => {
+          setTimeout(async () => {
+            // A mission's paths around a body, to frame it by.
+            const paths =
+              selected.kind === "mission"
+                ? await withLocal(
+                    replaying
+                      ? replayIds(craft, selected.slug, index)
+                      : missionLocalIds(craft, index, selected.slug),
+                    {},
+                  )
+                : {};
+            const withPaths = { ...snapshot, local: paths };
             const v = view.current;
 
             if (cancelled || v.moved || !v.camera) return;
 
+            setLocal((current) => ({ ...current, ...paths }));
+
+            const next =
+              replaying && selected.kind === "mission"
+                ? prepareReplay(
+                    v,
+                    selected.slug,
+                    craft,
+                    withPaths,
+                    index,
+                    journeys,
+                  )
+                : null;
+
+            if (next) {
+              setReplay(next);
+              return;
+            }
+
             const target = focusOn(
               selected,
               craft,
-              snapshot,
+              withPaths,
+              index,
               today,
               v.size,
               openArea(v, panelRef.current, wrapRef.current),
@@ -562,7 +928,7 @@ export default function MissionMap({
     return () => {
       cancelled = true;
     };
-  }, [craft]);
+  }, [craft, journeys]);
 
   // The text in the info card moves on every 15 seconds; the map itself
   // redraws every second.
@@ -572,8 +938,8 @@ export default function MissionMap({
     return () => clearInterval(timer);
   }, []);
 
-  // Keep the address in step with the selection, so a selected mission can
-  // be shared as a link.
+  // Keep the address in step with the selection, so a selected mission (or
+  // its replay) can be shared as a link.
   useEffect(() => {
     if (!data) return;
 
@@ -581,11 +947,13 @@ export default function MissionMap({
 
     url.searchParams.delete("mission");
     url.searchParams.delete("body");
+    url.searchParams.delete("replay");
 
-    if (selection) url.searchParams.set(selection.kind, selection.slug);
+    if (replay) url.searchParams.set("replay", replay.journey.mission);
+    else if (selection) url.searchParams.set(selection.kind, selection.slug);
 
     window.history.replaceState(null, "", url);
-  }, [data, selection]);
+  }, [data, selection, replay]);
 
   // The drawing loop: draws a frame when something has changed, and keeps
   // going while the view is moving.
@@ -621,16 +989,23 @@ export default function MissionMap({
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      if (!l.data || !l.palette) {
+      if (!l.data || !l.positions || !l.palette) {
         ctx.clearRect(0, 0, width, height);
         return;
       }
 
+      // Where everything is now, or during a replay, where it was at the
+      // time the replay has reached, seen from wherever the view is.
+      const t = l.replay
+        ? (v.replayT ?? l.replay.journey.from)
+        : daysSinceJ2000(new Date());
       const scene = buildScene(
-        l.data.snapshot,
+        l.positions,
         l.craft,
-        daysSinceJ2000(new Date()),
+        t,
+        l.replay ? placeOnJourney : placeCraft,
       );
+      const camera = screenCamera(v, l.positions, t)!;
 
       // Where the controls and caption sit over the map, in its own
       // coordinates; labels keep clear of them.
@@ -650,12 +1025,15 @@ export default function MissionMap({
       const controls = overlay(controlsRef.current);
       const caption = overlay(captionRef.current);
       const list = overlay(panelRef.current);
+      const player = overlay(playerRef.current);
+      // What sits along the bottom of the map: the caption, or the player.
+      const bottom = player ?? caption;
 
       v.scene = scene;
       v.hits = drawMap({
         ctx,
         size: v.size,
-        camera: v.camera,
+        camera,
         scene,
         palette: l.palette,
         names: l.names,
@@ -668,20 +1046,64 @@ export default function MissionMap({
         selectedBody: l.selection?.kind === "body" ? l.selection.slug : null,
         trails: l.trails,
         hoverTrails: l.hoverTrails,
-        // Markers along the bottom stay above the caption, however many
-        // lines it wraps to.
+        localTrails: l.localTrails,
+        hoverLocalTrails: l.hoverLocalTrails,
+        // Markers along the bottom stay above the caption or the player,
+        // however tall they are.
         insets: {
           ...INSETS,
-          bottom: caption
-            ? Math.max(INSETS.bottom, height - caption.top + 6)
+          bottom: bottom
+            ? Math.max(INSETS.bottom, height - bottom.top + 6)
             : INSETS.bottom,
           left: list ? list.right + 14 : INSETS.left,
         },
         pulse: reducedMotion.matches ? null : (time % PULSE_MS) / PULSE_MS,
-        covered: [controls, caption, list].filter((box) => box !== null),
+        // Close in around a body, markers for the planets out of view would
+        // only clutter the edges.
+        edges: v.anchor ? 0 : 1,
+        covered: [controls, caption, list, player].filter((box) => box !== null),
+        smallBodies: l.replay?.journey.bodies,
       });
 
       placeTooltip(tooltipRef.current, v.hits, l.hovered, v.size);
+
+      // Craft near a body now, far enough out on screen to be drawn apart
+      // from it at this zoom: fetch their paths, so they can be.
+      if (!l.replay && l.localIndex) {
+        const wanted = Object.entries(l.localIndex.craft).filter(
+          ([id, entry]) => {
+            const reach = entry.reach * camera.scale;
+            const body = scene.bodies.find(({ slug }) => slug === entry.body);
+
+            if (
+              !body ||
+              l.positions!.local?.[id] ||
+              t < entry.from ||
+              t > entry.until ||
+              reach < SPLIT_PX ||
+              !l.craft.some(({ horizonsId }) => horizonsId === id)
+            ) {
+              return false;
+            }
+
+            const [x, y] = toScreen(
+              camera,
+              v.size,
+              body.position[0],
+              body.position[1],
+            );
+
+            return (
+              x > -reach &&
+              y > -reach &&
+              x < width + reach &&
+              y < height + reach
+            );
+          },
+        );
+
+        if (wanted.length > 0) requestLocal(wanted.map(([id]) => id));
+      }
 
       // Keep drawing while the view moves or the pulse runs.
       if (v.animation || !reducedMotion.matches) request();
@@ -845,8 +1267,9 @@ export default function MissionMap({
     return { x: event.clientX - rect.left, y: event.clientY - rect.top };
   }
 
+  // Nothing is hovered or selected during a replay.
   function hover(x: number, y: number) {
-    const hit = hitAt(view.current.hits, x, y);
+    const hit = replay ? null : hitAt(view.current.hits, x, y);
     const current = latest.current.hovered;
 
     canvasRef.current!.style.cursor = hit ? "pointer" : "grab";
@@ -857,16 +1280,22 @@ export default function MissionMap({
   }
 
   // Flies to what has just been selected, landing it in the open part of
-  // the map.
-  function flyTo(next: Selection) {
+  // the map. A mission's paths around a body are loaded first, so a craft
+  // there is framed with its surroundings.
+  async function flyTo(next: Selection) {
     const v = view.current;
 
     if (!data || !v.camera) return;
 
+    const paths =
+      next.kind === "mission"
+        ? await withLocal(missionLocalIds(craft, localIndex, next.slug), local)
+        : local;
     const target = focusOn(
       next,
       craft,
-      data.snapshot,
+      { ...data.snapshot, local: paths },
+      localIndex,
       daysSinceJ2000(new Date()),
       v.size,
       openArea(v, panelRef.current, wrapRef.current),
@@ -889,6 +1318,115 @@ export default function MissionMap({
       fly(v, v.returnTo);
       v.returnTo = null;
     }
+  }
+
+  // Replays the selected mission's journey: the player takes over the
+  // bottom of the map, and everything else steps aside. Its paths around a
+  // body are loaded first.
+  async function startReplay(mission: string) {
+    if (!data) return;
+
+    const paths = await withLocal(
+      replayIds(craft, mission, localIndex),
+      local,
+    );
+    const next = prepareReplay(
+      view.current,
+      mission,
+      craft,
+      { ...data.snapshot, local: paths },
+      localIndex,
+      journeys,
+    );
+
+    setLocal((current) => ({ ...current, ...paths }));
+
+    if (next) {
+      setReplay(next);
+      setHovered(null);
+      setListHover(null);
+    }
+  }
+
+  // The replay has reached time t: the map moves on with it, and when t
+  // passes into another part, flies to frame that part, holding the replay
+  // still meanwhile.
+  function replayAt(t: Days) {
+    const v = view.current;
+
+    if (!replay || !positions) return;
+
+    v.replayT = t;
+
+    const segment = segmentAt(replay.journey, t);
+
+    if (segment !== v.segment) {
+      v.segment = segment;
+      v.holdUntil =
+        performance.now() +
+        showSegment(v, segment, replay.journey, positions, localTrails, t);
+    }
+
+    v.request();
+  }
+
+  // Ending the replay flies back to where the mission is now, once the
+  // list and card are back in place. The keyboard focus goes back to the
+  // map.
+  function stopReplay() {
+    const v = view.current;
+
+    // The view stops following a body, from where the screen shows it now.
+    if (positions && v.replayT !== null) {
+      v.animation = null;
+      v.camera = screenCamera(v, positions, v.replayT);
+    }
+
+    v.anchor = null;
+    v.segment = null;
+    v.replayT = null;
+    v.holdUntil = 0;
+    setReplay(null);
+
+    requestAnimationFrame(() => {
+      if (selection) flyTo(selection);
+      canvasRef.current?.focus();
+    });
+  }
+
+  // Where the replayed mission is at time t, in words: how far it is from
+  // the Sun and Earth while it flies, or the body it has reached.
+  function describeAt(t: Days) {
+    if (!positions || !replay) return "";
+
+    const members = craft
+      .filter(({ mission }) => mission.slug === replay.journey.mission)
+      .sort(byActivity);
+
+    for (const one of members) {
+      const place = placeOnJourney(one, positions!, t);
+      const earth = bodyPosition(positions!, "earth", t);
+
+      if (place.kind === "route") {
+        return `${formatDistance(fromSun(place.position))} from the Sun · ${formatDistance(distance(place.position, earth))} from Earth`;
+      }
+
+      if (place.kind === "body" && place.offset) {
+        const [dx, dy, dz] = place.offset;
+        const away = `${formatDistance(Math.hypot(dx, dy, dz))} from ${names[place.body]}`;
+
+        if (place.body !== "earth") return away;
+
+        const moon = moonAt(positions!, "moon", t);
+        const here: Vec3 = [earth[0] + dx, earth[1] + dy, earth[2] + dz];
+
+        return `${away} · ${formatDistance(distance(here, moon))} from the Moon`;
+      }
+
+      if (place.kind === "body") return `At ${names[place.moon ?? place.body]}`;
+    }
+
+    return "";
   }
 
   // Clicking a craft selects its mission. Clicking a planet, asteroid or
@@ -1003,8 +1541,11 @@ export default function MissionMap({
       );
 
       // A marker for something out of view zooms out until it is in view;
-      // for a craft, it also selects the mission.
-      if (hit?.reach !== undefined) {
+      // for a craft, it also selects the mission. During a replay the map
+      // only pans and zooms.
+      if (replay) {
+        // Nothing to select.
+      } else if (hit?.reach !== undefined) {
         animateTo(fitRadius(v.size, hit.reach * 1.12), 900);
         if (hit.kind === "craft") select(hit);
       } else {
@@ -1030,7 +1571,10 @@ export default function MissionMap({
 
     if (event.key === "+" || event.key === "=") zoomBy(1.5);
     else if (event.key === "-") zoomBy(1 / 1.5);
-    else if (event.key === "Escape") closeCard();
+    else if (event.key === "Escape") {
+      if (replay) stopReplay();
+      else closeCard();
+    }
     else if (pans[event.key] && v.camera) {
       animateTo(panBy(v.animation?.to ?? v.camera, ...pans[event.key]), 200, easeOut);
     } else return;
@@ -1070,7 +1614,7 @@ export default function MissionMap({
         </p>
       )}
 
-      {data && (
+      {data && !replay && (
         <>
           <MissionList
             rows={rows}
@@ -1119,7 +1663,7 @@ export default function MissionMap({
 
       <div
         ref={controlsRef}
-        className={`absolute bottom-4 right-4 w-36 rounded-lg border border-border-strong bg-background/85 p-2 backdrop-blur ${selection ? "hidden sm:block" : ""}`}
+        className={`absolute bottom-4 right-4 w-36 rounded-lg border border-border-strong bg-background/85 p-2 backdrop-blur ${replay ? "hidden" : selection ? "hidden sm:block" : ""}`}
       >
         <p className="label-caps px-0.5 pb-1.5 text-muted">View</p>
         <div className="space-y-1.5">
@@ -1152,19 +1696,48 @@ export default function MissionMap({
         </div>
       </div>
 
-      {scene && selection && (
+      {scene && selection && !replay && (
         <InfoCard
           selection={selection}
           scene={scene}
           craft={craft}
           names={names}
           kinds={kinds}
-          snapshot={data!.snapshot}
+          snapshot={positions!}
           onClose={closeCard}
+          // A mission can replay with a route between the planets, or a
+          // path around one (JWST has only that).
+          onReplay={
+            selectedMission &&
+            (trails.length > 0 ||
+              missionLocalIds(craft, localIndex, selectedMission).length > 0)
+              ? () => startReplay(selectedMission)
+              : undefined
+          }
         />
       )}
 
-      {scene && (
+      {replay && (
+        <ReplayPlayer
+          key={replay.journey.mission}
+          ref={playerRef}
+          journey={replay.journey}
+          name={
+            craft.find(({ mission }) => mission.slug === replay.journey.mission)
+              ?.mission.name ?? ""
+          }
+          labels={replay.journey.segments.map((segment) =>
+            segment.kind === "cruise" ? "Cruise" : `At ${names[segment.body!]}`,
+          )}
+          describe={describeAt}
+          delay={replay.delay}
+          holding={() => performance.now() < view.current.holdUntil}
+          onTime={replayAt}
+          onClose={stopReplay}
+        />
+      )}
+
+      {scene && !replay && (
         <p
           ref={captionRef}
           className={`pointer-events-none absolute bottom-3 left-4 right-44 text-xs text-muted sm:right-auto sm:max-w-md ${selection ? "hidden sm:block" : ""}`}
@@ -1181,10 +1754,32 @@ export default function MissionMap({
 function whereNow(
   one: MapCraft,
   scene: Scene,
-  snapshot: PositionsSnapshot,
+  snapshot: Positions,
   names: Record<string, string>,
 ) {
   const place = placeCraft(one, snapshot, scene.t);
+  const local =
+    place.kind === "body" &&
+    scene.local.find(({ craft: c }) => c.slug === one.slug);
+
+  // Near a body, placed around it: how far from it, and from Earth (or for
+  // a craft near Earth, from the Moon).
+  if (place.kind === "body" && local) {
+    const where = names[one.location] ?? names[place.body];
+    const fromBody = formatDistance(Math.hypot(...local.offset));
+    const fromEarth = distance(local.position, scene.earth);
+    const radio = `(${formatLightTime(fromEarth)} by radio)`;
+
+    if (place.body === "earth") {
+      const moon = scene.moons.find(({ slug }) => slug === "moon")!.position;
+
+      return `${where}, ${fromBody} from Earth ${radio} and ${formatDistance(distance(local.position, moon))} from the Moon`;
+    }
+
+    const prefix = where === names[place.body] ? "" : `${where}, `;
+
+    return `${prefix}${fromBody} from ${names[place.body]}, ${formatDistance(fromEarth)} from Earth ${radio}`;
+  }
 
   if (place.kind === "route") {
     const fromEarth = distance(place.position, scene.earth);
@@ -1276,14 +1871,17 @@ function InfoCard({
   kinds,
   snapshot,
   onClose,
+  onReplay,
 }: {
   selection: Selection;
   scene: Scene;
   craft: MapCraft[];
   names: Record<string, string>;
   kinds: Record<string, DestinationKind>;
-  snapshot: PositionsSnapshot;
+  snapshot: Positions;
   onClose: () => void;
+  // Starts a replay of the mission's journey, when it has a route.
+  onReplay?: () => void;
 }) {
   if (selection.kind === "mission") {
     const members = craft
@@ -1304,6 +1902,18 @@ function InfoCard({
               <ImageCredit mission={mission} className="mt-1.5" />
             </figcaption>
           </figure>
+        )}
+        {onReplay && (
+          <button
+            type="button"
+            onClick={onReplay}
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-button px-4 py-2 text-sm font-medium text-button-text transition-opacity hover:opacity-90"
+          >
+            <svg viewBox="0 0 24 24" className="size-3.5" fill="currentColor" aria-hidden>
+              <path d="M7 4.5v15L19.5 12z" />
+            </svg>
+            Replay its journey
+          </button>
         )}
         <ul className="mt-4 space-y-4">
           {members.map((one) => (

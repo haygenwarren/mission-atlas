@@ -3,13 +3,17 @@ import {
   MOONS,
   between,
   bodyPosition,
+  KM_PER_AU,
   daysSinceJ2000,
   distance,
+  localOffset,
   moonPosition,
   placements,
   routePosition,
   type BodySlug,
   type Days,
+  type Elements,
+  type LocalPath,
   type MoonSlug,
   type PositionsSnapshot,
   type RoutePoint,
@@ -38,12 +42,24 @@ export type MapCraft = {
   };
 };
 
+// What the map places things with: the snapshot, and the paths of craft
+// around their bodies (public/local) loaded so far, keyed by Horizons ID.
+export type Positions = PositionsSnapshot & {
+  local?: Record<string, LocalPath>;
+};
+
 // Where the map can put a craft at a given time: on its route, at the body it
 // sits at (and the moon, if it is at one), or nowhere, because tracking ended
-// (or never existed) while it was out in space.
+// (or never existed) while it was out in space. At a body, `offset` is where
+// it is measured from the body, when its path there is known.
 export type Place =
   | { kind: "route"; position: Vec3 }
-  | { kind: "body"; body: BodySlug; moon: MoonSlug | null }
+  | {
+      kind: "body";
+      body: BodySlug;
+      moon: MoonSlug | null;
+      offset: Vec3 | null;
+    }
   | { kind: "unknown"; since: Days | null };
 
 export type Scene = {
@@ -58,6 +74,15 @@ export type Scene = {
     craft: MapCraft[];
   }[];
   free: { craft: MapCraft; position: Vec3 }[];
+  // Craft at a body whose position around it is known. They are counted
+  // with their body too, and drawn apart from it once the map is zoomed in
+  // far enough to show the gap.
+  local: {
+    craft: MapCraft;
+    body: BodySlug;
+    position: Vec3;
+    offset: Vec3;
+  }[];
   unknown: { craft: MapCraft; since: Days | null }[];
 };
 
@@ -93,9 +118,52 @@ export const PLANETS: BodySlug[] = [
 
 export const DWARF_PLANETS: BodySlug[] = ["pluto", "ceres"];
 
+// A craft's place on its path around a body at time t, if that path is
+// loaded and covers t.
+function onLocalPath(
+  craft: MapCraft,
+  snapshot: Positions,
+  t: Days,
+): Place | null {
+  const local = craft.horizonsId ? snapshot.local?.[craft.horizonsId] : null;
+  const offset = local && localOffset(local, t);
+
+  return offset
+    ? { kind: "body", body: local.body, moon: null, offset }
+    : null;
+}
+
+// Where a craft sits once it has arrived: at the body it stays at.
+function atBody(craft: MapCraft): Place | null {
+  const body = placements[craft.location];
+
+  return body
+    ? {
+        kind: "body",
+        body,
+        moon: MOON_DESTINATIONS[craft.location] ?? null,
+        offset: null,
+      }
+    : null;
+}
+
+// Where a moon is at time t. The Moon comes from its own path around Earth
+// when that is loaded (for a replay near Earth), which is far closer than
+// the snapshot away from now.
+export function moonAt(snapshot: Positions, slug: MoonSlug, t: Days): Vec3 {
+  const path = slug === "moon" ? snapshot.local?.["301"] : null;
+  const offset = path && localOffset(path, t);
+
+  if (!offset) return moonPosition(snapshot, slug, t);
+
+  const [x, y, z] = bodyPosition(snapshot, "earth", t);
+
+  return [x + offset[0], y + offset[1], z + offset[2]];
+}
+
 export function placeCraft(
   craft: MapCraft,
-  snapshot: PositionsSnapshot,
+  snapshot: Positions,
   t: Days,
 ): Place {
   const route = craft.horizonsId ? snapshot.routes[craft.horizonsId] : null;
@@ -103,11 +171,9 @@ export function placeCraft(
 
   if (onRoute) return { kind: "route", position: onRoute };
 
-  const body = placements[craft.location];
+  const place = onLocalPath(craft, snapshot, t) ?? atBody(craft);
 
-  if (body) {
-    return { kind: "body", body, moon: MOON_DESTINATIONS[craft.location] ?? null };
-  }
+  if (place) return place;
 
   // Out in space with no position now: say since when.
   const routeEnd = route ? route[route.length - 1][0] : null;
@@ -122,27 +188,72 @@ export function placeCraft(
   };
 }
 
+// Where a craft was at time t during a replay of its journey: on its path
+// around a body while it was there, on its route while it was flying it, then
+// at the body it stays at once those end. Before either begins, or with
+// neither (a probe carried aboard another craft), it is not shown.
+export function placeOnJourney(
+  craft: MapCraft,
+  snapshot: Positions,
+  t: Days,
+): Place {
+  const unknown: Place = { kind: "unknown", since: null };
+  const local = onLocalPath(craft, snapshot, t);
+
+  if (local) return local;
+
+  const id = craft.horizonsId;
+  const route = id ? snapshot.routes[id] : null;
+  const path = id ? snapshot.local?.[id] : null;
+
+  if (!(route && t >= route[0][0]) && !(path && t >= path.from)) {
+    return unknown;
+  }
+
+  const onRoute = route && routePosition(route, t);
+
+  if (onRoute) return { kind: "route", position: onRoute };
+
+  return atBody(craft) ?? unknown;
+}
+
+// Where everything is at time t. `place` decides where each craft goes: by
+// default where the map would show it now, or `placeOnJourney` for a replay.
 export function buildScene(
-  snapshot: PositionsSnapshot,
+  snapshot: Positions,
   craft: MapCraft[],
   t: Days,
+  place = placeCraft,
 ): Scene {
   const atBody = new Map<BodySlug, MapCraft[]>();
   const atMoon = new Map<MoonSlug, MapCraft[]>();
   const free: Scene["free"] = [];
+  const local: Scene["local"] = [];
   const unknown: Scene["unknown"] = [];
 
   for (const one of craft) {
-    const place = placeCraft(one, snapshot, t);
+    const where = place(one, snapshot, t);
 
-    if (place.kind === "route") {
-      free.push({ craft: one, position: place.position });
-    } else if (place.kind === "body" && place.moon) {
-      atMoon.set(place.moon, [...(atMoon.get(place.moon) ?? []), one]);
-    } else if (place.kind === "body") {
-      atBody.set(place.body, [...(atBody.get(place.body) ?? []), one]);
+    if (where.kind === "route") {
+      free.push({ craft: one, position: where.position });
+    } else if (where.kind === "body" && where.moon) {
+      atMoon.set(where.moon, [...(atMoon.get(where.moon) ?? []), one]);
+    } else if (where.kind === "body") {
+      atBody.set(where.body, [...(atBody.get(where.body) ?? []), one]);
+
+      if (where.offset) {
+        const [x, y, z] = bodyPosition(snapshot, where.body, t);
+        const [dx, dy, dz] = where.offset;
+
+        local.push({
+          craft: one,
+          body: where.body,
+          position: [x + dx, y + dy, z + dz],
+          offset: where.offset,
+        });
+      }
     } else {
-      unknown.push({ craft: one, since: place.since });
+      unknown.push({ craft: one, since: where.since });
     }
   }
 
@@ -155,7 +266,7 @@ export function buildScene(
   const moons = (Object.keys(MOONS) as MoonSlug[]).map((slug) => ({
     slug,
     parent: MOONS[slug],
-    position: moonPosition(snapshot, slug, t),
+    position: moonAt(snapshot, slug, t),
     craft: atMoon.get(slug) ?? [],
   }));
 
@@ -165,12 +276,12 @@ export function buildScene(
     bodies,
     moons,
     free,
+    local,
     unknown,
   };
 }
 
 const SUN: Vec3 = [0, 0, 0];
-const KM_PER_AU = 149_597_870.7;
 const LIGHT_SECONDS_PER_AU = 499.004784;
 
 export function fromSun(position: Vec3) {
@@ -181,9 +292,11 @@ export function fromSun(position: Vec3) {
 export function formatDistance(au: number) {
   if (au < 0.1) {
     const km = au * KM_PER_AU;
+    // To the hundred km under 100,000 km, so a close orbit still reads.
+    const step = km < 1e5 ? 100 : 1000;
 
     return km < 1e6
-      ? `${Math.round(km / 1000).toLocaleString("en-GB")},000 km`
+      ? `${(Math.round(km / step) * step).toLocaleString("en-GB")} km`
       : `${(km / 1e6).toFixed(1)} million km`;
   }
 
@@ -227,6 +340,93 @@ export function routeSamples(route: RoutePoint[]) {
   samples.push([last[0], last[1], last[2]]);
 
   return samples;
+}
+
+// A craft's path around its body, ready to draw around wherever the body is.
+export type LocalTrail = {
+  body: BodySlug;
+  // [t, u, v]: positions from the body in the plane of the planets, close
+  // enough together to draw as a smooth curve. For a craft at L2 (`turn`),
+  // each is turned back by how far Earth had gone round the Sun at that
+  // time; drawn turned by Earth's angle at the moment shown, the trail keeps
+  // its shape beyond Earth from the Sun, as mission diagrams draw it.
+  points: [t: Days, u: number, v: number][];
+  turn: boolean;
+  // How long one lap of its body usually took, in days (Infinity for a path
+  // that never went round): the trail is drawn strongly for the last few
+  // laps and faintly before that.
+  lap: Days;
+  // How far from the body the craft usually was (AU).
+  reach: number;
+  // For a craft kept as orbits once it settled: its orbits, from `settled`.
+  orbits: Elements[];
+  settled: Days;
+};
+
+// The direction from the Sun to Earth at time t, as an angle in the plane of
+// the planets.
+export function earthAngle(snapshot: Positions, t: Days) {
+  const [x, y] = bodyPosition(snapshot, "earth", t);
+
+  return Math.atan2(y, x);
+}
+
+// A path around a body, sampled finely enough to draw: each stretch between
+// stored points is split into pieces no longer than a twentieth of the
+// craft's distance from the body (at most 32), so close passes stay smooth.
+export function localTrail(local: LocalPath, snapshot: Positions): LocalTrail {
+  const { path } = local;
+  const turn = local.frame === "sun-earth";
+  const points: LocalTrail["points"] = [];
+  const add = (t: Days, x: number, y: number) => {
+    const angle = turn ? earthAngle(snapshot, t) : 0;
+    const c = Math.cos(-angle);
+    const s = Math.sin(-angle);
+
+    points.push([t, c * x - s * y, s * x + c * y]);
+  };
+
+  for (let i = 0; i < path.length - 1; i++) {
+    const a = path[i];
+    const b = path[i + 1];
+    const near = Math.min(Math.hypot(a[1], a[2]), Math.hypot(b[1], b[2]));
+    const length = Math.hypot(b[1] - a[1], b[2] - a[2]);
+    const steps = Math.min(32, Math.max(1, Math.ceil(length / (near / 20))));
+
+    for (let k = 0; k < steps; k++) {
+      const t = a[0] + ((b[0] - a[0]) * k) / steps;
+      const [x, y] = between(a, b, t);
+
+      add(t, x, y);
+    }
+  }
+
+  const last = path.at(-1);
+
+  if (last) add(last[0], last[1], last[2]);
+
+  // Laps counted as closest approaches to the body: the stored points
+  // nearer to it than both their neighbours.
+  const near = path.map(([, x, y, z]) => Math.hypot(x, y, z));
+  const passes = near.filter(
+    (d, i) => i > 0 && i < near.length - 1 && d < near[i - 1] && d < near[i + 1],
+  ).length;
+  const lap =
+    local.orbits.length > 0
+      ? 360 / local.orbits[0][7]
+      : passes > 1
+        ? (local.until - local.from) / passes
+        : Infinity;
+
+  return {
+    body: local.body,
+    points,
+    turn,
+    lap,
+    reach: local.reach,
+    orbits: local.orbits,
+    settled: last?.[0] ?? local.from,
+  };
 }
 
 export function dayToDate(t: Days) {

@@ -13,9 +13,11 @@ Mission Atlas is an archive of robotic planetary science and astrophysics missio
 
 - **Home page:** opens on a quarter of the live map, the Sun in the bottom-left corner, with the search laid over it. Scrolling down, or clicking the map, glides the map to the middle of the screen; there, hovering shows where a craft is and its path, and clicking opens the full map on it. Below come a Mission of the Day (the same for everyone, changing at midnight UTC, with every mission taking a turn before any repeats), the archive's numbers, six featured missions picked on each visit, and an about section.
 - **Map:** where every spacecraft is right now, on a true-scale map of the solar system. Drag, scroll or pinch to move around. Hover over a craft for its distance from the Sun and from Earth and a faint outline of its route; click it to show the route in full, solid so far and dashed ahead. Missions at the same planet are counted on a badge, and clicking it lists them with their craft there. Clicking a planet flies in close to it; around Earth, Jupiter and Saturn the moons then separate out on their orbits, each with its own count. Active missions pulse softly. Markers at the edge point to things out of view; clicking one zooms out to it. A list beside the map searches and filters the missions (active or ended, in flight or at a planet, by agency), narrowing what the map shows; hovering a mission there highlights it, and clicking flies to it.
+- **Journey replays:** a mission with a tracked route or a path around a planet (57 of them) can replay its journey on the map, from its card there or its page. The map frames the whole route and shows only that mission, with the asteroids and comets it went to, while the craft flies its path and the planets move round the Sun to match. On arrival the camera dives in to the planet and follows it while the craft's path builds up around it, its latest laps bright and older ones fading: Cassini's tour of Saturn, Juno's orbits of Jupiter, a lander's last approach to Mars. Craft that stayed near Earth replay there: the climb out to the Moon, or JWST's orbit around L2, drawn as mission diagrams draw it, with the view turning so the Sun stays put. Each part of a replay (the cruise, the time around a planet) takes about 30 seconds at normal speed, with play and pause, speeds from half to four times, and a scrubber to drag through time, its parts named and its milestones marked above it. A replay can be shared as a link, such as `/map?replay=voyager-1`.
+- **Paths around a planet:** zoomed in close, craft whose paths around a planet are known move apart from its count badge to where they really are, like the moons do, and the planets and big moons grow to their true size (with Saturn's rings). JWST and Euclid sit beyond the Moon at L2, Juno swings around Jupiter, Mars Express and Hope circle Mars. Selecting such a mission frames it with its surroundings and draws its path, or for a craft that has gone round thousands of times, the orbit it is on. Its card gives its distance from the planet, and for a craft near Earth, from the Moon.
 - **Pictures:** a picture of each mission's spacecraft, freely licensed and credited, on its page, its tile and its card on the map.
 - **Archive:** search across missions, spacecraft, agencies and destinations, and filter by status, agency, destination, spacecraft type and builder. Results sort by launch date or name and come in pages of 24.
-- **Mission pages:** a banner picture of the spacecraft (click it to see the whole picture) with the mission's name over it and a link to where it is now on the map (or where it went, for missions that have ended), then a strip of facts: launch time to the second, last contact, end declared, duration and destinations, then a tile for each spacecraft with its mass, size, power source, builder and its own status.
+- **Mission pages:** a banner picture of the spacecraft (click it to see the whole picture) with the mission's name over it, a link to where it is now on the map (or where it went, for missions that have ended) and one to replay its journey, then a strip of facts: launch time to the second, last contact, end declared, duration and destinations, then a tile for each spacecraft with its mass, size, power source, builder and its own status.
 - **Milestones:** each mission's key events (launch, flybys, arrivals, landings, sample returns, the end) labelled along a timeline from launch to today or the last planned event. Clicking an event slides the timeline aside and writes out what happened, with buttons to step to the events either side. Where events bunch together, the timeline spreads them out and shortens long quiet stretches so every label fits. Planned events are marked until they happen. Every mission has them.
 - **Linked facts:** every agency, destination, spacecraft type and builder links to the archive filtered by it.
 - **Light and dark themes:** dark by default, with a sun and moon switch in the navbar that remembers the visitor's choice.
@@ -40,15 +42,18 @@ flowchart LR
   S -- "on every deploy" --> D[("PostgreSQL on Neon")]
   D --> W["Next.js on Vercel"]
   H["JPL Horizons"] -- "npm run import:positions" --> P["public/positions.json"]
+  H -- "npm run import:local" --> L["public/local/"]
   P -- "served as a static file" --> W
+  L -- "served as static files" --> W
 ```
 
 - **Spacecraft facts** (launch time, mass, size, builder) come from GCAT, the General Catalog of Artificial Space Objects. A script saves the rows the project needs into `prisma/data/catalogue.json`, so builds never depend on the catalogue site. Any value written in `missions.ts` overrides the catalogue, with a comment saying why.
 - **Positions** for the map come from [JPL Horizons](https://ssd.jpl.nasa.gov/horizons/) and are saved to `public/positions.json`, which browsers download directly. `src/lib/orbits.ts` turns the file into a position, in three dimensions, at any moment:
   - **Planets, asteroids and comets** are stored as a series of orbits around the Sun, and **seven moons** (the Moon, Io, Europa, Ganymede, Callisto, Titan, Enceladus) as orbits around their planets, closer together where an orbit changes quickly (a comet passing Jupiter), and positions come from Kepler's laws. Earth is worked out from the Earth–Moon barycentre and the Moon.
   - **Spacecraft** are stored as the points of their route, with the velocity at each, and positions in between follow a curve that matches both (Hermite interpolation, as in NASA's SPICE toolkit). A route stops where the craft arrives at the body it stays at.
+  - **Paths around a planet** are in `public/local/`, one file per craft, measured from the planet (or Earth) the craft stayed at, and loaded only when the map needs them. A path is kept point by point in the same way, within 0.3% of the craft's distance from the planet, for up to 300 laps; a craft that went round more often (Mars Express, over 30,000 times) is kept as a series of its orbits, one about a month apart and several a day near now. A path starts where the craft first counted as near its planet and stops where its orbit becomes too small to see at the map's closest zoom, so low orbiters such as Hubble or the Mars Reconnaissance Orbiter (after aerobraking) have little or none. The Moon's own path around Earth is kept there too, for replays near Earth: the snapshot only keeps the Moon close to Horizons near now.
   - **Accuracy:** from 90 days before the first of the current month to two years after it, every position is within 1,000 km of Horizons. Outside that window positions only feed trails and animations, and are within 75,000 km.
-  - **Freshness:** a GitHub Actions job refreshes the file from Horizons every day and commits it to `main` when Horizons' data has changed, which redeploys the site. Horizons revises the paths of craft in transit as they are tracked and as they manoeuvre.
+  - **Freshness:** a GitHub Actions job refreshes the files from Horizons every day and commits them to `main` when Horizons' data has changed, which redeploys the site. Horizons revises the paths of craft in transit as they are tracked and as they manoeuvre.
   - Facts such as where a craft ended up stay in the database; only the numbers live in the file.
 - **Pictures** come from [Wikimedia Commons](https://commons.wikimedia.org). Each mission names a file there in `missions.ts`; a script checks that its licence lets anyone reuse it (public domain, CC0, CC BY or CC BY-SA, and India's GODL), downloads it at up to 1,200 pixels wide into `public/images/missions/`, and records its author, licence and source in `prisma/data/images.json` for the credit line. Each file is named after its contents, so a changed picture gets a new address and Vercel can keep resized copies for a month.
 - **The seed** makes the database match the files: it creates or updates rows by slug, deletes rows no longer listed, and runs in one transaction so a failure changes nothing.
@@ -104,8 +109,9 @@ npm run dev                  # http://localhost:3000
 | `npm run lint` | ESLint. |
 | `npm run import:catalogue` | Refreshes `prisma/data/catalogue.json` from GCAT for every spacecraft that has a `catalogueId`. |
 | `npm run import:positions` | Refreshes `public/positions.json` from JPL Horizons: orbits for every body, and routes for every spacecraft that has a `horizonsId`. Takes 10–15 minutes. The daily refresh job runs it, so it only needs running by hand after adding a `horizonsId`. |
+| `npm run import:local` | Refreshes the paths around a planet in `public/local/` from JPL Horizons, for every spacecraft with a `horizonsId` that stayed near a planet or Earth. Paths that ended before this month are kept as they are; `-- --full` fetches every one again. The daily refresh job runs it after `import:positions`. |
 | `npm run import:images` | Downloads each mission's picture from Wikimedia Commons into `public/images/missions/` and records its credit in `prisma/data/images.json`. Refuses a file whose licence doesn't allow reuse. Pictures already downloaded are kept; `-- --all` downloads every one again. |
-| `npm run check:positions` | Compares `public/positions.json` with the committed version. Fails if a body or route has gone missing or the file shrank sharply, and says whether anything but the fetch date changed. |
+| `npm run check:positions` | Compares `public/positions.json` and `public/local/` with the committed versions. Fails if a body, route or path has gone missing or the positions file shrank sharply, and says whether anything but the fetch dates changed. |
 
 ## Adding or changing a mission
 
@@ -124,7 +130,7 @@ The conventions the data follows:
 - A mission's only spacecraft shares the mission's status and dates. When a mission has several spacecraft, each must state its own status, and the seed enforces this.
 - Destinations are the places a mission studied or landed on, not gravity-assist flybys.
 - A spacecraft's `location` is where it is now: where it is headed if it is still on its way, or where it ended up if its mission is over. It is one of the destinations, but not necessarily one of its mission's (Gaia worked at L2 and was retired into an orbit around the Sun).
-- `horizonsId` is the craft's own entry in Horizons, found by designator or by a name Horizons lists. A carried craft without its own entry has none.
+- `horizonsId` is the craft's own entry in Horizons, found by designator or by a name Horizons lists. A carried craft without its own entry has none. Once `npm run import:positions` has a route for a craft, or `npm run import:local` a path around a planet, its mission can replay its journey, with its milestones marked and its asteroid and comet destinations shown.
 - Milestones are key events only: the launch, flybys, arrivals and orbit insertions, landings and releases, sample returns, the start of science for telescopes, and the end. Each has a two- or three-sentence description of what happened. Dates are the UTC day, or the month for plans not yet fixed to a day. A planned event stays marked `planned` until it happens; the seed warns when a planned date has passed.
 - A mission's `image` shows its spacecraft, whether a photo, a model or an artist's impression. If Commons gives no author, or not plainly, `imageCredit` says who to credit.
 - Catalogue values that need correcting are overridden in `missions.ts` with a comment giving the reason; companies with several GCAT codes are merged in `builderAliases`.
@@ -153,18 +159,21 @@ prisma/
 scripts/
   import-catalogue.ts    refreshes the GCAT snapshot
   import-positions.ts    refreshes the positions snapshot from JPL Horizons
+  import-local.ts        refreshes the paths around a planet from Horizons
+  horizons.ts            what the two Horizons imports share
   check-positions.ts     guards the daily refresh before it commits
   import-images.ts       downloads mission pictures from Wikimedia Commons
 public/
   positions.json         orbits and routes for the map
+  local/                 paths around a planet, one file per craft
   images/missions/       mission pictures
 src/
   app/                   pages: home, map, archive, mission page, not-found
   components/            tiles, status tags, theme switch, navbar
-    map/                 the map: camera, drawing, controls, and the home
-                         page's smaller version
+    map/                 the map: camera, drawing, controls, the replay
+                         player, and the home page's smaller version
   lib/                   database client, formatting helpers, orbit maths,
-                         where each craft is on the map
+                         where each craft is on the map, journey replays
 branding/                logo, colours and type
 docs/                    mission list and screenshots
 ```

@@ -38,6 +38,39 @@ export type RoutePoint = [
   vz: number,
 ];
 
+// public/local/index.json, written by `npm run import:local`: the craft
+// with a path around the body they stayed at, measured from that body, such
+// as Cassini's tour of Saturn or JWST's orbit around L2. Keyed by Horizons
+// ID; each one's path is in public/local/<Horizons ID>.json.
+export type LocalIndex = {
+  source: string;
+  fetched: string;
+  craft: Record<string, LocalEntry>;
+};
+
+export type LocalEntry = {
+  body: BodySlug;
+  // The span the path covers.
+  from: Days;
+  until: Days;
+  // How far from its body the craft usually is (AU): most of its path lies
+  // within this distance.
+  reach: number;
+  // "sun-earth" for a craft around the Sun–Earth L2 point, whose path is
+  // drawn turning with the line from the Sun to Earth, as mission diagrams
+  // draw it.
+  frame?: "sun-earth";
+};
+
+// A craft's path around its body: point by point, as routes are, up to
+// `path`'s last point; after that, for a craft that went round many times,
+// as a series of its orbits (one about a month apart, and one a day near
+// now). Positions are measured from the body.
+export type LocalPath = LocalEntry & {
+  path: RoutePoint[];
+  orbits: Elements[];
+};
+
 // public/positions.json, written by `npm run import:positions`.
 export type PositionsSnapshot = {
   source: string;
@@ -126,6 +159,31 @@ export type MoonSlug = keyof typeof MOONS;
 
 // A planet, asteroid, comet or moon.
 export type PlaceSlug = BodySlug | MoonSlug;
+
+export const KM_PER_AU = 149_597_870.7;
+
+// Mean radii in km, for drawing planets and moons to scale when the map is
+// zoomed in close enough for their true size to beat the usual dot.
+// Asteroids and comets, a few km across, always stay dots.
+export const RADIUS_KM: Partial<Record<PlaceSlug, number>> = {
+  mercury: 2_440,
+  venus: 6_052,
+  earth: 6_371,
+  mars: 3_390,
+  jupiter: 69_911,
+  saturn: 58_232,
+  uranus: 25_362,
+  neptune: 24_622,
+  pluto: 1_188,
+  ceres: 470,
+  moon: 1_737,
+  io: 1_822,
+  europa: 1_561,
+  ganymede: 2_634,
+  callisto: 2_410,
+  titan: 2_575,
+  enceladus: 252,
+};
 
 export function isMoon(slug: string): slug is MoonSlug {
   return slug in MOONS;
@@ -319,6 +377,35 @@ export function routePosition(route: RoutePoint[], t: Days): Vec3 | null {
   }
 
   return between(route[i], route[i + 1], t);
+}
+
+// The orbit in a series nearest in time to t, or null for an empty series.
+export function nearestOrbit(series: Elements[], t: Days) {
+  const i = lastAtOrBefore(series, t);
+
+  if (i === -1) return series[0] ?? null;
+  if (i === series.length - 1) return series[i];
+
+  return t - series[i][0] <= series[i + 1][0] - t ? series[i] : series[i + 1];
+}
+
+// Where a craft is on its path around its body at time t, measured from the
+// body, or null outside the path. Past the point-by-point part it is placed
+// on the orbit nearest in time, not on a blend of two: a month apart, a craft
+// circling every few hours is at unrelated points of the two orbits, and a
+// blend of those would put it nowhere.
+export function localOffset(local: LocalPath, t: Days): Vec3 | null {
+  if (t < local.from || t > local.until) return null;
+
+  const { path, orbits } = local;
+
+  if (path.length > 0 && t <= path[path.length - 1][0]) {
+    return routePosition(path, t);
+  }
+
+  const orbit = nearestOrbit(orbits, t);
+
+  return orbit ? positionFromElements(orbit, t) : null;
 }
 
 export function distance(a: Vec3, b: Vec3) {
