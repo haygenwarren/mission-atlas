@@ -10,6 +10,7 @@
     "postinstall": "prisma generate",
     "import:catalogue": "tsx scripts/import-catalogue.ts",
     "import:positions": "tsx scripts/import-positions.ts",
+    "import:local": "tsx scripts/import-local.ts",
     "check:positions": "tsx scripts/check-positions.ts",
     "import:images": "tsx scripts/import-images.ts"
   },

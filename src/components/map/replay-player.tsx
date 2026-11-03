@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useEffectEvent, useRef, useState } from "react";
-import type { Journey } from "@/lib/journey";
+import {
+  elapsedAt,
+  journeyLength,
+  timeAt,
+  type Journey,
+} from "@/lib/journey";
 import { dayToDate } from "@/lib/map-scene";
 import type { Days } from "@/lib/orbits";
-
-// How long a replay takes at normal speed, however long the mission.
-const REPLAY_MS = 30_000;
 
 const SPEEDS = [
   { value: 0.5, label: "½×" },
@@ -28,10 +30,16 @@ const dateFormat = new Intl.DateTimeFormat("en-GB", {
 type Props = {
   journey: Journey;
   name: string;
+  // What each part of the replay is called ("Cruise", "At Saturn"), shown
+  // above the scrubber when there is more than one.
+  labels: string[];
   // Where the craft is at time t, in words.
   describe: (t: Days) => string;
   // How long to wait before playing, while the map flies to the journey.
   delay: number;
+  // Whether to hold still for now: while the map flies into a planet at the
+  // start of the time around it.
+  holding: () => boolean;
   // Called with the replay's time whenever it changes.
   onTime: (t: Days) => void;
   onClose: () => void;
@@ -39,25 +47,32 @@ type Props = {
 };
 
 // The controls for a replay, along the bottom of the map: play and pause,
-// the date, a scrubber with the mission's milestones marked above it, and
-// the speed.
+// the date, a scrubber with the mission's milestones marked above it (and
+// its parts, if it has more than one), and the speed. The scrubber measures
+// playing time, not dates: each part of the replay takes its own share.
 export default function ReplayPlayer({
   journey,
   name,
+  labels,
   describe,
   delay,
+  holding,
   onTime,
   onClose,
   ref,
 }: Props) {
-  const { from, until, markers } = journey;
-  const [t, setT] = useState(from);
+  const { from, until, markers, segments } = journey;
+  const total = journeyLength(journey);
+  // How far into the replay it is, in milliseconds of playing at normal
+  // speed, and the time that has reached.
+  const [elapsed, setElapsed] = useState(0);
+  const t = timeAt(journey, elapsed);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
   // The milestone whose name shows above its mark: under the mouse,
   // focused, or just tapped.
   const [shown, setShown] = useState<number | null>(null);
-  const time = useRef(from);
+  const played = useRef(0);
   const trackRef = useRef<HTMLDivElement>(null);
   const playRef = useRef<HTMLButtonElement>(null);
   const startTimer = useRef<number>(undefined);
@@ -65,23 +80,26 @@ export default function ReplayPlayer({
   // Whether it was playing when a drag along the scrubber began.
   const resume = useRef(false);
 
-  const share = (day: Days) => (day - from) / (until - from);
-  const ended = t >= until;
+  // Where a time, or a point in the playing, falls along the scrubber.
+  const share = (day: Days) => elapsedAt(journey, day) / total;
+  const ended = elapsed >= total;
 
-  function seek(day: Days) {
-    const next = Math.min(until, Math.max(from, day));
+  function seek(next: number) {
+    const clamped = Math.min(total, Math.max(0, next));
 
-    time.current = next;
-    setT(next);
-    onTime(next);
+    played.current = clamped;
+    setElapsed(clamped);
+    onTime(timeAt(journey, clamped));
   }
 
-  // Moves the replay on by `elapsed` milliseconds of playing. Returns
-  // whether there is more to play.
-  const advance = useEffectEvent((elapsed: number) => {
-    seek(time.current + (elapsed * speed * (until - from)) / REPLAY_MS);
+  // Moves the replay on by `ms` milliseconds of real time, unless the map
+  // asks it to hold. Returns whether there is more to play.
+  const advance = useEffectEvent((ms: number) => {
+    if (holding()) return true;
 
-    if (time.current < until) return true;
+    seek(played.current + ms * speed);
+
+    if (played.current < total) return true;
 
     setPlaying(false);
     return false;
@@ -124,7 +142,7 @@ export default function ReplayPlayer({
     if (playing) {
       setPlaying(false);
     } else {
-      if (ended) seek(from);
+      if (ended) seek(0);
       setPlaying(true);
     }
   }
@@ -141,11 +159,11 @@ export default function ReplayPlayer({
   function seekToPointer(clientX: number) {
     const box = trackRef.current!.getBoundingClientRect();
 
-    seek(from + ((clientX - box.left) / box.width) * (until - from));
+    seek(((clientX - box.left) / box.width) * total);
   }
 
   function onTrackKey(event: React.KeyboardEvent) {
-    const step = (until - from) / 100;
+    const step = total / 100;
     const moves: Record<string, number> = {
       ArrowRight: step,
       ArrowUp: step,
@@ -155,9 +173,9 @@ export default function ReplayPlayer({
       PageDown: -step * 10,
     };
 
-    if (event.key === "Home") seek(from);
-    else if (event.key === "End") seek(until);
-    else if (moves[event.key]) seek(time.current + moves[event.key]);
+    if (event.key === "Home") seek(0);
+    else if (event.key === "End") seek(total);
+    else if (moves[event.key]) seek(played.current + moves[event.key]);
     else return;
 
     event.preventDefault();
@@ -220,8 +238,33 @@ export default function ReplayPlayer({
         </button>
       </div>
 
+      {/* The parts of the replay, named above the scrubber where each
+          starts, with a line down to the scrubber between them. */}
+      {segments.length > 1 && (
+        <div className="relative mx-2 mt-3 h-4 text-xs text-muted">
+          {segments.map((segment, i) => {
+            const start = share(segment.from);
+
+            return (
+              <span
+                key={i}
+                className={`absolute top-0 whitespace-nowrap ${i > 0 ? "border-l border-border-strong pl-1.5" : ""}`}
+                style={{
+                  left: `${start * 100}%`,
+                  height: i > 0 ? "2.75rem" : undefined,
+                }}
+              >
+                {labels[i]}
+              </span>
+            );
+          })}
+        </div>
+      )}
+
       {/* The milestones, marked above the scrubber: filled in once passed. */}
-      <div className="relative mx-2 mt-3 h-4">
+      <div
+        className={`relative mx-2 h-4 ${segments.length > 1 ? "mt-1" : "mt-3"}`}
+      >
         {markers.map((one, i) => (
           <button
             key={i}
@@ -271,9 +314,9 @@ export default function ReplayPlayer({
         role="slider"
         tabIndex={0}
         aria-label="Replay date"
-        aria-valuemin={from}
-        aria-valuemax={until}
-        aria-valuenow={t}
+        aria-valuemin={0}
+        aria-valuemax={total}
+        aria-valuenow={elapsed}
         aria-valuetext={date}
         onKeyDown={onTrackKey}
         onPointerDown={(event) => {
@@ -289,7 +332,7 @@ export default function ReplayPlayer({
           }
         }}
         onPointerUp={() => {
-          if (resume.current && time.current < until) setPlaying(true);
+          if (resume.current && played.current < total) setPlaying(true);
           resume.current = false;
         }}
         className="group relative mx-2 h-5 cursor-pointer touch-none outline-none"
@@ -297,11 +340,11 @@ export default function ReplayPlayer({
         <span className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-border-strong" />
         <span
           className="absolute left-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-accent"
-          style={{ width: `${share(t) * 100}%` }}
+          style={{ width: `${(elapsed / total) * 100}%` }}
         />
         <span
           className="absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface bg-accent group-focus-visible:ring-2 group-focus-visible:ring-accent"
-          style={{ left: `${share(t) * 100}%` }}
+          style={{ left: `${(elapsed / total) * 100}%` }}
         />
       </div>
 

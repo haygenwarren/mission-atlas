@@ -2,8 +2,11 @@ import {
   PLANETS,
   formatDistance,
   fromSun,
+  localTrail,
   routeSamples,
+  type LocalTrail,
   type MapCraft,
+  type Positions,
   type Scene,
 } from "@/lib/map-scene";
 import {
@@ -13,6 +16,8 @@ import {
   orbitOutline,
   type BodySlug,
   type Days,
+  type LocalIndex,
+  type LocalPath,
   type MoonSlug,
   type PositionsSnapshot,
   type Vec3,
@@ -71,6 +76,57 @@ export async function loadPositions(): Promise<{
   };
 }
 
+// public/local/index.json: which craft have a path around the body they
+// stayed at. Null if it cannot be loaded; the map then works without them.
+export async function loadLocalIndex(): Promise<LocalIndex | null> {
+  try {
+    const response = await fetch("/local/index.json");
+
+    return response.ok ? ((await response.json()) as LocalIndex) : null;
+  } catch {
+    return null;
+  }
+}
+
+// One craft's path around its body, fetched once however often it is asked
+// for.
+const localPaths = new Map<string, Promise<LocalPath | null>>();
+
+export function loadLocalPath(horizonsId: string) {
+  let path = localPaths.get(horizonsId);
+
+  if (!path) {
+    path = fetch(`/local/${horizonsId}.json`)
+      .then((response) =>
+        response.ok ? (response.json() as Promise<LocalPath>) : null,
+      )
+      .catch(() => null);
+    localPaths.set(horizonsId, path);
+  }
+
+  return path;
+}
+
+// The Horizons IDs of a mission's craft that have a path around a body.
+export function missionLocalIds(
+  craft: MapCraft[],
+  index: LocalIndex | null,
+  mission: string,
+) {
+  return [
+    ...new Set(
+      craft
+        .filter(
+          (one) =>
+            one.mission.slug === mission &&
+            one.horizonsId &&
+            index?.craft[one.horizonsId],
+        )
+        .map((one) => one.horizonsId!),
+    ),
+  ];
+}
+
 // Theme colours, resolved to plain colours a canvas understands.
 export function readPalette(): Palette {
   const probe = document.createElement("span");
@@ -118,6 +174,19 @@ export function missionTrails(
     .map((id) => snapshot.routes[id])
     .filter((route) => route && route.length > 1)
     .map(routeSamples);
+}
+
+// A mission's paths around a body that have been loaded, ready to draw.
+export function missionLocalTrails(
+  craft: MapCraft[],
+  positions: Positions,
+  index: LocalIndex | null,
+  mission: string,
+): LocalTrail[] {
+  return missionLocalIds(craft, index, mission)
+    .map((id) => positions.local?.[id])
+    .filter((local) => local !== undefined)
+    .map((local) => localTrail(local, positions));
 }
 
 // The nearest target to (x, y), allowing `slack` extra pixels for a finger.
@@ -214,8 +283,9 @@ export function TooltipContent({
 
   const one = craft.find(({ slug }) => slug === target.slug);
   const free = scene.free.find(({ craft: c }) => c.slug === target.slug);
+  const local = scene.local.find(({ craft: c }) => c.slug === target.slug);
 
-  if (!one || !free) return null;
+  if (!one || !(free || local)) return null;
 
   return (
     <>
@@ -224,9 +294,29 @@ export function TooltipContent({
         <p className="text-muted">{one.mission.name}</p>
       )}
       <p className="text-muted">
-        {formatDistance(fromSun(free.position))} from the Sun ·{" "}
-        {formatDistance(distance(free.position, scene.earth))} from Earth
+        {free
+          ? `${formatDistance(fromSun(free.position))} from the Sun · ${formatDistance(distance(free.position, scene.earth))} from Earth`
+          : local && aroundBody(local, scene, names)}
       </p>
     </>
   );
+}
+
+// How far a craft near a body is from it, and from Earth or, for a craft
+// near Earth, from the Moon: "1.5 million km from Earth · 1.2 million km
+// from the Moon".
+export function aroundBody(
+  local: Scene["local"][number],
+  scene: Scene,
+  names: Record<string, string>,
+) {
+  const fromBody = `${formatDistance(Math.hypot(...local.offset))} from ${names[local.body]}`;
+
+  if (local.body !== "earth") {
+    return `${fromBody} · ${formatDistance(distance(local.position, scene.earth))} from Earth`;
+  }
+
+  const moon = scene.moons.find(({ slug }) => slug === "moon")!;
+
+  return `${fromBody} · ${formatDistance(distance(local.position, moon.position))} from the Moon`;
 }

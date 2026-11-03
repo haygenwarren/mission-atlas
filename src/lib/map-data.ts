@@ -1,7 +1,7 @@
 import type { JourneyFacts } from "@/lib/journey";
 import type { MapCraft } from "@/lib/map-scene";
 import { prisma } from "@/lib/prisma";
-import { craftWithRoutes } from "@/lib/routes";
+import { replayableCraft } from "@/lib/routes";
 import type { DestinationSlug } from "../../prisma/data/destinations";
 
 // The facts the map needs about each craft, and the names and kinds of the
@@ -63,12 +63,13 @@ export async function getMapData() {
   return { craft, names, kinds };
 }
 
-// What the map needs to replay the journeys of the missions with a route:
+// What the map needs to replay the journeys of the missions with a route or
+// a path around a body:
 // each one's launch, destinations and the milestones that have happened.
 export async function getJourneys(): Promise<Record<string, JourneyFacts>> {
-  const routed = [...(await craftWithRoutes())];
+  const replayable = [...(await replayableCraft())];
   const missions = await prisma.mission.findMany({
-    where: { spacecraft: { some: { horizonsId: { in: routed } } } },
+    where: { spacecraft: { some: { horizonsId: { in: replayable } } } },
     select: {
       slug: true,
       launchDate: true,

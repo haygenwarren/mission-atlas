@@ -4,10 +4,20 @@ import {
   PLANETS,
   formatDistance,
   fromSun,
+  type LocalTrail,
   type MapCraft,
   type Scene,
 } from "@/lib/map-scene";
-import type { BodySlug, MoonSlug, PlaceSlug, Vec3 } from "@/lib/orbits";
+import {
+  KM_PER_AU,
+  RADIUS_KM,
+  nearestOrbit,
+  orbitOutline,
+  type BodySlug,
+  type MoonSlug,
+  type PlaceSlug,
+  type Vec3,
+} from "@/lib/orbits";
 import { toScreen, type Camera, type Size } from "./camera";
 
 // Theme colours and fonts, read from the page's CSS so the map follows the
@@ -63,9 +73,11 @@ export type Frame = {
   selectedMission: string | null;
   selectedBody: PlaceSlug | null;
   // The selected mission's routes, drawn in full, and the hovered one's,
-  // drawn faintly.
+  // drawn faintly; and the same for their paths around a body.
   trails: Trail[];
   hoverTrails: Trail[];
+  localTrails?: LocalTrail[];
+  hoverLocalTrails?: LocalTrail[];
   // Room to leave at the edges, and areas covered by controls laid over the
   // map, which labels keep clear of.
   insets: { top: number; bottom: number; left: number; right: number };
@@ -107,9 +119,19 @@ const MOON_RADIUS = 3.5;
 
 // A moon is drawn apart from its planet once it would be this many pixels
 // away; closer than that, its missions are counted in the planet's badge.
-const SPLIT_PX = 36;
+export const SPLIT_PX = 36;
 const SMALL_BODY_RADIUS = 3;
 const CRAFT_RADIUS = 6;
+
+// Saturn's rings, from the inner edge of the C ring to the outer edge of the
+// A ring (km), and the direction of Saturn's pole in the frame of the map
+// (from the IAU's pole of Saturn, turned from Earth's equator to the plane
+// of the planets). Seen from above, the rings make an ellipse narrowed along
+// the pole's direction.
+const RINGS_KM = [74_658, 136_775] as const;
+// How many of its latest laps a path around a body is drawn strongly for.
+const RECENT_LAPS = 3;
+const SATURN_POLE: Vec3 = [0.0855, 0.4624, 0.8825];
 
 // How each kind of label is set, as on a printed map: planets in wide
 // capitals, asteroids and comets in italics, spacecraft plainly, and the
@@ -335,6 +357,16 @@ export function drawMap(frame: Frame): Hit[] {
   // Moons far enough from their planet on screen are drawn on their own;
   // the craft at the rest are counted with their planet.
   const planetAt = new Map(scene.bodies.map((body) => [body.slug, body]));
+  // How big a planet or moon is drawn: at least its usual dot, and to scale
+  // once that is bigger.
+  const sized = (slug: PlaceSlug, dot: number) =>
+    Math.max(dot, ((RADIUS_KM[slug] ?? 0) / KM_PER_AU) * camera.scale);
+  // Craft whose place around their body is known, drawn apart from it once
+  // they are as far from it on screen as a moon needs to be.
+  const freed = scene.local.filter(
+    ({ offset }) => Math.hypot(offset[0], offset[1]) * camera.scale >= SPLIT_PX,
+  );
+  const freedSlugs = new Set(freed.map(({ craft }) => craft.slug));
   const apart = new Set<MoonSlug>();
   const merged = new Map<BodySlug, MapCraft[]>();
 
@@ -407,8 +439,14 @@ export function drawMap(frame: Frame): Hit[] {
   ctx.strokeStyle = palette.accent;
   ctx.globalAlpha = 0.4;
   for (const trail of frame.hoverTrails) drawTrail(ctx, trail, scene.t, screen);
+  for (const trail of frame.hoverLocalTrails ?? []) {
+    drawLocalTrail(ctx, trail, scene, screen);
+  }
   ctx.globalAlpha = 1;
   for (const trail of frame.trails) drawTrail(ctx, trail, scene.t, screen);
+  for (const trail of frame.localTrails ?? []) {
+    drawLocalTrail(ctx, trail, scene, screen);
+  }
 
   // A soft ring that grows and fades around each active craft in flight.
   if (frame.pulse !== null) {
@@ -416,7 +454,7 @@ export function drawMap(frame: Frame): Hit[] {
     ctx.lineWidth = 1.5;
     ctx.globalAlpha = 0.5 * (1 - frame.pulse);
 
-    for (const { craft, position } of scene.free) {
+    for (const { craft, position } of [...scene.free, ...freed]) {
       if (craft.status !== "ACTIVE") continue;
 
       const [x, y] = screen(position[0], position[1]);
@@ -433,7 +471,9 @@ export function drawMap(frame: Frame): Hit[] {
   for (const body of scene.bodies) {
     const planet = PLANETS.includes(body.slug);
     const dwarf = DWARF_PLANETS.includes(body.slug);
-    const here = [...body.craft, ...(merged.get(body.slug) ?? [])];
+    const here = [...body.craft, ...(merged.get(body.slug) ?? [])].filter(
+      ({ slug }) => !freedSlugs.has(slug),
+    );
     const holds = (mission: string | null) =>
       mission !== null && here.some((craft) => craft.mission.slug === mission);
     const highlighted =
@@ -474,8 +514,12 @@ export function drawMap(frame: Frame): Hit[] {
 
     if (small && here.length === 0 && hidden) continue;
 
-    const radius =
-      PLANET_RADIUS[body.slug] ?? (dwarf ? DWARF_RADIUS : SMALL_BODY_RADIUS);
+    const radius = sized(
+      body.slug,
+      PLANET_RADIUS[body.slug] ?? (dwarf ? DWARF_RADIUS : SMALL_BODY_RADIUS),
+    );
+
+    if (body.slug === "saturn") drawRings(ctx, x, y, camera, palette);
 
     ctx.fillStyle = planet || dwarf ? palette.foreground : palette.muted;
     ctx.beginPath();
@@ -535,34 +579,35 @@ export function drawMap(frame: Frame): Hit[] {
       holds(selectedMission) ||
       holds(hoveredMission);
     const target: Target = { kind: "body", slug: moon.slug };
+    const radius = sized(moon.slug, MOON_RADIUS);
 
     ctx.fillStyle = palette.foreground;
     ctx.globalAlpha = 0.85;
     ctx.beginPath();
-    ctx.arc(x, y, MOON_RADIUS, 0, 2 * Math.PI);
+    ctx.arc(x, y, radius, 0, 2 * Math.PI);
     ctx.fill();
     ctx.globalAlpha = 1;
-    around(x, y, MOON_RADIUS + 1);
+    around(x, y, radius + 1);
 
     if (highlighted) {
       ctx.strokeStyle = palette.accent;
       ctx.lineWidth = 2;
-      ring(ctx, x, y, MOON_RADIUS + 5);
+      ring(ctx, x, y, radius + 5);
     }
 
-    let right = MOON_RADIUS + 6;
+    let right = radius + 6;
 
     if (moon.craft.length > 0) {
-      right = badge(target, x + MOON_RADIUS + 6, y, moon.craft) + 6 - x;
+      right = badge(target, x + radius + 6, y, moon.craft) + 6 - x;
     }
 
-    hits.push({ ...target, x, y, radius: MOON_RADIUS + 10 });
+    hits.push({ ...target, x, y, radius: radius + 10 });
     labels.push({
       text: names[moon.slug].toUpperCase(),
       x,
       y,
       right,
-      left: MOON_RADIUS + 6,
+      left: radius + 6,
       style: "moon",
       color: palette.foreground,
       priority: highlighted ? 95 : moon.craft.length > 0 ? 72 : 45,
@@ -570,8 +615,9 @@ export function drawMap(frame: Frame): Hit[] {
     });
   }
 
-  // Craft flying free, drawn from their routes.
-  for (const { craft, position } of scene.free) {
+  // Craft flying free, drawn from their routes, and craft drawn apart from
+  // the body they are at.
+  for (const { craft, position } of [...scene.free, ...freed]) {
     const [x, y] = screen(position[0], position[1]);
     const highlighted =
       craft.mission.slug === selectedMission ||
@@ -646,6 +692,108 @@ export function drawMap(frame: Frame): Hit[] {
   ctx.fontStretch = "normal";
 
   return hits;
+}
+
+// A path around a body, drawn around where the body is at the time shown,
+// turned with the Sun–Earth line for a craft at L2. For a craft kept as
+// orbits once it settled, also the orbit it was on then (or its last one).
+function drawLocalTrail(
+  ctx: CanvasRenderingContext2D,
+  trail: LocalTrail,
+  scene: Scene,
+  screen: (x: number, y: number) => readonly [number, number],
+) {
+  const centre = scene.bodies.find(({ slug }) => slug === trail.body)?.position;
+
+  if (!centre) return;
+
+  const angle = trail.turn ? Math.atan2(scene.earth[1], scene.earth[0]) : 0;
+  const c = Math.cos(angle);
+  const s = Math.sin(angle);
+  const place = (u: number, v: number) =>
+    screen(centre[0] + c * u - s * v, centre[1] + s * u + c * v);
+
+  // The last few laps up to the time shown, strongly; those before,
+  // faintly; and the next lap, dashed. Each part starts where the one
+  // before ends, and the strong part reaches the craft itself.
+  const { points } = trail;
+  const after = (time: number) => {
+    const i = points.findIndex(([t]) => t > time);
+
+    return i === -1 ? points.length : i;
+  };
+  const recent = after(scene.t - RECENT_LAPS * trail.lap);
+  const now = after(scene.t);
+  const ahead = after(scene.t + trail.lap);
+  const here = now > 0 && now < points.length ? [between(now)] : [];
+  const strokes: [Trail, number, number, number[]][] = [
+    [points.slice(0, recent + 1), 1, 0.3, []],
+    [[...points.slice(Math.max(0, recent - 1), now), ...here], 1.5, 1, []],
+    [[...here, ...points.slice(now, ahead)], 1.25, 1, [5, 5]],
+  ];
+  const alpha = ctx.globalAlpha;
+
+  // Where the trail is at the time shown, between the points either side.
+  function between(i: number): Trail[number] {
+    const [t1, u1, v1] = points[i - 1];
+    const [t2, u2, v2] = points[i];
+    const k = (scene.t - t1) / (t2 - t1);
+
+    return [scene.t, u1 + (u2 - u1) * k, v1 + (v2 - v1) * k];
+  }
+
+  for (const [part, width, strength, dash] of strokes) {
+    ctx.lineWidth = width;
+    ctx.globalAlpha = alpha * strength;
+    ctx.setLineDash(dash);
+    polyline(
+      ctx,
+      part.map(([, u, v]) => place(u, v)),
+    );
+  }
+  ctx.setLineDash([]);
+  ctx.globalAlpha = alpha;
+
+  const orbit =
+    scene.t >= trail.settled ? nearestOrbit(trail.orbits, scene.t) : null;
+
+  if (orbit) {
+    ctx.lineWidth = 1.5;
+    polyline(
+      ctx,
+      orbitOutline([orbit], scene.t, 180).map(([x, y]) => place(x, y)),
+    );
+  }
+}
+
+// Saturn's rings around (x, y) on screen, once they are big enough to see:
+// a faint band, drawn under the planet.
+function drawRings(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  camera: Camera,
+  palette: Palette,
+) {
+  const [inner, outer] = RINGS_KM.map(
+    (km) => (km / KM_PER_AU) * camera.scale,
+  );
+
+  if (outer < 14) return;
+
+  const [px, py, pz] = SATURN_POLE;
+  // The rings' narrow axis points along the pole, as drawn on screen.
+  const angle = (camera.rotation ?? 0) - Math.atan2(py, px);
+  const band = (radius: number) =>
+    ctx.ellipse(x, y, radius * pz, radius, angle, 0, 2 * Math.PI);
+
+  ctx.beginPath();
+  band(outer);
+  band(inner);
+  ctx.fillStyle = palette.foreground;
+  ctx.globalAlpha = 0.25;
+  ctx.fill("evenodd");
+  ctx.globalAlpha = 1;
 }
 
 // A triangle at the edge of the screen pointing towards something out of

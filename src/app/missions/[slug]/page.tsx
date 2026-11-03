@@ -11,7 +11,7 @@ import SpacecraftTile from "@/components/spacecraft-tile";
 import StatusBadge from "@/components/status-badge";
 import type { DatePrecision, MilestoneKind } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
-import { craftWithRoutes } from "@/lib/routes";
+import { replayableCraft } from "@/lib/routes";
 import {
   disciplineLabels,
   formatDate,
@@ -143,10 +143,11 @@ export default async function MissionDetailPage({ params }: PageProps) {
   }
 
   const duration = missionDuration(mission);
-  // Whether the map can replay its journey: one of its craft has a route.
-  const routed = await craftWithRoutes();
+  // Whether the map can replay its journey: one of its craft has a route or
+  // a path around a body.
+  const craftToReplay = await replayableCraft();
   const replayable = mission.spacecraft.some(
-    ({ horizonsId }) => horizonsId && routed.has(horizonsId),
+    ({ horizonsId }) => horizonsId && craftToReplay.has(horizonsId),
   );
 
   return (
