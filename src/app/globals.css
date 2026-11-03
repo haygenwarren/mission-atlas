@@ -27,6 +27,15 @@
   --status-completed: #a6a8ba;
   --status-failed: #f0706a;
   --status-text: #0f1126; /* Deep Space */
+
+  /* The data page's groups of missions step outside the kit too: six
+     violets could not be told apart. Each hue hints at its place. */
+  --chart-moon: #efe8d6; /* Parchment */
+  --chart-inner: #e3a857;
+  --chart-mars: #e07a5f;
+  --chart-outer: #6bb6e0;
+  --chart-small: #d991c1;
+  --chart-telescopes: #c4bcf1; /* Signal Lavender */
 }
 
 [data-theme="light"] {
@@ -46,6 +55,13 @@
   --status-completed: #5e6172;
   --status-failed: #b5372e;
   --status-text: #f3efe4; /* Light ground */
+
+  --chart-moon: #8a826b;
+  --chart-inner: #b07413;
+  --chart-mars: #b5472c;
+  --chart-outer: #2f74a6;
+  --chart-small: #a14a86;
+  --chart-telescopes: #55529f; /* Land Violet */
 }
 
 @theme inline {

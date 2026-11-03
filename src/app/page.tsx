@@ -89,16 +89,24 @@ export default async function Home() {
           <MissionOfTheDay mission={featured} />
         </section>
 
-        <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {stats.map(({ label, value }) => (
-            <div
-              key={label}
-              className="rounded-xl border border-border bg-surface p-5"
-            >
-              <p className="label-caps text-muted">{label}</p>
-              <p className="font-display mt-2 text-3xl">{value}</p>
-            </div>
-          ))}
+        <section>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {stats.map(({ label, value }) => (
+              <div
+                key={label}
+                className="rounded-xl border border-border bg-surface p-5"
+              >
+                <p className="label-caps text-muted">{label}</p>
+                <p className="font-display mt-2 text-3xl">{value}</p>
+              </div>
+            ))}
+          </div>
+          <Link
+            href="/data"
+            className="mt-3 inline-block text-sm font-medium text-accent hover:underline"
+          >
+            More numbers on the data page →
+          </Link>
         </section>
 
         <section>
