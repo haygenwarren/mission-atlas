@@ -53,6 +53,9 @@ export default function Navbar() {
           >
             Archive
           </Link>
+          <Link href="/data" className="transition-colors hover:text-foreground">
+            Data
+          </Link>
           <ThemeToggle />
         </div>
       </nav>
