@@ -214,8 +214,8 @@ export default function FilterBar({
                 </>
               )}
               <p className="mt-4 text-xs text-muted">
-                For a single place, such as Saturn, choose it in Where they
-                went&rsquo;s list of places.
+                For a single place, such as Saturn, choose it in the
+                Destinations card&rsquo;s Places view.
               </p>
             </div>
           )}

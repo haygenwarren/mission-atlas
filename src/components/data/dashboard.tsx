@@ -52,8 +52,6 @@ export default function Dashboard({ missions }: { missions: MissionFacts[] }) {
   const shown = filterMissions(missions, filters);
   const numbers = headline(shown);
   const forWhere = filterMissions(missions, filters, ["where"]);
-  const placeRows = missionsByPlace(forWhere);
-  const singlePlaces = placeRows.filter(({ total }) => total === 1);
 
   return (
     <>
@@ -67,20 +65,16 @@ export default function Dashboard({ missions }: { missions: MissionFacts[] }) {
       <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
         <section
           aria-label="In numbers"
-          className="grid grid-cols-2 gap-4 md:grid-cols-4"
+          className="grid grid-cols-3 gap-3 sm:gap-4"
         >
           {[
             { label: "Missions", value: numbers.missions },
             { label: "Active now", value: numbers.active },
             { label: "Agencies", value: numbers.agencies },
-            {
-              label: "Years in space",
-              value: Math.round(numbers.years).toLocaleString("en-GB"),
-            },
           ].map(({ label, value }) => (
             <div
               key={label}
-              className="rounded-xl border border-border bg-surface p-5"
+              className="flex flex-col justify-between rounded-xl border border-border bg-surface p-4 sm:p-5"
             >
               <p className="label-caps text-muted">{label}</p>
               <p className="font-display mt-2 text-3xl tabular-nums">
@@ -109,7 +103,20 @@ export default function Dashboard({ missions }: { missions: MissionFacts[] }) {
         <div className="grid gap-6 lg:grid-cols-2">
           <Card
             label="Destinations"
-            title="Where they went"
+            note={
+              places ? (
+                <p>
+                  A mission counts for each place it went: Cassini–Huygens
+                  for Jupiter, Saturn and Titan.
+                </p>
+              ) : (
+                <p>
+                  A mission counts once, in one group: Cassini–Huygens under
+                  Jupiter and beyond. Space telescopes also takes in the other
+                  missions that stayed in orbit around Earth or the Sun.
+                </p>
+              )
+            }
             controls={
               <Switch
                 label="Show"
@@ -123,49 +130,17 @@ export default function Dashboard({ missions }: { missions: MissionFacts[] }) {
             }
           >
             {places ? (
-              <>
-                <StatusBars
-                  rows={placeRows.filter(({ total }) => total > 1)}
-                  picked={filters.places}
-                  onToggle={(slug) =>
-                    setFilters({
-                      ...filters,
-                      places: toggled(filters.places, slug),
-                    })
-                  }
-                />
-                {singlePlaces.length > 0 && (
-                  <p className="mt-4 text-sm text-muted">
-                    One mission each:{" "}
-                    {singlePlaces.map(({ key, label }, i) => (
-                      <span key={key}>
-                        {i > 0 && ", "}
-                        <button
-                          type="button"
-                          aria-pressed={filters.places.includes(key)}
-                          onClick={() =>
-                            setFilters({
-                              ...filters,
-                              places: toggled(filters.places, key),
-                            })
-                          }
-                          className={`hover:underline ${
-                            filters.places.includes(key)
-                              ? "font-semibold text-foreground"
-                              : "text-accent"
-                          }`}
-                        >
-                          {label}
-                        </button>
-                      </span>
-                    ))}
-                  </p>
-                )}
-                <p className="mt-3 text-sm text-muted">
-                  A mission counts for each place it went: Cassini–Huygens
-                  for Jupiter, Saturn and Titan.
-                </p>
-              </>
+              <StatusBars
+                rows={missionsByPlace(forWhere)}
+                picked={filters.places}
+                onToggle={(slug) =>
+                  setFilters({
+                    ...filters,
+                    places: toggled(filters.places, slug),
+                  })
+                }
+                fold="places"
+              />
             ) : (
               <StatusBars
                 rows={missionsByGroup(forWhere)}
@@ -180,7 +155,15 @@ export default function Dashboard({ missions }: { missions: MissionFacts[] }) {
             )}
           </Card>
 
-          <Card label="Agencies" title="Who flew them">
+          <Card
+            label="Agencies"
+            note={
+              <p>
+                A mission run by several agencies counts for each:
+                Cassini–Huygens for NASA, ESA and ASI.
+              </p>
+            }
+          >
             <StatusBars
               rows={missionsByAgency(
                 filterMissions(missions, filters, ["agency"]),
@@ -193,14 +176,18 @@ export default function Dashboard({ missions }: { missions: MissionFacts[] }) {
                 })
               }
             />
-            <p className="mt-3 text-sm text-muted">
-              A mission run by several agencies counts for each:
-              Cassini–Huygens for NASA, ESA and ASI.
-            </p>
           </Card>
         </div>
 
-        <Card label="Decades" title="Where the missions went, decade by decade">
+        <Card
+          label="Destinations by decade"
+          note={
+            <p>
+              Each square counts the missions launched in that decade, in
+              the same groups as Destinations. Darker squares had more.
+            </p>
+          }
+        >
           <DecadeHeatmap
             missions={filterMissions(missions, filters, ["where", "years"])}
             decades={decades}

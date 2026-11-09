@@ -13,21 +13,36 @@ const statusColours = Object.fromEntries(
 // and split by how they stand: active, completed or failed. Clicking a row
 // adds it to the page's filter, or takes it off again; while any are
 // chosen, the rest fade.
+//
+// Given `fold`, the rows with one mission each wait behind a last row that
+// opens them, so a long tail of single places doesn't fill the card. Chosen
+// ones stay in view.
 export default function StatusBars({
   rows,
   picked,
   onToggle,
+  fold,
 }: {
   rows: StatusRow[];
   picked: string[];
   onToggle: (key: string) => void;
+  // What the rows are, for the last row's words: "places".
+  fold?: string;
 }) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const { pointed, handlers, clear, hint } = usePointed<string>();
   // Where the pointed row's bar ends, for its note.
   const [at, setAt] = useState({ x: 0, y: 0 });
+  const [unfolded, setUnfolded] = useState(false);
   const most = Math.max(1, ...rows.map(({ total }) => total));
   const row = rows.find(({ key }) => key === pointed);
+  const folded = fold
+    ? rows.filter(({ key, total }) => total === 1 && !picked.includes(key))
+    : [];
+  // A lone single shows as itself rather than behind a row of its own.
+  const folds = folded.length > 1;
+  const shown =
+    folds && !unfolded ? rows.filter((one) => !folded.includes(one)) : rows;
 
   function place(event: React.SyntheticEvent<HTMLElement>) {
     const bar = event.currentTarget.querySelector("[data-bar]");
@@ -47,7 +62,7 @@ export default function StatusBars({
         )}
 
         <ul className="space-y-0.5">
-          {rows.map((one) => {
+          {shown.map((one) => {
             const { onPointerEnter, onFocus, onPointerDown, ...rest } =
               handlers(one.key, () => onToggle(one.key));
             const chosen = picked.includes(one.key);
@@ -112,6 +127,31 @@ export default function StatusBars({
               </li>
             );
           })}
+
+          {folds && (
+            <li>
+              <button
+                type="button"
+                aria-expanded={unfolded}
+                onClick={() => setUnfolded(!unfolded)}
+                className="mt-1 flex items-center gap-1.5 rounded px-1.5 py-1 text-sm text-accent outline-none hover:underline focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                {unfolded
+                  ? "Show fewer"
+                  : `${folded.length} more ${fold}, one mission each`}
+                <svg
+                  viewBox="0 0 12 12"
+                  className={`size-3 shrink-0 transition-transform ${unfolded ? "rotate-180" : ""}`}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  aria-hidden
+                >
+                  <path d="M3 4.5 6 7.5 9 4.5" />
+                </svg>
+              </button>
+            </li>
+          )}
         </ul>
 
         {row && (

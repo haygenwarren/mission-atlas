@@ -17,7 +17,6 @@ export const metadata: Metadata = {
 // ahead of time cannot know, so it waits behind Suspense until the browser
 // has them.
 export default async function DataPage() {
-  const now = new Date();
   const rows = await prisma.mission.findMany({
     select: {
       slug: true,
@@ -25,8 +24,6 @@ export default async function DataPage() {
       status: true,
       discipline: true,
       launchDate: true,
-      lastContact: true,
-      endDeclared: true,
       agencies: {
         select: { abbreviation: true, name: true },
         orderBy: { id: "asc" },
@@ -39,7 +36,7 @@ export default async function DataPage() {
     },
     orderBy: { launchDate: "asc" },
   });
-  const missions = rows.map((row) => missionFacts(row, now));
+  const missions = rows.map(missionFacts);
 
   return (
     <main>

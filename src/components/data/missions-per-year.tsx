@@ -60,7 +60,6 @@ export default function MissionsPerYear({
   return (
     <Card
       label="Launches"
-      title="Missions per year"
       controls={
         <Switch
           label="Colour by"

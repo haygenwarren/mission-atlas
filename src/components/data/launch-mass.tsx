@@ -92,8 +92,28 @@ export default function LaunchMass({
 
   return (
     <Card
-      label="Size"
-      title="Launch mass"
+      label="Launch mass"
+      note={
+        <>
+          {lightest && heaviest && lightest !== heaviest && (
+            <p>
+              From {lightest.name} at {massFormat(lightest.massKg)} to{" "}
+              {heaviest.name} at {massFormat(heaviest.massKg)}.
+            </p>
+          )}
+          <p>
+            The scale grows by powers of ten: from 100 kg to 1,000 kg takes as
+            much room as from 1,000 kg to 10,000 kg.
+          </p>
+          <p>
+            A mission&rsquo;s mass is its spacecraft&rsquo;s launch masses
+            added up, as the catalogue records them, so a rover catalogued on
+            its own, such as Spirit, appears without its cruise stage.
+            {unweighed > 0 &&
+              ` ${unweighed} mission${unweighed === 1 ? " has" : "s have"} no recorded mass.`}
+          </p>
+        </>
+      }
       controls={
         <Switch
           label="Colour by"
@@ -103,22 +123,7 @@ export default function LaunchMass({
         />
       }
     >
-      <p className="max-w-3xl text-sm text-muted">
-        {lightest && heaviest && lightest !== heaviest
-          ? `From ${lightest.name} at ${massFormat(lightest.massKg)} to ${heaviest.name} at ${massFormat(heaviest.massKg)}. `
-          : ""}
-        The scale grows by powers of ten: from 100 kg to 1,000 kg takes as much
-        room as from 1,000 kg to 10,000 kg. A mission&rsquo;s mass is its
-        spacecraft&rsquo;s launch masses added up, as the catalogue records
-        them, so a rover catalogued on its own, such as Spirit, appears
-        without its cruise stage.
-        {unweighed > 0 &&
-          ` ${unweighed} mission${unweighed === 1 ? " has" : "s have"} no recorded mass.`}
-      </p>
-
-      <div className="mt-4">
-        <Legend items={COLOURINGS[mode].items} />
-      </div>
+      <Legend items={COLOURINGS[mode].items} />
 
       <div ref={ref} className="relative mt-4" onPointerDown={clear}>
         {width > 0 && (

@@ -45,9 +45,6 @@ export type MissionFacts = {
   group: Group;
   launchDate: string;
   launchYear: number;
-  // Days from launch to its last contact (or declared end), or to now
-  // while it is active; null when its end is not known.
-  days: number | null;
   agencies: { abbreviation: string; name: string }[];
   destinations: { slug: string; name: string; kind: DestinationKind }[];
   // Its craft's launch masses added up, since a carried craft (Huygens
@@ -62,8 +59,6 @@ type MissionRow = {
   status: Status;
   discipline: Discipline;
   launchDate: Date;
-  lastContact: Date | null;
-  endDeclared: Date | null;
   agencies: { abbreviation: string; name: string }[];
   destinations: { slug: string; name: string; kind: DestinationKind }[];
   spacecraft: { launchMassKg: number | null }[];
@@ -92,11 +87,7 @@ export function groupOf(mission: {
   return "outer";
 }
 
-export function missionFacts(row: MissionRow, now: Date): MissionFacts {
-  const end =
-    row.lastContact ??
-    row.endDeclared ??
-    (row.status === "ACTIVE" ? now : null);
+export function missionFacts(row: MissionRow): MissionFacts {
   const masses = row.spacecraft
     .map(({ launchMassKg }) => launchMassKg)
     .filter((mass) => mass !== null);
@@ -108,7 +99,6 @@ export function missionFacts(row: MissionRow, now: Date): MissionFacts {
     group: groupOf(row),
     launchDate: row.launchDate.toISOString(),
     launchYear: row.launchDate.getUTCFullYear(),
-    days: end && (end.getTime() - row.launchDate.getTime()) / 86_400_000,
     agencies: row.agencies,
     destinations: row.destinations,
     massKg:
@@ -253,10 +243,6 @@ export function headline(missions: MissionFacts[]) {
         agencies.map(({ abbreviation }) => abbreviation),
       ),
     ).size,
-    // Every mission's time in space added up.
-    years:
-      missions.reduce((sum, { days }) => sum + Math.max(0, days ?? 0), 0) /
-      365.25,
   };
 }
 

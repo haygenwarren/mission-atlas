@@ -151,29 +151,116 @@ export function Legend({
   );
 }
 
-// A card on the dashboard: what it shows, with any switches beside it.
+// A card on the dashboard: its name, a note on how to read it behind an
+// ⓘ, any switches beside it, and the chart.
 export function Card({
   label,
-  title,
+  note,
   controls,
   children,
 }: {
   label: string;
-  title: string;
+  note?: React.ReactNode;
   controls?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <section className="rounded-xl border border-border bg-surface p-4 sm:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="label-caps text-muted">{label}</p>
-          <h2 className="mt-1 text-lg font-semibold">{title}</h2>
+      <div className="relative flex min-h-7 flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5">
+          <h2 className="label-caps text-muted">{label}</h2>
+          {note && <Note label={label}>{note}</Note>}
         </div>
         {controls}
       </div>
       <div className="mt-4">{children}</div>
     </section>
+  );
+}
+
+// An ⓘ that shows a card's note: while the mouse is over it, or once
+// clicked or tapped until a click elsewhere or Escape. The note opens
+// below the card's heading, from the card's left edge, so it stays on
+// screen on a phone.
+function Note({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const ref = useRef<HTMLButtonElement>(null);
+  const noteRef = useRef<HTMLDivElement>(null);
+  const id = `note-${label.toLowerCase().replace(/\W+/g, "-")}`;
+
+  useEffect(() => {
+    if (!open) return;
+
+    function onPointerDown(event: PointerEvent) {
+      const target = event.target as Node;
+
+      if (!ref.current?.contains(target) && !noteRef.current?.contains(target)) {
+        setOpen(false);
+      }
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  return (
+    <>
+      <button
+        ref={ref}
+        type="button"
+        aria-label={`About ${label.toLowerCase()}`}
+        aria-expanded={open}
+        aria-controls={id}
+        onClick={() => setOpen(!open)}
+        onPointerEnter={(event) => {
+          if (event.pointerType === "mouse") setHovered(true);
+        }}
+        onPointerLeave={(event) => {
+          if (event.pointerType === "mouse") setHovered(false);
+        }}
+        className={`flex size-5 items-center justify-center rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+          open ? "text-foreground" : "text-muted hover:text-foreground"
+        }`}
+      >
+        <svg
+          viewBox="0 0 16 16"
+          className="size-3.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          aria-hidden
+        >
+          <circle cx="8" cy="8" r="6.5" />
+          <path d="M8 7.2v4" strokeLinecap="round" />
+          <circle cx="8" cy="4.9" r="0.4" fill="currentColor" />
+        </svg>
+      </button>
+      <div
+        ref={noteRef}
+        id={id}
+        role="note"
+        hidden={!open && !hovered}
+        className="absolute top-full left-0 z-20 mt-2 w-max max-w-[min(24rem,100%)] space-y-2 rounded-lg border border-border-strong bg-background px-3 py-2.5 text-sm text-muted shadow-lg"
+      >
+        {children}
+      </div>
+    </>
   );
 }
 
