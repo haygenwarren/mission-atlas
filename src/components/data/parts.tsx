@@ -168,7 +168,7 @@ export function Card({
     <section className="rounded-xl border border-border bg-surface p-4 sm:p-5">
       <div className="relative flex min-h-7 flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1.5">
-          <h2 className="label-caps text-muted">{label}</h2>
+          <h2 className="text-lg font-semibold">{label}</h2>
           {note && <Note label={label}>{note}</Note>}
         </div>
         {controls}
@@ -240,7 +240,7 @@ function Note({
       >
         <svg
           viewBox="0 0 16 16"
-          className="size-3.5"
+          className="size-4"
           fill="none"
           stroke="currentColor"
           strokeWidth="1.4"
