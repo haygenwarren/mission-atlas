@@ -67,6 +67,12 @@ export default async function MissionsPage({ searchParams }: PageProps) {
   const agency = first(params.agency);
   const destination = first(params.destination);
   const builder = first(params.builder);
+  // A launch year, from the data page's chart of missions per year.
+  const yearParam = Number.parseInt(first(params.year) ?? "", 10);
+  const year =
+    Number.isInteger(yearParam) && yearParam > 1900 && yearParam < 3000
+      ? yearParam
+      : undefined;
   const sortParam = first(params.sort);
   const sort =
     sortParam && Object.hasOwn(sortOrders, sortParam) ? sortParam : "newest";
@@ -83,6 +89,13 @@ export default async function MissionsPage({ searchParams }: PageProps) {
 
   if (destination) {
     where.destinations = { some: { slug: destination } };
+  }
+
+  if (year) {
+    where.launchDate = {
+      gte: new Date(Date.UTC(year, 0, 1)),
+      lt: new Date(Date.UTC(year + 1, 0, 1)),
+    };
   }
 
   // Type and builder must match on the same craft: "a rover built by JPL".
@@ -116,18 +129,25 @@ export default async function MissionsPage({ searchParams }: PageProps) {
   const requestedPage = Number.parseInt(first(params.page) ?? "1", 10) || 1;
   const page = Math.min(Math.max(requestedPage, 1), pageCount);
 
-  const [missions, agencies, destinations, builders] = await Promise.all([
-    prisma.mission.findMany({
-      where,
-      orderBy: sortOrders[sort].orderBy,
-      select: missionTileSelect,
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-    }),
-    prisma.agency.findMany({ orderBy: { abbreviation: "asc" } }),
-    prisma.destination.findMany({ orderBy: { name: "asc" } }),
-    prisma.builder.findMany({ orderBy: { name: "asc" } }),
-  ]);
+  const [missions, agencies, destinations, builders, launches] =
+    await Promise.all([
+      prisma.mission.findMany({
+        where,
+        orderBy: sortOrders[sort].orderBy,
+        select: missionTileSelect,
+        skip: (page - 1) * PAGE_SIZE,
+        take: PAGE_SIZE,
+      }),
+      prisma.agency.findMany({ orderBy: { abbreviation: "asc" } }),
+      prisma.destination.findMany({ orderBy: { name: "asc" } }),
+      prisma.builder.findMany({ orderBy: { name: "asc" } }),
+      prisma.mission.findMany({ select: { launchDate: true } }),
+    ]);
+
+  // The years with a launch, newest first.
+  const years = [
+    ...new Set(launches.map(({ launchDate }) => launchDate.getUTCFullYear())),
+  ].sort((a, b) => b - a);
 
   const filters = {
     q,
@@ -136,6 +156,7 @@ export default async function MissionsPage({ searchParams }: PageProps) {
     destination,
     type: kind?.toLowerCase(),
     builder,
+    year: year && String(year),
     sort: sort === "newest" ? undefined : sort,
   };
 
@@ -262,6 +283,20 @@ export default async function MissionsPage({ searchParams }: PageProps) {
             {builders.map((option) => (
               <option key={option.id} value={option.code}>
                 {option.name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            name="year"
+            defaultValue={filters.year ?? ""}
+            aria-label="Launch year"
+            className={selectClasses}
+          >
+            <option value="">All launch years</option>
+            {years.map((option) => (
+              <option key={option} value={option}>
+                Launched in {option}
               </option>
             ))}
           </select>
