@@ -1,18 +1,30 @@
 import Image from "next/image";
 
 // A mission's picture filling a frame of the given shape, cropped to fit.
+// `first` marks a picture at the top of the page, fetched straight away
+// rather than when scrolled near.
 export default function MissionImage({
   src,
   sizes,
   className = "",
+  first = false,
 }: {
   src: string;
   sizes: string;
   className?: string;
+  first?: boolean;
 }) {
   return (
     <div className={`relative overflow-hidden bg-picture ${className}`}>
-      <Image src={src} alt="" fill sizes={sizes} className="object-cover" />
+      <Image
+        src={src}
+        alt=""
+        fill
+        sizes={sizes}
+        preload={first}
+        fetchPriority={first ? "high" : undefined}
+        className="object-cover"
+      />
     </div>
   );
 }

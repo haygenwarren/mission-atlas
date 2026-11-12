@@ -10,13 +10,12 @@ import {
 } from "@/lib/missions";
 import { prisma } from "@/lib/prisma";
 import { sample } from "@/lib/random";
+import { AUTHOR, REPOSITORY } from "@/lib/site";
 
 export const revalidate = 3600;
 
 // How many missions each hourly rebuild hands the browser to pick from.
 const FEATURED_POOL_SIZE = 24;
-
-const REPOSITORY = "https://github.com/haygenwarren/mission-atlas";
 
 const dayFormat = new Intl.DateTimeFormat("en-GB", {
   dateStyle: "long",
@@ -141,6 +140,13 @@ export default async function Home() {
               refreshed every day. Pictures come from Wikimedia Commons.
               Mission details are checked against the agencies&apos; own pages
               and NASA&apos;s space science data archive.
+            </p>
+            <p>
+              Mission Atlas is designed and built by{" "}
+              <a href={AUTHOR.github} className="text-accent underline">
+                {AUTHOR.name}
+              </a>
+              .
             </p>
           </div>
 
