@@ -1,6 +1,6 @@
 {
   "source": "JPL Horizons (ssd.jpl.nasa.gov/horizons)",
-  "fetched": "2026-11-12",
+  "fetched": "2026-11-13",
   "from": -14975.5,
   "until": 13453.5,
   "accuracy": {"from":9710.5,"until":10530.5,"nearKm":1000,"farKm":75000},
