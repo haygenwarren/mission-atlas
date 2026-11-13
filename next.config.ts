@@ -15,6 +15,19 @@ const nextConfig: NextConfig = {
     "/map": ["./public/positions.json", "./public/local/index.json"],
     "/missions/*": ["./public/positions.json", "./public/local/index.json"],
   },
+  // The site lives at mission-atlas.net. Its first address, from before the
+  // domain, sends visitors and search engines there, keeping the path.
+  // Preview deployments have their own addresses and are unaffected.
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "mission-atlas-delta.vercel.app" }],
+        destination: "https://mission-atlas.net/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

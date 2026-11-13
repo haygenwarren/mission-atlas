@@ -7,6 +7,8 @@
 
 Mission Atlas is an archive of robotic planetary science and astrophysics missions, from Luna 2 in 1959 to missions still on their way. It covers 100 missions and their 125 spacecraft from NASA, ESA, JAXA, ISRO, CNSA, the Soviet programme and others, with when each launched, where it went, who built it and how it ended.
 
+**Visit it at [mission-atlas.net](https://mission-atlas.net).**
+
 ![The Mission Atlas home page](docs/screenshots/home.png)
 
 ## About this project
