@@ -8,8 +8,15 @@ import {
   type MissionTileData,
 } from "@/lib/missions";
 
-// The picture's credit is on the mission page the tile links to.
-export default function MissionTile({ mission }: { mission: MissionTileData }) {
+// The picture's credit is on the mission page the tile links to. `first`
+// marks a tile in the archive's first row, whose picture loads at once.
+export default function MissionTile({
+  mission,
+  first = false,
+}: {
+  mission: MissionTileData;
+  first?: boolean;
+}) {
   return (
     <Link
       href={`/missions/${mission.slug}`}
@@ -20,6 +27,7 @@ export default function MissionTile({ mission }: { mission: MissionTileData }) {
           src={mission.imageUrl}
           sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
           className="aspect-[3/2]"
+          first={first}
         />
       ) : (
         <div className="flex aspect-[3/2] items-center justify-center bg-picture">

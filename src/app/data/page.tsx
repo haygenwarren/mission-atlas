@@ -55,7 +55,9 @@ export default async function DataPage() {
 
       <Suspense
         fallback={
-          <p className="mx-auto max-w-5xl px-6 py-16 text-muted">
+          // Tall enough to keep the footer out of view, so it doesn't jump
+          // when the charts arrive.
+          <p className="mx-auto min-h-[150vh] max-w-5xl px-6 py-16 text-muted">
             Loading the charts…
           </p>
         }

@@ -9,6 +9,17 @@ Mission Atlas is an archive of robotic planetary science and astrophysics missio
 
 ![The Mission Atlas home page](docs/screenshots/home.png)
 
+## About this project
+
+Mission Atlas is a personal project by Haygen Warren. Highlights:
+
+- **Full-stack web app:** Next.js 16 and React 19 in TypeScript, with a PostgreSQL database (Neon) reached through Prisma, deployed on Vercel. Every pull request gets its own preview site on a separate database branch, and every merge redeploys the site and reloads its data.
+- **Curated dataset:** 100 missions and 125 spacecraft, assembled from Jonathan McDowell's GCAT catalogue, agency pages and NASA's archives, with 417 milestones. The data lives in reviewed files in the repository and is loaded into the database on every deploy.
+- **Orbital mechanics:** positions of planets, moons, comets and spacecraft come from NASA JPL's Horizons system and are rebuilt in the browser from Kepler orbits and Hermite interpolation, within 1,000 km of JPL's figures near the present.
+- **Automation:** a daily GitHub Actions job refreshes the positions from Horizons, checks them, and commits them (which redeploys the site) only when they have changed.
+- **Interactive graphics without chart or map libraries:** a canvas map of the solar system that replays each mission's journey, and a cross-filtering data dashboard drawn in SVG.
+- **Accessible:** keyboard and screen-reader support, light and dark themes, and a Lighthouse accessibility score of 100 on every main page.
+
 ## Features
 
 - **Home page:** opens on a quarter of the live map, the Sun in the bottom-left corner, with the search laid over it. Scrolling down, or clicking the map, glides the map to the middle of the screen; there, hovering shows where a craft is and its path, and clicking opens the full map on it. Below come a Mission of the Day (the same for everyone, changing at midnight UTC, with every mission taking a turn before any repeats), the archive's numbers, six featured missions picked on each visit, and an about section.
@@ -26,6 +37,8 @@ Mission Atlas is an archive of robotic planetary science and astrophysics missio
 | Mission page | Archive, light theme |
 | --- | --- |
 | ![Cassini-Huygens mission page](docs/screenshots/mission.png) | ![Archive filtered to Mars missions](docs/screenshots/archive.png) |
+| **Journey replay: Cassini at Saturn** | **Data page** |
+| ![Cassini's orbits building up around Saturn during its journey replay](docs/screenshots/replay.png) | ![The data page's filters, headline numbers and launches per year](docs/screenshots/data.png) |
 
 ![The map, out to Jupiter](docs/screenshots/map.png)
 
@@ -170,14 +183,19 @@ public/
   images/missions/       mission pictures
 src/
   app/                   pages: home, map, archive, mission page, data,
-                         not-found
+                         not-found; the sitemap and robots.txt
   components/            tiles, status tags, theme switch, navbar
     data/                the data page's dashboard and charts
     map/                 the map: camera, drawing, controls, the replay
                          player, and the home page's smaller version
-  lib/                   database client, formatting helpers, orbit maths,
+  lib/                   the site's address and author, database client,
+                         formatting helpers, orbit maths,
                          where each craft is on the map, journey replays,
                          the data page's numbers
 branding/                logo, colours and type
 docs/                    mission list and screenshots
 ```
+
+## Copyright
+
+© 2026 Haygen Warren. All rights reserved. The code is public so it can be read, but it is not licensed for reuse. The data and pictures the site uses keep their own licences; see [Data sources and credits](#data-sources-and-credits).

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Archivo, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
+import { AUTHOR, REPOSITORY, siteUrl } from "@/lib/site";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -15,17 +16,13 @@ const plexMono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
 });
 
-// Absolute base for link-preview image URLs. Vercel sets this variable to
-// the production domain; local builds fall back to localhost.
-const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : "http://localhost:3000";
-
 export const metadata: Metadata = {
+  // The absolute base for link-preview image URLs.
   metadataBase: new URL(siteUrl),
   title: { default: "Mission Atlas", template: "%s | Mission Atlas" },
   description:
     "An archive of planetary science and astrophysics missions, with the spacecraft, dates and destinations of each.",
+  authors: [{ name: AUTHOR.name, url: AUTHOR.github }],
   manifest: "/site.webmanifest",
   // Keeps the site out of search results until v1 launch; remove then.
   robots: { index: false, follow: false },
@@ -58,6 +55,16 @@ export default function RootLayout({
         <Navbar />
         {children}
         <footer className="mx-auto max-w-5xl space-y-1 px-6 py-8 text-sm text-muted">
+          <p className="pb-2 text-foreground">
+            Built by{" "}
+            <a href={AUTHOR.github} className="text-accent underline">
+              {AUTHOR.name}
+            </a>{" "}
+            ·{" "}
+            <a href={REPOSITORY} className="text-accent underline">
+              Code on GitHub
+            </a>
+          </p>
           <p>
             Launch and spacecraft data from{" "}
             <a

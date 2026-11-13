@@ -67,10 +67,12 @@ export default function DecadeHeatmap({
 
   return (
     <div ref={ref} className="relative" onPointerDown={clear}>
+      {/* The names take at most 28% of the width, so on a phone the
+          squares stay big enough to tap; there the names wrap instead. */}
       <div
-        className="grid gap-1 text-xs"
+        className="grid gap-0.5 text-xs sm:gap-1"
         style={{
-          gridTemplateColumns: `minmax(5.5rem, 11rem) repeat(${decades.length}, minmax(0, 1fr))`,
+          gridTemplateColumns: `clamp(5.5rem, 28%, 11rem) repeat(${decades.length}, minmax(0, 1fr))`,
         }}
       >
         <span />
@@ -86,13 +88,13 @@ export default function DecadeHeatmap({
 
         {GROUPS.map(({ key, label }) => (
           <div key={key} className="contents">
-            <span className="flex items-center gap-1.5 pr-1 text-sm">
+            <span className="flex items-center gap-1.5 pr-1 text-xs leading-tight sm:text-sm">
               <span
                 aria-hidden
                 className="size-2.5 shrink-0 rounded-sm"
                 style={{ background: `var(--chart-${key})` }}
               />
-              <span className="truncate" title={label}>
+              <span className="sm:truncate" title={label}>
                 {label}
               </span>
             </span>

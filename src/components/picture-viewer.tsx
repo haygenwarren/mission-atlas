@@ -39,6 +39,7 @@ export default function PictureViewer({
           fill
           sizes="(min-width: 1024px) 976px, 100vw"
           preload
+          fetchPriority="high"
           className="object-cover"
         />
         <span

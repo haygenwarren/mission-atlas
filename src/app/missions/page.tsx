@@ -345,8 +345,8 @@ export default async function MissionsPage({ searchParams }: PageProps) {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {missions.map((mission) => (
-            <MissionTile key={mission.id} mission={mission} />
+          {missions.map((mission, i) => (
+            <MissionTile key={mission.id} mission={mission} first={i < 3} />
           ))}
         </div>
       )}
