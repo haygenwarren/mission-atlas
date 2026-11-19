@@ -24,6 +24,8 @@ export const metadata: Metadata = {
     "An archive of planetary science and astrophysics missions, with the spacecraft, dates and destinations of each.",
   authors: [{ name: AUTHOR.name, url: AUTHOR.github }],
   manifest: "/site.webmanifest",
+  // X shows the link-preview picture large rather than as a thumbnail.
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {

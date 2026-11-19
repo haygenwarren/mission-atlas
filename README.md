@@ -34,6 +34,7 @@ Mission Atlas is a personal project by Haygen Warren. Highlights:
 - **Milestones:** each mission's key events (launch, flybys, arrivals, landings, sample returns, the end) labelled along a timeline from launch to today or the last planned event. Clicking an event slides the timeline aside and writes out what happened, with buttons to step to the events either side. Where events bunch together, the timeline spreads them out and shortens long quiet stretches so every label fits. Planned events are marked until they happen. Every mission has them.
 - **Data page:** a dashboard of the archive, with a filter bar that stays in view: status, where missions went (six groups, or single places), agency and a launch-year range with quick picks such as the Space Race. Every card updates together: headline numbers (missions, active, agencies), missions per year, destinations (groups, or places with the one-mission places folded away), agencies, a decade-by-destination heatmap, and each mission's launch mass. Notes on how to read a card sit behind an ⓘ beside its name. Clicking a year, bar or square filters the page to it; each chart still shows the other choices the filters allow, so they can be added. Charts can be coloured by destination, agency or status. The filters live in the address, so a filtered view can be shared, and a link opens the same missions in the archive when its filters can express them. The charts are drawn by the site's own components, in its colours and themes.
 - **Linked facts:** every agency, destination, spacecraft type and builder links to the archive filtered by it.
+- **Link previews:** a shared mission page shows that mission's own card, drawn on the server from its picture, name, status, agencies, launch year and destinations. Every other page shows a quarter of the map beside the home page's headline.
 - **Light and dark themes:** dark by default, with a sun and moon switch in the navbar that remembers the visitor's choice.
 
 | Mission page | Archive, light theme |
@@ -194,6 +195,7 @@ src/
                          formatting helpers, orbit maths,
                          where each craft is on the map, journey replays,
                          the data page's numbers
+assets/fonts/            static copies of the fonts, for the link-preview cards
 branding/                logo, colours and type
 docs/                    mission list and screenshots
 ```
