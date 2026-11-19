@@ -57,10 +57,10 @@ export default function RootLayout({
       <body>
         <Navbar />
         {children}
-        {/* The logo on one side, the data credits on the other; stacked on
-            phones. */}
+        {/* The logo on one side, the data credits on the other, each credit
+            on one line. Stacked until the screen is wide enough for both. */}
         <footer className="border-t border-border bg-surface/50">
-          <div className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-8 text-sm text-muted md:flex-row md:items-end md:justify-between md:gap-12">
+          <div className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-8 text-sm text-muted lg:flex-row lg:items-end lg:justify-between lg:gap-12">
             <div className="shrink-0 space-y-3">
               <Link
                 href="/"
@@ -84,7 +84,7 @@ export default function RootLayout({
               </p>
             </div>
 
-            <div className="max-w-xl space-y-1 md:text-right">
+            <div className="space-y-1 lg:text-right">
               <p>
                 Launch and spacecraft data from{" "}
                 <a
