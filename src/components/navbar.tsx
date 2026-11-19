@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import ThemeToggle from "@/components/theme-toggle";
+import Wordmark from "@/components/wordmark";
 
 export default function Navbar() {
   return (
@@ -20,27 +21,8 @@ export default function Navbar() {
             unoptimized
             priority
           />
-          {/* The kit has one wordmark per background; CSS shows the one that
-              suits the current theme. */}
           <span className="hidden sm:block">
-            <Image
-              src="/brand/mission-atlas-wordmark-on-dark.svg"
-              alt="Mission Atlas"
-              width={191}
-              height={14}
-              unoptimized
-              priority
-              className="light:hidden"
-            />
-            <Image
-              src="/brand/mission-atlas-wordmark-on-light.svg"
-              alt="Mission Atlas"
-              width={191}
-              height={14}
-              unoptimized
-              priority
-              className="hidden light:block"
-            />
+            <Wordmark priority />
           </span>
         </Link>
 

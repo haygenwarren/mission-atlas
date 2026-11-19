@@ -1,0 +1,168 @@
+// The brand emblem, drawn inline so parts of it can move: signals stream
+// along the tracking lines from the ground station to the three missions,
+// the dashed orbit drifts, the active mission's node pulses like a craft on
+// the map, and the stars twinkle. It holds still for visitors who ask their
+// device for less motion. Copied from public/brand/mission-atlas-emblem.svg;
+// the colours are the emblem's own, the same in both themes.
+
+const COASTLINE = "M354.6 459.2 L353.2 456.4 L344.2 453.9 L340.2 449.9 L339.1 451.5 L342.8 453.6 L330.1 455.0 L333.6 462.5 L329.0 464.6 L325.4 460.2 L329.1 456.5 L326.1 451.5 L332.4 449.2 L327.8 447.1 L316.2 451.6 L299.5 453.9 L297.8 460.1 L288.1 464.0 L289.2 467.6 L280.8 461.1 L271.0 458.4 L254.5 462.4 L247.5 461.6 L233.6 449.8 L239.1 434.5 L237.8 430.1 L234.8 430.4 L226.0 427.1 L195.6 429.5 L200.6 425.2 L202.6 418.8 L200.6 418.2 L202.8 416.1 L205.1 417.5 L207.9 412.8 L205.9 412.5 L212.5 404.6 L188.2 407.9 L178.8 419.4 L155.5 424.4 L145.2 423.4 L134.6 414.0 L133.9 410.8 L142.1 397.0 L139.4 393.0 L148.5 387.4 L157.8 385.1 L161.5 382.1 L162.8 382.9 L168.0 380.6 L181.2 379.1 L198.2 379.9 L200.4 379.2 L195.9 378.2 L198.2 376.9 L191.6 377.2 L208.0 374.1 L235.8 374.4 L244.5 377.6 L243.1 381.0 L246.0 380.6 L244.1 382.0 L248.5 383.6 L255.0 389.6 L259.8 389.4 L262.9 384.2 L254.1 374.8 L252.9 371.0 L257.5 367.9 L259.2 368.1 L267.8 366.1 L270.2 364.6 L276.2 364.4 L279.5 362.6 L285.8 363.1 L284.5 361.1 L289.5 361.4 L289.5 360.6 L287.8 361.1 L287.5 360.4 L283.8 360.4 L283.4 360.0 L288.9 360.0 L285.5 356.6 L282.4 356.0 L283.8 355.9 L284.5 354.1 L289.4 356.8 L288.2 358.1 L293.1 356.0 L290.2 354.4 L293.5 355.4 L297.8 354.1 L298.2 354.4 L297.0 352.9 L309.1 353.5 L300.0 352.6 L313.0 352.9 L318.0 353.6 L314.9 352.5 L320.5 351.4 L345.6 353.8 L341.0 352.6 L340.8 351.9 L306.0 346.6 L271.0 344.1 L201.8 347.1 L134.5 360.4 L69.7 383.9 L93.3 412.8 L121.2 437.4 L138.8 438.1 L155.0 432.6 L158.0 433.1 L162.8 434.9 L175.5 440.4 L205.8 440.6 L207.1 442.0 L204.5 443.1 L218.9 451.2 L219.8 457.4 L223.8 458.9 L225.4 457.2 L222.6 455.5 L225.8 456.4 L241.0 466.1 L246.2 464.9 L253.8 468.6 L255.5 467.1 L258.0 470.9 L263.8 469.4 L260.1 465.5 L268.2 461.1 L278.8 464.1 L281.1 466.0 L276.4 466.8 L284.6 474.8 L284.4 480.2 L320.3 472.7Z M307.1 410.2 L282.0 402.1 L280.2 402.4 L273.0 399.9 L269.0 399.9 L258.5 396.9 L239.2 397.6 L227.4 402.2 L250.2 398.6 L248.1 399.8 L272.8 402.9 L285.1 408.0 L281.0 410.1Z M350.6 421.8 L331.2 413.6 L313.0 412.1 L320.9 418.0 L305.1 417.5 L323.5 419.9 L328.0 422.9 L332.0 420.4Z";
+
+// Each tracking line runs from the ground station to one mission's node.
+const STATION = { x: 246, y: 344.1 };
+const missions = [
+  { x: 104.5, y: 201.4, halo: 21, node: 13, colour: "#EFE8D6", delay: "0s" },
+  { x: 353, y: 145.1, halo: 23, node: 15, colour: "#C4BCF1", delay: "-0.4s" },
+  { x: 386.3, y: 321.6, halo: 19, node: 11, colour: "#EFE8D6", delay: "-0.8s" },
+];
+const active = missions[1];
+
+const stars = [
+  { x: 340, y: 92, r: 2.6, delay: "0s" },
+  { x: 436, y: 168, r: 2.2, delay: "-1.6s" },
+  { x: 92, y: 292, r: 2, delay: "-2.4s" },
+  { x: 236, y: 104, r: 1.8, delay: "-0.8s" },
+];
+
+export default function AboutEmblem({ className = "" }: { className?: string }) {
+  return (
+    <div className={`relative isolate ${className}`}>
+      {/* A soft glow behind the disc. */}
+      <div
+        aria-hidden
+        className="absolute inset-[6%] -z-10 rounded-full bg-accent/25 blur-3xl light:bg-accent/15"
+      />
+      <svg viewBox="0 0 512 512" aria-hidden className="size-full">
+        <defs>
+          <clipPath id="about-emblem-disc">
+            <circle cx="256" cy="256" r="225" />
+          </clipPath>
+        </defs>
+        <circle cx="256" cy="256" r="225" fill="#191C3C" />
+        <g clipPath="url(#about-emblem-disc)">
+          <g
+            stroke="#EFE8D6"
+            strokeWidth="3"
+            strokeLinecap="round"
+            opacity=".7"
+            className="motion-safe:animate-twinkle [animation-delay:-3.2s]"
+          >
+            <line x1="140" y1="146" x2="156" y2="146" />
+            <line x1="148" y1="138" x2="148" y2="154" />
+          </g>
+          {stars.map(({ x, y, r, delay }) => (
+            <circle
+              key={`${x},${y}`}
+              cx={x}
+              cy={y}
+              r={r}
+              fill="#EFE8D6"
+              opacity=".55"
+              className="motion-safe:animate-twinkle"
+              style={{ animationDelay: delay }}
+            />
+          ))}
+
+          {/* Earth: ocean, then land. */}
+          <circle cx="256" cy="800" r="456" fill="#2A2C5F" />
+          <path d={COASTLINE} fill="#55529F" />
+
+          {missions.map(({ x, y, delay }) => (
+            <line
+              key={`track ${x}`}
+              x1={STATION.x}
+              y1={STATION.y}
+              x2={x}
+              y2={y}
+              stroke="#C4BCF1"
+              strokeOpacity="0.85"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeDasharray="6 8"
+              className="motion-safe:animate-signal"
+              style={{ animationDelay: delay }}
+            />
+          ))}
+
+          <path
+            d="M79.48 368.29 A240 236 -30 1 1 548.95 437.66"
+            fill="none"
+            stroke="#EFE8D6"
+            strokeWidth="9.5"
+            strokeLinecap="round"
+          />
+          <path
+            d="M-28.62 431.34 A236 196 26 0 1 405.12 359.01"
+            fill="none"
+            stroke="#968DD3"
+            strokeWidth="9.5"
+            strokeLinecap="round"
+            strokeDasharray="20.9 18.1"
+            className="motion-safe:animate-orbit-drift"
+          />
+          {/* Earth's limb. */}
+          <circle
+            cx="256"
+            cy="800"
+            r="456"
+            fill="none"
+            stroke="#EFE8D6"
+            strokeWidth="9"
+          />
+
+          {missions.map(({ x, y, halo, node, colour }) => (
+            <g key={`node ${x}`}>
+              <circle cx={x} cy={y} r={halo} fill="#191C3C" />
+              <circle cx={x} cy={y} r={node} fill={colour} />
+            </g>
+          ))}
+          <circle
+            cx={active.x}
+            cy={active.y}
+            r="28"
+            fill="none"
+            stroke="#C4BCF1"
+            strokeOpacity=".5"
+            strokeWidth="2.5"
+          />
+          {/* The pulse, which grows out from the active node and fades. */}
+          <circle
+            cx={active.x}
+            cy={active.y}
+            r={active.node}
+            fill="none"
+            stroke="#C4BCF1"
+            strokeWidth="4"
+            className="origin-center opacity-0 [transform-box:fill-box] motion-safe:animate-craft-pulse"
+          />
+
+          {/* The ground station. */}
+          <circle cx={STATION.x} cy={STATION.y} r="14.8" fill="#2A2C5F" />
+          <circle
+            cx={STATION.x}
+            cy={STATION.y}
+            r="10"
+            fill="#2A2C5F"
+            stroke="#EFE8D6"
+            strokeWidth="5"
+          />
+        </g>
+        <circle
+          cx="256"
+          cy="256"
+          r="232"
+          fill="none"
+          stroke="#EFE8D6"
+          strokeWidth="16"
+        />
+        <circle
+          cx="256"
+          cy="256"
+          r="244"
+          fill="none"
+          stroke="#191C3C"
+          strokeWidth="8"
+        />
+      </svg>
+    </div>
+  );
+}
