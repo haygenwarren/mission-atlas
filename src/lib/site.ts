@@ -9,5 +9,6 @@ export const REPOSITORY = "https://github.com/haygenwarren/mission-atlas";
 
 export const AUTHOR = {
   name: "Haygen Warren",
+  site: "https://haygenwarren.github.io",
   github: "https://github.com/haygenwarren",
 };

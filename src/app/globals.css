@@ -92,6 +92,11 @@
   --animate-title-grow: title-grow 450ms ease-out;
   --animate-panel-in: panel-in 350ms ease-out;
   --animate-craft-pulse: craft-pulse 2.4s linear infinite;
+  /* The About section's emblem: one dash-and-gap of a tracking line, or of
+     the dashed orbit, moves on per cycle, so the motion loops seamlessly. */
+  --animate-signal: signal 1.2s linear infinite;
+  --animate-orbit-drift: orbit-drift 6s linear infinite;
+  --animate-twinkle: twinkle 4s ease-in-out infinite;
 
   @keyframes title-grow {
     from {
@@ -114,6 +119,24 @@
     to {
       transform: scale(2.75);
       opacity: 0;
+    }
+  }
+
+  @keyframes signal {
+    to {
+      stroke-dashoffset: -14;
+    }
+  }
+
+  @keyframes orbit-drift {
+    to {
+      stroke-dashoffset: -39;
+    }
+  }
+
+  @keyframes twinkle {
+    50% {
+      opacity: 0.15;
     }
   }
 }

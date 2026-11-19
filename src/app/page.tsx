@@ -1,4 +1,6 @@
 import Link from "next/link";
+import AboutEmblem from "@/components/about-emblem";
+import ContactDialog from "@/components/contact-dialog";
 import FeaturedMissions from "@/components/featured-missions";
 import HomeHero from "@/components/home-hero";
 import MissionOfTheDay from "@/components/mission-of-the-day";
@@ -10,7 +12,7 @@ import {
 } from "@/lib/missions";
 import { prisma } from "@/lib/prisma";
 import { sample } from "@/lib/random";
-import { AUTHOR, REPOSITORY } from "@/lib/site";
+import { AUTHOR } from "@/lib/site";
 
 export const revalidate = 3600;
 
@@ -22,6 +24,19 @@ const dayFormat = new Intl.DateTimeFormat("en-GB", {
   timeZone: "UTC",
 });
 
+const linkClasses = "text-accent underline";
+
+// The archive's first and latest launches, named in the About section.
+const launchSelect = { slug: true, name: true, launchDate: true } as const;
+
+function MissionLink({ mission }: { mission: { slug: string; name: string } }) {
+  return (
+    <Link href={`/missions/${mission.slug}`} className={linkClasses}>
+      {mission.name}
+    </Link>
+  );
+}
+
 export default async function Home() {
   const today = new Date();
   const [
@@ -31,6 +46,8 @@ export default async function Home() {
     destinationCount,
     pictured,
     map,
+    first,
+    latest,
   ] = await Promise.all([
     prisma.mission.count(),
     prisma.mission.count({ where: { status: "ACTIVE" } }),
@@ -41,6 +58,14 @@ export default async function Home() {
       select: { id: true, slug: true },
     }),
     getMapData(),
+    prisma.mission.findFirstOrThrow({
+      orderBy: { launchDate: "asc" },
+      select: launchSelect,
+    }),
+    prisma.mission.findFirstOrThrow({
+      orderBy: { launchDate: "desc" },
+      select: launchSelect,
+    }),
   ]);
 
   // Only missions with a picture take a turn as Mission of the Day.
@@ -122,44 +147,87 @@ export default async function Home() {
           <FeaturedMissions pool={featuredPool} />
         </section>
 
-        <section id="about" className="max-w-3xl">
-          <h2 className="text-2xl font-semibold">About</h2>
+        {/* The emblem sits beside the text, or above it on phones. */}
+        <section
+          id="about"
+          className="grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_16rem] md:gap-12"
+        >
+          <AboutEmblem className="size-40 md:order-last md:size-64" />
 
-          <div className="mt-4 space-y-4 leading-relaxed text-foreground/90">
-            <p>
-              Mission Atlas follows the robotic missions sent to explore the
-              solar system and to look out beyond it: where each spacecraft is
-              right now, and how it got there. It covers {missionCount}{" "}
-              missions from {agencyCount} space agencies, from Luna 2 in 1959
-              to missions still on their way.
-            </p>
-            <p>
-              Launch times and spacecraft details come from Jonathan
-              McDowell&apos;s General Catalog of Artificial Space Objects.
-              Positions come from NASA JPL&apos;s Horizons system and are
-              refreshed every day. Pictures come from Wikimedia Commons.
-              Mission details are checked against the agencies&apos; own pages
-              and NASA&apos;s space science data archive.
-            </p>
-            <p>
-              Mission Atlas is designed and built by{" "}
-              <a href={AUTHOR.github} className="text-accent underline">
-                {AUTHOR.name}
-              </a>
-              .
-            </p>
-          </div>
+          <div>
+            <h2 className="text-2xl font-semibold">About</h2>
 
-          <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium">
-            <a href={REPOSITORY} className="text-accent hover:underline">
-              The code on GitHub →
-            </a>
-            <a
-              href={`${REPOSITORY}/issues`}
-              className="text-accent hover:underline"
-            >
-              Spotted a mistake? Tell us on GitHub →
-            </a>
+            <div className="mt-4 space-y-4 leading-relaxed text-foreground/90">
+              <p>
+                Mission Atlas is an interactive space mission tracker, built
+                to follow and archive the missions launched by space agencies
+                from around the world. From{" "}
+                <MissionLink mission={first} /> in{" "}
+                {first.launchDate.getUTCFullYear()} to{" "}
+                <MissionLink mission={latest} /> in{" "}
+                {latest.launchDate.getUTCFullYear()}, Mission Atlas can show
+                you where {missionCount}{" "}
+                missions have been, where they&apos;re going, and what they
+                do, all in just a few clicks.
+              </p>
+              <p>
+                Visit the{" "}
+                <Link href="/map" className={linkClasses}>
+                  Map
+                </Link>{" "}
+                for a live map of our solar system, showing where landers,
+                orbiters, and telescopes are now and the trajectories that took
+                them there. Browse the{" "}
+                <Link href="/missions" className={linkClasses}>
+                  Archive
+                </Link>{" "}
+                to read about each mission: every mission page has its launch
+                details, its spacecraft&apos;s dimensions and characteristics,
+                and more. And explore the{" "}
+                <Link href="/data" className={linkClasses}>
+                  Data
+                </Link>{" "}
+                page for charts drawn from the whole archive, from destinations
+                by decade to launch mass.
+              </p>
+              <p>
+                Launch times and spacecraft details come from Jonathan
+                McDowell&apos;s{" "}
+                <a
+                  href="https://planet4589.org/space/gcat"
+                  className={linkClasses}
+                >
+                  General Catalog of Artificial Space Objects
+                </a>
+                , and mission details are checked against the operating
+                agencies&apos; own pages. Spacecraft positions come from NASA
+                JPL&apos;s{" "}
+                <a
+                  href="https://ssd.jpl.nasa.gov/horizons/"
+                  className={linkClasses}
+                >
+                  Horizons
+                </a>{" "}
+                system and are refreshed every day. Mission photos come from{" "}
+                <a
+                  href="https://commons.wikimedia.org"
+                  className={linkClasses}
+                >
+                  Wikimedia Commons
+                </a>
+                .
+              </p>
+              {/* A div, not a paragraph: the contact dialog inside it holds
+                  paragraphs of its own. */}
+              <div>
+                Mission Atlas is built and maintained by{" "}
+                <a href={AUTHOR.site} className={linkClasses}>
+                  {AUTHOR.name}
+                </a>
+                . Have a question, comment, or concern, or just want to get in
+                touch? <ContactDialog />
+              </div>
+            </div>
           </div>
         </section>
       </div>

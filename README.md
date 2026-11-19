@@ -24,7 +24,7 @@ Mission Atlas is a personal project by Haygen Warren. Highlights:
 
 ## Features
 
-- **Home page:** opens on a quarter of the live map, the Sun in the bottom-left corner, with the search laid over it. Scrolling down, or clicking the map, glides the map to the middle of the screen; there, hovering shows where a craft is and its path, and clicking opens the full map on it. Below come a Mission of the Day (the same for everyone, changing at midnight UTC, with every mission taking a turn before any repeats), the archive's numbers, six featured missions picked on each visit, and an about section.
+- **Home page:** opens on a quarter of the live map, the Sun in the bottom-left corner, with the search laid over it. Scrolling down, or clicking the map, glides the map to the middle of the screen; there, hovering shows where a craft is and its path, and clicking opens the full map on it. Below come a Mission of the Day (the same for everyone, changing at midnight UTC, with every mission taking a turn before any repeats), the archive's numbers, six featured missions picked on each visit, and an about section with an animated version of the emblem: signals stream from its ground station to its three missions.
 - **Map:** where every spacecraft is right now, on a true-scale map of the solar system. Drag, scroll or pinch to move around. Hover over a craft for its distance from the Sun and from Earth and a faint outline of its route; click it to show the route in full, solid so far and dashed ahead. Missions at the same planet are counted on a badge, and clicking it lists them with their craft there. Clicking a planet flies in close to it; around Earth, Jupiter and Saturn the moons then separate out on their orbits, each with its own count. Active missions pulse softly. Markers at the edge point to things out of view; clicking one zooms out to it. A list beside the map searches and filters the missions (active or ended, in flight or at a planet, by agency), narrowing what the map shows; hovering a mission there highlights it, and clicking flies to it.
 - **Journey replays:** a mission with a tracked route or a path around a planet (57 of them) can replay its journey on the map, from its card there or its page. The map frames the whole route and shows only that mission, with the asteroids and comets it went to, while the craft flies its path and the planets move round the Sun to match. On arrival the camera dives in to the planet and follows it while the craft's path builds up around it, its latest laps bright and older ones fading: Cassini's tour of Saturn, Juno's orbits of Jupiter, a lander's last approach to Mars. Craft that stayed near Earth replay there: the climb out to the Moon, or JWST's orbit around L2, drawn as mission diagrams draw it, with the view turning so the Sun stays put. Each part of a replay (the cruise, the time around a planet) takes about 30 seconds at normal speed, with play and pause, speeds from half to four times, and a scrubber to drag through time, its parts named and its milestones marked above it. A replay can be shared as a link, such as `/map?replay=voyager-1`.
 - **Paths around a planet:** zoomed in close, craft whose paths around a planet are known move apart from its count badge to where they really are, like the moons do, and the planets and big moons grow to their true size (with Saturn's rings). JWST and Euclid sit beyond the Moon at L2, Juno swings around Jupiter, Mars Express and Hope circle Mars. Selecting such a mission frames it with its surroundings and draws its path, or for a craft that has gone round thousands of times, the orbit it is on. Its card gives its distance from the planet, and for a craft near Earth, from the Moon.
@@ -35,6 +35,7 @@ Mission Atlas is a personal project by Haygen Warren. Highlights:
 - **Data page:** a dashboard of the archive, with a filter bar that stays in view: status, where missions went (six groups, or single places), agency and a launch-year range with quick picks such as the Space Race. Every card updates together: headline numbers (missions, active, agencies), missions per year, destinations (groups, or places with the one-mission places folded away), agencies, a decade-by-destination heatmap, and each mission's launch mass. Notes on how to read a card sit behind an ⓘ beside its name. Clicking a year, bar or square filters the page to it; each chart still shows the other choices the filters allow, so they can be added. Charts can be coloured by destination, agency or status. The filters live in the address, so a filtered view can be shared, and a link opens the same missions in the archive when its filters can express them. The charts are drawn by the site's own components, in its colours and themes.
 - **Linked facts:** every agency, destination, spacecraft type and builder links to the archive filtered by it.
 - **Link previews:** a shared mission page shows that mission's own card, drawn on the server from its picture, name, status, agencies, launch year and destinations. Every other page shows a quarter of the map beside the home page's headline.
+- **Contact form:** a "Reach out!" button in the about section opens a short form. A server action checks the message and emails it to the site's owner through [Resend](https://resend.com), with the visitor's address as the reply-to.
 - **Light and dark themes:** dark by default, with a sun and moon switch in the navbar that remembers the visitor's choice.
 
 | Mission page | Archive, light theme |
@@ -108,6 +109,13 @@ Create a `.env` file with your database's connection string:
 DATABASE_URL="postgresql://user:password@host/database?sslmode=require"
 ```
 
+The contact form also needs a [Resend](https://resend.com) key and an address to send messages to. Without them the rest of the site works, and the form says it couldn't send:
+
+```
+RESEND_API_KEY="re_..."
+CONTACT_TO_EMAIL="you@example.com"
+```
+
 Then create the tables, load the missions and start the site:
 
 ```bash
@@ -160,6 +168,8 @@ The conventions the data follows:
 | Pull request preview | Neon `dev` branch | Vercel, for every pull request |
 | Production | Neon main branch | Vercel, on every merge to `main` |
 
+`RESEND_API_KEY` and `CONTACT_TO_EMAIL` are set in Vercel's environment variables for production and previews, never in the repository.
+
 Every pull request also runs lint and a TypeScript check in GitHub Actions (`.github/workflows/checks.yml`). A merge to `main` deploys to production: the build applies any new migration, reloads the mission data and rebuilds the pages.
 
 One job commits to `main` without a pull request: `.github/workflows/refresh-positions.yml` runs `import:positions` every day at 06:23 UTC, runs `check:positions`, and commits `public/positions.json` only when Horizons' data has changed and nothing has gone missing. It can also be run by hand from the Actions tab. A refused or failed run is emailed to the repository owner, and the site keeps the last good file.
@@ -187,11 +197,13 @@ public/
 src/
   app/                   pages: home, map, archive, mission page, data,
                          not-found; the sitemap and robots.txt
-  components/            tiles, status tags, theme switch, navbar
+  components/            tiles, status tags, theme switch, navbar, the
+                         about section's emblem and contact form
     data/                the data page's dashboard and charts
     map/                 the map: camera, drawing, controls, the replay
                          player, and the home page's smaller version
   lib/                   the site's address and author, database client,
+                         the contact form's server action,
                          formatting helpers, orbit maths,
                          where each craft is on the map, journey replays,
                          the data page's numbers

@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, IBM_Plex_Mono } from "next/font/google";
+import Image from "next/image";
+import Link from "next/link";
 import "./globals.css";
 import Navbar from "@/components/navbar";
+import Wordmark from "@/components/wordmark";
 import { AUTHOR, REPOSITORY, siteUrl } from "@/lib/site";
 
 const archivo = Archivo({
@@ -22,7 +25,7 @@ export const metadata: Metadata = {
   title: { default: "Mission Atlas", template: "%s | Mission Atlas" },
   description:
     "An archive of planetary science and astrophysics missions, with the spacecraft, dates and destinations of each.",
-  authors: [{ name: AUTHOR.name, url: AUTHOR.github }],
+  authors: [{ name: AUTHOR.name, url: AUTHOR.site }],
   manifest: "/site.webmanifest",
   // X shows the link-preview picture large rather than as a thumbnail.
   twitter: { card: "summary_large_image" },
@@ -54,37 +57,56 @@ export default function RootLayout({
       <body>
         <Navbar />
         {children}
-        <footer className="mx-auto max-w-5xl space-y-1 px-6 py-8 text-sm text-muted">
-          <p className="pb-2 text-foreground">
-            Built by{" "}
-            <a href={AUTHOR.github} className="text-accent underline">
-              {AUTHOR.name}
-            </a>{" "}
-            ·{" "}
-            <a href={REPOSITORY} className="text-accent underline">
-              Code on GitHub
-            </a>
-          </p>
-          <p>
-            Launch and spacecraft data from{" "}
-            <a
-              href="https://planet4589.org/space/gcat"
-              className="text-accent underline"
-            >
-              GCAT
-            </a>{" "}
-            (J. McDowell, planet4589.org/space/gcat), used under CC BY 4.0.
-          </p>
-          <p>
-            Spacecraft pictures from{" "}
-            <a
-              href="https://commons.wikimedia.org"
-              className="text-accent underline"
-            >
-              Wikimedia Commons
-            </a>
-            , credited on each mission&apos;s page.
-          </p>
+        {/* The logo on one side, the data credits on the other, each credit
+            on one line. Stacked until the screen is wide enough for both. */}
+        <footer className="border-t border-border bg-surface/50">
+          <div className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-8 text-sm text-muted lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+            <div className="shrink-0 space-y-3">
+              <Link
+                href="/"
+                aria-label="Mission Atlas home"
+                className="flex items-center gap-3"
+              >
+                <Image
+                  src="/brand/mission-atlas-mark-small.svg"
+                  alt=""
+                  width={40}
+                  height={40}
+                  unoptimized
+                />
+                <Wordmark />
+              </Link>
+              <p>
+                © 2026 {AUTHOR.name} ·{" "}
+                <a href={REPOSITORY} className="text-accent underline">
+                  Code on GitHub
+                </a>
+              </p>
+            </div>
+
+            <div className="space-y-1 lg:text-right">
+              <p>
+                Launch and spacecraft data from{" "}
+                <a
+                  href="https://planet4589.org/space/gcat"
+                  className="text-accent underline"
+                >
+                  GCAT
+                </a>{" "}
+                (J. McDowell, planet4589.org/space/gcat), used under CC BY 4.0.
+              </p>
+              <p>
+                Spacecraft pictures from{" "}
+                <a
+                  href="https://commons.wikimedia.org"
+                  className="text-accent underline"
+                >
+                  Wikimedia Commons
+                </a>
+                , credited on each mission&apos;s page.
+              </p>
+            </div>
+          </div>
         </footer>
       </body>
     </html>
