@@ -1,9 +1,9 @@
 {
   "source": "JPL Horizons (ssd.jpl.nasa.gov/horizons)",
-  "fetched": "2026-11-20",
+  "fetched": "2026-11-21",
   "craft": {
     "301": {"body":"earth","from":546.38681,"until":10530.16319,"reach":0.0027},
-    "-170": {"body":"earth","from":8029.04375,"until":10530.04375,"reach":0.011579291,"frame":"sun-earth"},
+    "-170": {"body":"earth","from":8029.04375,"until":10530.04375,"reach":0.011579175,"frame":"sun-earth"},
     "-82": {"body":"saturn","from":1504.89514,"until":6466.89514,"reach":0.022113184},
     "-150": {"body":"saturn","from":1819.58542,"until":1839.58542,"reach":0.023937869},
     "-168": {"body":"mars","from":7715.0375,"until":7720.0375,"reach":0.006560962},
@@ -34,12 +34,12 @@
     "-110637": {"body":"earth","from":-8008.74653,"until":9909.25347,"reach":0.000324826},
     "-640": {"body":"earth","from":-1506.44444,"until":-534.44444,"reach":0.000506826},
     "-151": {"body":"earth","from":-147.18542,"until":9978.81458,"reach":0.00095758},
-    "-125989": {"body":"earth","from":-21.89444,"until":9850.10556,"reach":0.000767278},
+    "-125989": {"body":"earth","from":-21.89444,"until":9852.10556,"reach":0.000767278},
     "-165": {"body":"earth","from":546.38681,"until":3383.38681,"reach":0.010321725,"frame":"sun-earth"},
-    "-198": {"body":"earth","from":1020.17569,"until":9849.17569,"reach":0.001041981},
+    "-198": {"body":"earth","from":1020.17569,"until":9850.17569,"reach":0.001041948},
     "-486": {"body":"earth","from":3421.07014,"until":4948.07014,"reach":0.011598595,"frame":"sun-earth"},
     "-489": {"body":"earth","from":3421.07153,"until":5113.07153,"reach":0.010748842,"frame":"sun-earth"},
-    "-95": {"body":"earth","from":6682.48472,"until":10349.48472,"reach":0.002531966},
+    "-95": {"body":"earth","from":6682.48472,"until":10366.48472,"reach":0.002532668},
     "-680": {"body":"earth","from":8582.16319,"until":10530.16319,"reach":0.011554914,"frame":"sun-earth"}
   }
 }
